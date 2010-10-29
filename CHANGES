@@ -1,0 +1,5 @@
+
+0.0.1
+ - fixed dependency on broken q package
+ - restructured for overlay style packaging compatibility
+
