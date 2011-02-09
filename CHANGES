@@ -1,4 +1,8 @@
 
+0.0.2
+ - added buffer-io
+ - added buffer mode to readers and writers
+
 0.0.1
  - fixed dependency on broken q package
  - restructured for overlay style packaging compatibility
