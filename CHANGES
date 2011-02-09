@@ -1,4 +1,7 @@
 
+0.0.3
+ - reved up Q to version 0.2 so duck-promises will work
+
 0.0.2
  - added buffer-io
  - added buffer mode to readers and writers
