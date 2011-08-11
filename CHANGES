@@ -1,4 +1,9 @@
 
+0.0.8
+ - Reorganized, moved q-io to the top level.
+ - Reved dependencies.
+ - Moved q-io-buffer to its own project.
+
 0.0.3
  - reved up Q to version 0.2 so duck-promises will work
 

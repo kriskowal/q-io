@@ -7,7 +7,6 @@
 var FS = require("fs"); // node
 var SYS = require("sys"); // node
 var Q = require("q"); // q package
-var consolidate = require("./q-io/buffer-io").consolidate;
 
 /*whatsupdoc*/
 
@@ -141,8 +140,8 @@ exports.Writer = function (_stream, charset) {
      * that all of the content has been sent.
      */
     self.write = function (content) {
-        if (!_stream.writeable)
-            return Q.reject(_stream.writeable);
+        if (!_stream.writeable && !_stream.writable)
+            return Q.reject("Stream not writable");
         if (!_stream.write(content)) {
             return drained;
         }
@@ -185,4 +184,26 @@ exports.Writer = function (_stream, charset) {
 
     return self; // todo returns the begin.promise
 };
+
+exports.consolidate = consolidate;
+function consolidate(buffers) {
+    var length = 0;
+    var at;
+    var i;
+    var ii = buffers.length;
+    var buffer;
+    var result;
+    for (i = 0; i < ii; i++) {
+        buffer = buffers[i];
+        length += buffer.length;
+    }
+    result = new Buffer(length);
+    at = 0;
+    for (i = 0; i < ii; i++) {
+        buffer = buffers[i];
+        buffer.copy(result, at, 0);
+        at += buffer.length;
+    }
+    buffers.splice(0, ii, result);
+}
 
