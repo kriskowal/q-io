@@ -1,4 +1,7 @@
 
+Next
+ - Fixed a bug in observing the closing of files. (#1, @hornairs)
+
 0.0.8
  - Reorganized, moved q-io to the top level.
  - Reved dependencies.

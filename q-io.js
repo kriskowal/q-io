@@ -73,7 +73,8 @@ exports.Reader = function (_stream, charset) {
         var deferred = Q.defer();
         Q.when(end.promise, function () {
             deferred.resolve(slurp());
-        });
+        })
+        .end()
         return deferred.promise;
     };
 
@@ -114,7 +115,6 @@ exports.Writer = function (_stream, charset) {
         _stream.setEncoding(charset);
 
     var begin = Q.defer();
-    var end = Q.defer();
     var drained = Q.defer();
 
     _stream.on("error", function (reason) {
@@ -127,11 +127,6 @@ exports.Writer = function (_stream, charset) {
         drained = Q.defer();
     });
 
-    _stream.on("end", function () {
-        begin.resolve(self); 
-        end.resolve()
-    });
-
     /***
      * Writes content to the stream.
      * @param {String} content
@@ -140,10 +135,13 @@ exports.Writer = function (_stream, charset) {
      * that all of the content has been sent.
      */
     self.write = function (content) {
+        console.log('write', content);
         if (!_stream.writeable && !_stream.writable)
             return Q.reject("Stream not writable");
         if (!_stream.write(content)) {
-            return drained;
+            return drained.promise;
+        } else {
+            return Q.ref();
         }
     };
 
@@ -154,7 +152,7 @@ exports.Writer = function (_stream, charset) {
      * be resolved when the buffer is empty
      */
     self.flush = function () {
-        return drained;
+        return drained.promise;
     };
 
     /***
@@ -167,7 +165,8 @@ exports.Writer = function (_stream, charset) {
      */
     self.close = function () {
         _stream.end();
-        return end;
+        drained.resolve(); // we will get no further drain events
+        return Q.ref(); // closing not explicitly observable
     };
 
     /***
@@ -179,7 +178,8 @@ exports.Writer = function (_stream, charset) {
      */
     self.destroy = function () {
         _stream.destroy();
-        return end;
+        drained.resolve(); // we will get no further drain events
+        return Q.ref(); // destruction not explicitly observable
     };
 
     return self; // todo returns the begin.promise
