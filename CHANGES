@@ -1,5 +1,5 @@
 
-Next
+0.0.9
  - Fixed a bug in observing the closing of files. (#1, @hornairs)
 
 0.0.8
