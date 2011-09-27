@@ -135,7 +135,6 @@ exports.Writer = function (_stream, charset) {
      * that all of the content has been sent.
      */
     self.write = function (content) {
-        console.log('write', content);
         if (!_stream.writeable && !_stream.writable)
             return Q.reject("Stream not writable");
         if (!_stream.write(content)) {

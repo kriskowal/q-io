@@ -1,4 +1,7 @@
 
+0.0.10
+ - Removed spurious log message.
+
 0.0.9
  - Fixed a bug in observing the closing of files. (#1, @hornairs)
 
