@@ -4,8 +4,6 @@
  * @module
  */
 
-var FS = require("fs"); // node
-var SYS = require("sys"); // node
 var Q = require("q"); // q package
 
 /*whatsupdoc*/
