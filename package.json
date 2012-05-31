@@ -1,6 +1,6 @@
 {
     "name": "q-io",
-    "version": "0.0.12",
+    "version": "0.0.13",
     "description": "Q Promise wrappers for Node's IO.",
     "homepage": "http://github.com/kriskowal/q-io/",
     "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
@@ -16,7 +16,7 @@
     ],
     "main": "q-io.js",
     "dependencies": {
-        "q": "0.8.2"
+        "q": "0.8.4"
     },
     "repository": {
         "type": "git",

@@ -37,12 +37,12 @@ exports.Reader = function (_stream, charset) {
     var receiver;
 
     _stream.on("end", function () {
-        begin.resolve(self); 
+        begin.resolve(self);
         end.resolve()
     });
 
     _stream.on("data", function (chunk) {
-        begin.resolve(self); 
+        begin.resolve(self);
         if (receiver)
             receiver(chunk);
         else
@@ -60,7 +60,7 @@ exports.Reader = function (_stream, charset) {
         }
     }
 
-    /*** 
+    /***
      * Reads all of the remaining data from the stream.
      * @returns {Promise * String} a promise for a String
      * containing the entirety the remaining stream.
@@ -128,7 +128,7 @@ exports.Writer = function (_stream, charset) {
     /***
      * Writes content to the stream.
      * @param {String} content
-     * @returns {Promise * Undefined} a promise that will 
+     * @returns {Promise * Undefined} a promise that will
      * be resolved when the buffer is empty, meaning
      * that all of the content has been sent.
      */
@@ -145,7 +145,7 @@ exports.Writer = function (_stream, charset) {
     /***
      * Waits for all data to flush on the stream.
      *
-     * @returns {Promise * Undefined} a promise that will 
+     * @returns {Promise * Undefined} a promise that will
      * be resolved when the buffer is empty
      */
     self.flush = function () {
@@ -179,7 +179,7 @@ exports.Writer = function (_stream, charset) {
         return Q.ref(); // destruction not explicitly observable
     };
 
-    return self; // todo returns the begin.promise
+    return Q.ref(self); // todo returns the begin.promise
 };
 
 exports.consolidate = consolidate;
