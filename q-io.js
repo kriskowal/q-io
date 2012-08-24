@@ -138,7 +138,7 @@ exports.Writer = function (_stream, charset) {
         if (!_stream.write(content)) {
             return drained.promise;
         } else {
-            return Q.ref();
+            return Q.resolve();
         }
     };
 
@@ -163,7 +163,7 @@ exports.Writer = function (_stream, charset) {
     self.close = function () {
         _stream.end();
         drained.resolve(); // we will get no further drain events
-        return Q.ref(); // closing not explicitly observable
+        return Q.resolve(); // closing not explicitly observable
     };
 
     /***
@@ -176,10 +176,10 @@ exports.Writer = function (_stream, charset) {
     self.destroy = function () {
         _stream.destroy();
         drained.resolve(); // we will get no further drain events
-        return Q.ref(); // destruction not explicitly observable
+        return Q.resolve(); // destruction not explicitly observable
     };
 
-    return Q.ref(self); // todo returns the begin.promise
+    return Q.resolve(self); // todo returns the begin.promise
 };
 
 exports.consolidate = consolidate;
