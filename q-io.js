@@ -65,10 +65,9 @@ exports.Reader = function (_stream, charset) {
         receiver = undefined;
         //_stream.resume();
         var deferred = Q.defer();
-        Q.when(end.promise, function () {
+        Q.done(end.promise, function () {
             deferred.resolve(slurp());
-        })
-        .end()
+        });
         return deferred.promise;
     };
 
