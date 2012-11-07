@@ -51,7 +51,12 @@ exports.Reader = function (_stream, charset) {
     });
 
     function slurp() {
-        var result = join(chunks, charset);
+        var result;
+        if (charset) {
+            result = chunks.join("");
+        } else {
+            result = join(chunks);
+        }
         chunks.splice(0, chunks.length);
         return result;
     }
