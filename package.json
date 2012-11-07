@@ -16,7 +16,7 @@
     ],
     "main": "q-io.js",
     "dependencies": {
-        "q": "0.8.8"
+        "q": "0.8.10"
     },
     "repository": {
         "type": "git",
