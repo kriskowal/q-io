@@ -43,21 +43,17 @@ exports.Reader = function (_stream, charset) {
 
     _stream.on("data", function (chunk) {
         begin.resolve(self);
-        if (receiver)
+        if (receiver) {
             receiver(chunk);
-        else
+        } else {
             chunks.push(chunk);
+        }
     });
 
     function slurp() {
-        if (charset) {
-            var result = chunks.join("");
-            chunks = [];
-            return result;
-        } else {
-            consolidate(chunks);
-            return chunks.shift();
-        }
+        var result = join(chunks, charset);
+        chunks.splice(0, chunks.length);
+        return result;
     }
 
     /***
@@ -134,7 +130,7 @@ exports.Writer = function (_stream, charset) {
      */
     self.write = function (content) {
         if (!_stream.writeable && !_stream.writable)
-            return Q.reject("Stream not writable");
+            return Q.reject(new Error("Can't write to non-writable (possibly closed) stream"));
         if (!_stream.write(content)) {
             return drained.promise;
         } else {
@@ -182,8 +178,8 @@ exports.Writer = function (_stream, charset) {
     return Q.resolve(self); // todo returns the begin.promise
 };
 
-exports.consolidate = consolidate;
-function consolidate(buffers) {
+exports.join = join;
+function join(buffers) {
     var length = 0;
     var at;
     var i;
@@ -202,5 +198,22 @@ function consolidate(buffers) {
         at += buffer.length;
     }
     buffers.splice(0, ii, result);
+    return result;
+}
+
+/*
+    Reads an entire forEachable stream of buffers and returns a single buffer.
+*/
+exports.read = read;
+function read(stream, charset) {
+    var chunks = [];
+    stream.forEach(function (chunk) {
+        chunks.push(chunk);
+    });
+    if (charset) {
+        return chunks.join("");
+    } else {
+        return join(chunks);
+    }
 }
 
