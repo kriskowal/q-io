@@ -94,6 +94,10 @@ exports.Reader = function (_stream, charset) {
         });
     };
 
+    self.close = function () {
+        _stream.close();
+    };
+
     return begin.promise;
 };
 
