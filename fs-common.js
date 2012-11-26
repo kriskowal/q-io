@@ -384,6 +384,7 @@ exports.update = function (exports, workingDirectory) {
 
     var Stats = exports.Stats = function (nodeStat) {
         this.node = nodeStat;
+        this.size = nodeStat.size;
     };
 
     var stats = [
