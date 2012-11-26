@@ -1,7 +1,7 @@
 {
     "name": "q-io",
-    "version": "0.0.18",
-    "description": "Q Promise wrappers for Node's IO.",
+    "version": "1.0.0",
+    "description": "IO using Q promises",
     "homepage": "http://github.com/kriskowal/q-io/",
     "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
     "bugs": {
@@ -14,15 +14,20 @@
             "url": "http://github.com/kriskowal/q-io/raw/master/LICENSE"
         }
     ],
-    "main": "q-io.js",
-    "dependencies": {
-        "q": "0.8.x"
-    },
     "repository": {
         "type": "git",
         "url": "http://github.com/kriskowal/q-io.git"
     },
+    "dependencies": {
+        "q": "0.8.x && >=0.8.11"
+    },
+    "devDependencies": {
+        "test": "*"
+    },
+    "scripts": {
+        "test": "node test/all.js"
+    },
     "engines": {
-        "node": ">=0.2.0"
+        "node": ">=0.6.0"
     }
 }
