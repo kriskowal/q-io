@@ -403,11 +403,11 @@ exports.update = function (exports, workingDirectory) {
     });
 
     Stats.prototype.lastModified = function () {
-        return Date.parse(this.node.mtime);
+        return new Date(this.node.mtime);
     };
 
     Stats.prototype.lastAccessed = function () {
-        return Date.parse(this.node.atime);
+        return new Date(this.node.atime);
     };
 
 }

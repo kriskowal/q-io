@@ -289,11 +289,11 @@ exports.chmod = function (path, mode) {
 };
 
 exports.lastModified = function (path) {
-    return exports.stat(path).get('mtime').then(Date.parse);
+    return exports.stat(path).invoke('lastModified');
 };
 
 exports.lastAccessed = function (path) {
-    return exports.stat(path).get('atime').then(Date.parse);
+    return exports.stat(path).invoke('lastAccessed');
 };
 
 exports.canonical = function (path) {
