@@ -257,7 +257,7 @@ clients.
 -   returns a response, a promise for a response, or nothing if no
     response should be sent.
 
-### Reader
+## Reader
 
 Reader instances have the following methods:
 
@@ -277,7 +277,7 @@ Additionally, the `Reader` constructor has the following methods:
 The `reader` module exports a function that accepts a Node reader and
 returns a Q reader.
 
-### Writer
+## Writer
 
 Writer instances have the following methods:
 
