@@ -410,6 +410,10 @@ exports.update = function (exports, workingDirectory) {
     Stats.prototype.lastAccessed = function () {
         return new Date(this.node.atime);
     };
+    
+    Stats.prototype.size = function () {
+        return this.node.size;
+    };
 
 }
 
