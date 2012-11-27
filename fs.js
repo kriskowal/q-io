@@ -223,10 +223,19 @@ exports.link = function (source, target) {
     return done.promise;
 };
 
+// this lookup table translates the link types that Q-IO accepts (which have
+// been normalized to full words to be consistent with the naming convention)
+var linkTypes = {
+    "file": "file",
+    "directory": "dir",
+    "junction": "junction"
+};
+
 exports.symbolicLink = function (target, relative, type) {
-    if (!type) {
-        console.warn(new Error("For Windows compatibility, symbolicLink must be called with a type argument 'file', 'directory', or 'junction'"));
+    if (!linkTypes.hasOwnProperty(type)) {
+        console.warn(new Error("For Windows compatibility, symbolicLink must be called with a type argument \"file\", \"directory\", or \"junction\""));
     }
+    type = linkTypes[type];
     target = String(target);
     relative = String(relative);
     var done = Q.defer();
