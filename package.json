@@ -19,7 +19,11 @@
         "url": "http://github.com/kriskowal/q-io.git"
     },
     "dependencies": {
-        "q": "0.8.x && >=0.8.11"
+        "q": "0.8.x && >=0.8.11",
+        "qs": "0.1.x",
+        "mime": "1.2.x",
+        "mimeparse": "0.1.x",
+        "collections": "0.1.x"
     },
     "devDependencies": {
         "test": "*"
