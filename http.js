@@ -7,7 +7,7 @@
 
 var HTTP = require("http"); // node
 var HTTPS = require("https"); // node
-var URL = require("url"); // node
+var URL = require("url2"); // node
 var Q = require("q");
 var Reader = require("./reader");
 
@@ -160,7 +160,7 @@ Object.defineProperties(exports.Server, {
  * A wrapper for a Node HTTP Request, as received by
  * the Q HTTP Server, suitable for use by the Q HTTP Client.
  */
-exports.ServerRequest = function (_request) {
+exports.ServerRequest = function (_request, ssl) {
     var request = Object.create(_request);
     /*** {Array} HTTP version. (JSGI) */
     request.version = _request.httpVersion.split(".").map(Math.floor);
@@ -178,13 +178,8 @@ exports.ServerRequest = function (_request) {
     /*** {String} (JSGI) */
     request.scheme = "http";
 
-    if (_request.headers.host) {
-        var hostPort = _request.headers.host.split(":");
-        /*** {String} */
-        request.host = hostPort[0];
-        /*** {Number} */
-        request.port = +hostPort[1] || 80;
-    }
+    request.host = _request.headers.host;
+    request.port = _request.connection.address().port;
 
     var socket = _request.socket;
     /*** {String} */
@@ -193,7 +188,12 @@ exports.ServerRequest = function (_request) {
     request.remotePort = socket.remotePort;
 
     /*** {String} url */
-    request.url = request.scheme + "://" + _request.headers.host + request.path;
+    request.url = URL.format({
+        protocol: request.scheme,
+        hostname: _request.headers.host,
+        port: request.port === (ssl ? 443 : 80) ? null : request.port,
+        path: request.path
+    });
     /*** A Q IO asynchronous text reader */
     request.body = Reader(_request);
     /*** {Object} HTTP headers (JSGI)*/
@@ -210,8 +210,9 @@ exports.ServerRequest = function (_request) {
     });
 };
 
-exports.ServerResponse = function (_response) {
+exports.ServerResponse = function (_response, ssl) {
     var response = Object.create(_response);
+    response.ssl = ssl;
     response.node = _response;
     response.nodeResponse = _response; // Deprecated
     return response;

@@ -1226,7 +1226,7 @@ exports.RedirectTrap = function (app, maxRedirects) {
 
         // try redirect loop
         function next() {
-            Q.call(function () {
+            Q.fcall(function () {
                 return app(request, response);
             })
             .then(function (response) {
