@@ -96,7 +96,7 @@ exports.update = function (exports, workingDirectory) {
                 return writer.write(block);
             }), function () {
                 return Q.all([
-                    reader.close && reader.close(), // TODO fix q-io
+                    reader.close(),
                     writer.close()
                 ]);
             });

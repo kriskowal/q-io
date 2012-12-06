@@ -89,7 +89,7 @@ function Reader(_stream, charset) {
     };
 
     self.close = function () {
-        _stream.close();
+        _stream.destroy();
     };
 
     return begin.promise;
