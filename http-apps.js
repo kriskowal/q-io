@@ -451,9 +451,9 @@ var interpretFirstRange = exports.interpretFirstRange = function (text, size) {
  */
 exports.etag = function (stat) {
     return [
-        stat.ino,
+        stat.node.ino,
         stat.size,
-        Date.parse(stat.mtime)
+        stat.lastModified().getTime()
     ].join("-");
 };
 
