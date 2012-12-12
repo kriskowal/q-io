@@ -54,6 +54,8 @@ given flags.
 
 ### removeTree(path)
 
+### move(source, target)
+
 ### link(source, taget)
 
 ### symbolicCopy(source, target)

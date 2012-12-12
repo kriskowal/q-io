@@ -1,6 +1,6 @@
 {
     "name": "q-io",
-    "version": "1.3.2",
+    "version": "1.4.0",
     "description": "IO using Q promises",
     "homepage": "http://github.com/kriskowal/q-io/",
     "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
