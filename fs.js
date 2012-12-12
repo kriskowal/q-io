@@ -100,6 +100,17 @@ exports.remove = function (path) {
     return done.promise;
 };
 
+exports.move = function (source, target) {
+    return Q.ninvoke(FS, "rename", String(source), String(target))
+    .fail(function (error) {
+        error.message = (
+            "Can't move " + JSON.stringify(source) + " to " +
+            JSON.stringify(target) + " because " + error.message
+        );
+        throw error;
+    });
+};
+
 exports.makeDirectory = function (path, mode) {
     path = String(path);
     var done = Q.defer();
