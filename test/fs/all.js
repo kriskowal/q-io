@@ -5,6 +5,8 @@ exports['test mock/read'] = require('./mock/read');
 exports['test mock/subtree'] = require('./mock/subtree');
 exports['test root mock'] = require('./root');
 exports['test partial'] = require("./partial");
+exports['test common'] = require("./common");
+
 
 if (module == require.main)
     require('test').run(exports)
