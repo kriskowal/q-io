@@ -195,20 +195,19 @@ exports.update = function (exports, workingDirectory) {
     exports.removeTree = function (path) {
         var self = this;
         return Q.when(self.stat(path), function (stat) {
-            if (stat.isLink()) {
+            if (stat.isSymbolicLink()) {
                 return self.remove(path);
             } else if (stat.isDirectory()) {
                 var list = self.list(path);
                 return Q.when(list, function (list) {
                     // asynchronously remove every subtree
                     var done = list.reduce(function (prev, name) {
-                        var child = self.join(path, name);
-                        var next = self.removeTree(child);
+                        var next = self.removeTree(self.join(path, name));
                         // join next and prev
-                        return Q.when(prev, function () {
+                        return prev ? Q.when(prev, function () {
                             return next;
-                        });
-                    });
+                        }) : next;
+                    }, false);
                     return Q.when(done, function () {
                         self.removeDirectory(path);
                     });
