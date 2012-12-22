@@ -11,6 +11,8 @@ exports['test mock/makeTree'] = require('./mock/make-tree');
 exports['test mock/removeTree'] = require('./mock/remove-tree');
 exports['test root mock'] = require('./root');
 exports['test partial'] = require("./partial");
+exports['test common'] = require("./common");
+
 
 if (module == require.main)
     require('test').run(exports)
