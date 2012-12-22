@@ -1,38 +1,38 @@
 {
-    "name": "q-io",
-    "version": "1.4.0",
-    "description": "IO using Q promises",
-    "homepage": "http://github.com/kriskowal/q-io/",
-    "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
-    "bugs": {
-        "mail": "kris@cixar.com",
-        "url": "http://github.com/kriskowal/q-io/issues"
-    },
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "http://github.com/kriskowal/q-io/raw/master/LICENSE"
-        }
-    ],
-    "repository": {
-        "type": "git",
-        "url": "http://github.com/kriskowal/q-io.git"
-    },
-    "dependencies": {
-        "q": "0.8.x && >=0.8.11",
-        "qs": "0.1.x",
-        "url2": "0.0.x",
-        "mime": "1.2.x",
-        "mimeparse": "0.1.x",
-        "collections": "0.1.x"
-    },
-    "devDependencies": {
-        "test": "*"
-    },
-    "scripts": {
-        "test": "node test/all.js"
-    },
-    "engines": {
-        "node": ">=0.6.0"
+  "name": "q-io",
+  "version": "1.4.1",
+  "description": "IO using Q promises",
+  "homepage": "http://github.com/kriskowal/q-io/",
+  "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
+  "bugs": {
+    "mail": "kris@cixar.com",
+    "url": "http://github.com/kriskowal/q-io/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/kriskowal/q-io/raw/master/LICENSE"
     }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/kriskowal/q-io.git"
+  },
+  "dependencies": {
+    "q": "0.8.x && >=0.8.11",
+    "qs": "0.1.x",
+    "url2": "0.0.x",
+    "mime": "1.2.x",
+    "mimeparse": "0.1.x",
+    "collections": "0.1.x"
+  },
+  "devDependencies": {
+    "test": "*"
+  },
+  "scripts": {
+    "test": "node test/all.js"
+  },
+  "engines": {
+    "node": ">=0.6.0"
+  }
 }
