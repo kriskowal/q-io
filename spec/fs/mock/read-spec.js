@@ -7,7 +7,7 @@ var FS = require("../../../fs");
 describe("read", function () {
     it("should read a file from a mock filesystem", function () {
 
-        return FS.mock(FS, FS.join(__dirname, "dummy"))
+        return FS.mock(FS, FS.join(__dirname, "fixture"))
         .then(function (mock) {
 
             return Q.fcall(function () {

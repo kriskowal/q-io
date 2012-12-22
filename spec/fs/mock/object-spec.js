@@ -7,7 +7,7 @@ var FS = require("../../../fs");
 describe("toObject", function () {
     it("should take a snapshot of a tree", function () {
 
-        return FS.mock(FS, FS.join(__dirname, "dummy"))
+        return FS.mock(FS, FS.join(__dirname, "fixture"))
         .invoke("toObject")
         .then(function (tree) {
 

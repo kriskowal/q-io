@@ -7,7 +7,7 @@ var FS = require("../../../fs");
 describe("move", function () {
     it("should move", function () {
 
-        return FS.mock(FS, FS.join(__dirname, "dummy"))
+        return FS.mock(FS, FS.join(__dirname, "fixture"))
         .then(function (mock) {
 
             // initial list

@@ -12,19 +12,19 @@ describe("removeDirectory", function () {
 
             // now you see it
             return Q.fcall(function () {
-                return mock.isDirectory("dummy");
+                return mock.isDirectory("fixture");
             })
             .then(function (isDirectory) {
                 expect(isDirectory).toBe(true);
             })
 
             .then(function () {
-                return mock.removeDirectory("dummy");
+                return mock.removeDirectory("fixture");
             })
 
             // now you don't
             .then(function () {
-                return mock.isDirectory("dummy");
+                return mock.isDirectory("fixture");
             })
             .then(function (isDirectory) {
                 expect(isDirectory).toBe(false);
