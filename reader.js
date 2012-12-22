@@ -20,9 +20,6 @@ function Reader(_stream, charset) {
     var begin = Q.defer();
     var end = Q.defer();
 
-    // prevent indefinite buffering; resume on demand
-    //_stream.pause();
-
     _stream.on("error", function (reason) {
         begin.reject(reason);
     });
@@ -62,7 +59,6 @@ function Reader(_stream, charset) {
      */
     self.read = function () {
         receiver = undefined;
-        //_stream.resume();
         var deferred = Q.defer();
         Q.done(end.promise, function () {
             deferred.resolve(slurp());
@@ -79,7 +75,6 @@ function Reader(_stream, charset) {
      * be resolved when the input is depleted.
      */
     self.forEach = function (write) {
-        //_stream.resume();
         if (chunks && chunks.length)
             write(slurp());
         receiver = write;

@@ -100,7 +100,7 @@ exports.split = function (path) {
  * @returns {String} path
  */
 exports.join = function () {
-    if (arguments.length === 1 && typeof arguments[0] === "object")
+    if (arguments.length === 1 && Array.isArray(arguments[0]))
         return exports.normal.apply(exports, arguments[0]);
     return exports.normal.apply(exports, arguments);
 };

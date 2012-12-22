@@ -1,7 +1,7 @@
 
 var FS = require("../../fs-boot");
 
-[
+var specs = [
     {
         "from": "foo",
         "to": ""
@@ -34,12 +34,13 @@ var FS = require("../../fs-boot");
         "from": "/",
         "to": "/"
     }
-].forEach(function (test) {
-    exports['test ' + test.from] = function (assert) {
-        assert.equal(FS.directory(test.from), test.to, 'ok');
-    };
-});
+];
 
-if (require.main == module)
-    require("test").run(exports);
+describe("fs-boot directory", function () {
+    specs.forEach(function (spec) {
+        it("should parse " + JSON.stringify(spec.from), function () {
+            expect(FS.directory(spec.from)).toBe(spec.to);
+        });
+    });
+});
 

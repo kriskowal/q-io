@@ -42,7 +42,7 @@ function RootFs(outer, root) {
                     "outer": actual
                 };
             } else {
-                return Q.reject("No such file: " + JSON.stringify(path));
+                return Q.reject("Can't find: " + JSON.stringify(path));
             }
         });
     }

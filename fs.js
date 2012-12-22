@@ -76,6 +76,8 @@ exports.open = dampen(function (path, flags, charset, options) {
         if (charset) {
             throw new Error("Can't open a binary file with a charset: " + charset);
         }
+    } else {
+        charset = charset || 'utf-8';
     }
     if (flags.indexOf("w") >= 0) {
         var stream = FS.createWriteStream(String(path), nodeOptions);
@@ -170,13 +172,42 @@ exports.stat = function (path) {
                 error.message = "Can't stat " + JSON.stringify(path) + ": " + error;
                 done.reject(error);
             } else {
-                done.resolve(new self.Stats(stat));
+                done.resolve(new Stats(stat));
             }
         });
     } catch (error) {
         done.reject(error);
     }
     return done.promise;
+};
+
+var Stats = function (nodeStat) {
+    this.node = nodeStat;
+    this.size = nodeStat.size;
+};
+
+var stats = [
+    "isDirectory",
+    "isFile",
+    "isBlockDevice",
+    "isCharacterDevice",
+    "isSymbolicLink",
+    "isFIFO",
+    "isSocket"
+];
+
+stats.forEach(function (name) {
+    Stats.prototype[name] = function () {
+        return this.node[name]();
+    };
+});
+
+Stats.prototype.lastModified = function () {
+    return new Date(this.node.mtime);
+};
+
+Stats.prototype.lastAccessed = function () {
+    return new Date(this.node.atime);
 };
 
 exports.statLink = function (path) {
@@ -265,12 +296,6 @@ exports.symbolicLink = function (target, relative, type) {
     return done.promise;
 };
 
-exports.symbolicCopy = function (source, target) {
-    return Q.when(exports.relative(target, source), function (relative) {
-        return exports.symbolicLink(target, relative, "file");
-    });
-};
-
 exports.chown = function (path, uid, gid) {
     path = String(path);
     var done = Q.defer();
@@ -306,14 +331,6 @@ exports.chmod = function (path, mode) {
         done.reject(error);
     }
     return done.promise;
-};
-
-exports.lastModified = function (path) {
-    return exports.stat(path).invoke('lastModified');
-};
-
-exports.lastAccessed = function (path) {
-    return exports.stat(path).invoke('lastAccessed');
 };
 
 exports.canonical = function (path) {

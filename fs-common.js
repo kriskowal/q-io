@@ -7,7 +7,6 @@ var MockFs = require("./fs-mock");
 // TODO patternToRegExp
 // TODO glob
 // TODO match
-// TODO copyTree
 
 var concat = function (arrays) {
     return Array.prototype.concat.apply([], arrays);
@@ -35,12 +34,11 @@ exports.update = function (exports, workingDirectory) {
         options.flags = "r" + (options.flags || "").replace(/r/g, "");
         return Q.when(this.open(path, options), function (stream) {
             return stream.read();
-        }, function (reason) {
-            var error = new Error("Can't read " + path + " because " + reason.message);
+        }, function (error) {
+            error.message = "Can't read " + path + " because " + error.message;
             error.path = path;
             error.flags = flags;
             error.charset = charset;
-            error.cause = reason;
             throw error;
         });
     };
@@ -105,22 +103,22 @@ exports.update = function (exports, workingDirectory) {
 
     exports.copyTree = function (source, target) {
         var self = this;
-        return Q.when(exports.stat(source), function (stat) {
+        return Q.when(self.stat(source), function (stat) {
             if (stat.isFile()) {
-                return exports.copy(source, target);
+                return self.copy(source, target);
             } else if (stat.isDirectory()) {
-                return Q.when(exports.makeDirectory(target), function () {
-                    return Q.when(exports.list(source), function (list) {
+                return Q.when(self.makeDirectory(target), function () {
+                    return Q.when(self.list(source), function (list) {
                         return Q.all(list.map(function (child) {
-                            return exports.copyTree(
-                                exports.join(source, child),
-                                exports.join(target, child)
+                            return self.copyTree(
+                                self.join(source, child),
+                                self.join(target, child)
                             );
                         }));
                     });
                 });
             } else if (stat.isSymbolicLink()) {
-                return exports.symbolicCopy(source, target);
+                return self.symbolicCopy(source, target);
             }
         });
     };
@@ -214,6 +212,13 @@ exports.update = function (exports, workingDirectory) {
         });
     };
 
+    exports.symbolicCopy = function (source, target) {
+        var self = this;
+        return Q.when(self.relative(target, source), function (relative) {
+            return self.symbolicLink(target, relative, "file");
+        });
+    };
+
     exports.exists = function (path) {
         return Q.when(this.stat(path), function () {
             return true;
@@ -236,6 +241,24 @@ exports.update = function (exports, workingDirectory) {
         }, function (reason) {
             return false;
         });
+    };
+
+    exports.isSymbolicLink = function (path) {
+        return Q.when(this.statLink(path), function (stat) {
+            return stat.isSymbolicLink();
+        }, function (reason) {
+            return false;
+        });
+    };
+
+    exports.lastModified = function (path) {
+        var self = this;
+        return self.stat(path).invoke('lastModified');
+    };
+
+    exports.lastAccessed = function (path) {
+        var self = this;
+        return self.stat(path).invoke('lastAccessed');
     };
 
     exports.absolute = function (path) {
@@ -375,35 +398,6 @@ exports.update = function (exports, workingDirectory) {
         return Q.when(done, function () {
             return MockFs(tree);
         });
-    };
-
-    var Stats = exports.Stats = function (nodeStat) {
-        this.node = nodeStat;
-        this.size = nodeStat.size;
-    };
-
-    var stats = [
-        "isDirectory",
-        "isFile",
-        "isBlockDevice",
-        "isCharacterDevice",
-        "isSymbolicLink",
-        "isFIFO",
-        "isSocket"
-    ];
-
-    stats.forEach(function (name) {
-        Stats.prototype[name] = function () {
-            return this.node[name]();
-        };
-    });
-
-    Stats.prototype.lastModified = function () {
-        return new Date(this.node.mtime);
-    };
-
-    Stats.prototype.lastAccessed = function () {
-        return new Date(this.node.atime);
     };
 
 }
