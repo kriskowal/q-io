@@ -281,7 +281,7 @@ exports.request = function (request) {
             "method": request.method || "GET",
             "headers": headers
         }, function (_response) {
-            deferred.resolve(exports.ClientResponse(_response));
+            deferred.resolve(exports.ClientResponse(_response, request.charset));
             _response.on("error", function (error) {
                 // TODO find a better way to channel
                 // this into the response
@@ -346,7 +346,7 @@ exports.read = function (request, qualifier) {
  * by the Q HTTP Client API, suitable for use by the
  * Q HTTP Server API.
  */
-exports.ClientResponse = function (_response) {
+exports.ClientResponse = function (_response, charset) {
     var response = Object.create(exports.ClientResponse.prototype);
     /*** {Number} HTTP status code */
     response.status = _response.statusCode;
@@ -360,7 +360,7 @@ exports.ClientResponse = function (_response) {
     response.node = _response;
     response.nodeResponse = _response; // Deprecated
     response.nodeConnection = _response.connection; // Deprecated
-    return Q.when(Reader(_response), function (body) {
+    return Q.when(Reader(_response, charset), function (body) {
         response.body = body;
         return response;
     });

@@ -27,10 +27,16 @@
     "collections": "0.1.x"
   },
   "devDependencies": {
-    "test": "*"
+    "jshint": ">=0.9.1",
+    "cover": "*",
+    "jasmine-node": "*",
+    "opener": "*"
   },
   "scripts": {
-    "test": "node test/all.js"
+    "test": "jasmine-node spec",
+    "test-browser": "opener spec/q-spec.html",
+    "lint": "jshint q.js",
+    "cover": "cover run node_modules/jasmine-node/bin/jasmine-node spec && cover report html && opener cover_html/index.html"
   },
   "engines": {
     "node": ">=0.6.0"

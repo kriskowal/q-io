@@ -1,7 +1,6 @@
 
 // http://labs.apache.org/webarch/http/draft-fielding-http/p5-range.html#range.units
 
-var assert = require("assert");
 var Apps = require("../../http-apps");
 
 var size = 10000;
@@ -43,12 +42,11 @@ var tests = [
     }
 ];
 
-tests.forEach(function (test) {
-    exports['test ' + test.input] = function () {
-        assert.deepEqual(Apps.interpretFirstRange(test.input, size), test.oracle, test.description);
-    };
+describe("range interpretation", function () {
+    tests.forEach(function (test) {
+        it("should interpret " + test.input, function () {
+            expect(Apps.interpretFirstRange(test.input, size)).toEqual(test.oracle);
+        });
+    });
 });
-
-if (require.main === module)
-    require("test").run(exports);
 
