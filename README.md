@@ -10,7 +10,14 @@ Q-IO now subsumes all of [Q-HTTP][] and [Q-FS][].
 [Q-HTTP]: https://github.com/kriskowal/q-http
 [Q-FS]: https://github.com/kriskowal/q-fs
 
+The Q-IO package does not export a main module.  You must reach in
+directly for `q-io/fs`, `q-io/http`, and `q-io/http-apps`.
+
 ## Filesystem
+
+```javascript
+var FS = require("q-io/fs");
+```
 
 File system API for Q promises with method signatures patterned after
 [CommonJS/Fileystem/A](http://wiki.commonjs.org/wiki/Filesystem/A) but
@@ -130,9 +137,48 @@ Not yet implemented
 
 Not yet implemented
 
+## Mock Filesystem
+
+Q-IO provides a mock filesystem interface. The mock filesystem has the
+same interface as the real one and has most of the same features, but
+operates on a purely in-memory, in-process, in-javascript filesystem.
+
+A mock filesystem can be created from a data structure. Objects are
+directories.  Keys are paths.  A buffer is a file’s contents.  Anything
+else is coerced to a string, then to a buffer in the UTF-8 encoding.
+
+```javascript
+var MockFs = require("q-io/fs-mock");
+var mockFs = MockFs({
+    "a": {
+        "b": {
+            "c.txt": "Content of a/b/c.txt"
+        }
+    },
+    "a/b/d.txt": new Buffer("Content of a/b/d.txt", "utf-8")
+})
+```
+
+You can also instantiate a mock file system with the content of a
+subtree of a real file system.  You receive a promise for the mock
+filesystem.
+
+```javascript
+var FS = require("q-io/fs");
+FS.mock(__dirname)
+.then(function (fs) {
+    //
+})
+.done();
+```
+
 ## HTTP
 
 The HTTP module resembles [CommonJS/JSGI][].
+
+```javascript
+var HTTP = require("q-io/http");
+```
 
 [CommonJS/JSGI]: http://wiki.commonjs.org/wiki/JSGI
 
@@ -293,6 +339,87 @@ Writer instances have the following methods:
 
 The `writer` module exports a function that accepts a Node writer and
 returns a Q writer.
+
+# HTTP Applications
+
+The HTTP applications module provides a comprehensive set of JSGI-alike
+middleware.
+
+```javascript
+var Apps = require("q-io/http-apps");
+```
+
+# Coverage
+
+Use `npm run cover` to generate and view a coverage report of Q-IO.
+
+<table>
+    <thead>
+        <tr>
+            <th>File</th>
+            <th>Percentage</th>
+            <th>Missing</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>fs-boot.js</code></td>
+            <td>87%</td>
+            <td>41</td>
+        </tr>
+        <tr>
+            <td><code>fs.js</code></td>
+            <td>72%</td>
+            <td>100</td>
+        </tr>
+        <tr>
+            <td><code>reader.js</code></td>
+            <td>94%</td>
+            <td>8</td>
+        </tr>
+        <tr>
+            <td><code>writer.js</code></td>
+            <td>91%</td>
+            <td>8</td>
+        </tr>
+        <tr>
+            <td><code>fs-common.js</code></td>
+            <td>87%</td>
+            <td>52</td>
+        </tr>
+        <tr>
+            <td><code>fs-root.js</code></td>
+            <td>88%</td>
+            <td>11</td>
+        </tr>
+        <tr>
+            <td><code>fs-mock.js</code></td>
+            <td>91%</td>
+            <td>46</td>
+        </tr>
+        <tr>
+            <td><code>buffer-stream.js</code></td>
+            <td>89%</td>
+            <td>6</td>
+        </tr>
+        <tr>
+            <td><code>http.js</code></td>
+            <td>93%</td>
+            <td>25</td>
+        </tr>
+        <tr>
+            <td><code>http-apps.js</code></td>
+            <td>80%</td>
+            <td>286</td>
+        </tr>
+        <tr>
+            <td><code>http-cookie.js</code></td>
+            <td>79%</td>
+            <td>15</td>
+        </tr>
+    </tbody>
+</table>
+
 
 ---
 
