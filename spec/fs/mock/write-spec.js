@@ -7,7 +7,7 @@ var FS = require("../../../fs");
 describe("write", function () {
     it("should write a file to a mock filesystem", function () {
 
-        return FS.mock(FS, FS.join(__dirname, "fixture"))
+        return FS.mock(FS.join(__dirname, "fixture"))
         .then(function (mock) {
 
             return Q.fcall(function () {

@@ -18,7 +18,6 @@ var Root = require("./fs-root");
 
 Common.update(exports, process.cwd);
 exports.Mock = Mock;
-exports.mock = Mock.mock;
 exports.Root = Root;
 
 // facilitates AIMD (additive increase, multiplicative decrease) for backing off
@@ -357,5 +356,9 @@ exports.readLink = function (path) {
         }
     });
     return result.promise;
+};
+
+exports.mock = function (path) {
+    return Mock.mock(this, path);
 };
 

@@ -8,7 +8,7 @@ var Mock = require("../../../fs-mock");
 describe("open range", function () {
     it("read a partial range of a file", function () {
 
-        return FS.mock(FS, FS.join(__dirname, "fixture"))
+        return FS.mock(FS.join(__dirname, "fixture"))
         .then(function (mock) {
 
             return mock.read("hello.txt", {

@@ -7,7 +7,7 @@ var FS = require("../../../fs");
 describe("removeDirectory", function () {
     it("should remove a directory", function () {
 
-        return FS.mock(FS, FS.join(__dirname))
+        return FS.mock(FS.join(__dirname))
         .then(function (mock) {
 
             // now you see it
