@@ -115,7 +115,11 @@ exports.move = function (source, target) {
 exports.makeDirectory = function (path, mode) {
     path = String(path);
     var done = Q.defer();
-    mode = mode === undefined ? parseInt('755', 8) : mode;
+    if (typeof mode === "string") {
+        mode = parseInt(mode, 8);
+    } else if (mode === void 0) {
+        mode = parseInt('755', 8);
+    }
     FS.mkdir(path, mode, function (error) {
         if (error) {
             error.message = "Can't makeDirectory " + JSON.stringify(path) + " with mode " + mode + ": " + error.message;
