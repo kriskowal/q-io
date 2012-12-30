@@ -220,10 +220,10 @@ exports.update = function (exports, workingDirectory) {
         });
     };
 
-    exports.symbolicCopy = function (source, target) {
+    exports.symbolicCopy = function (source, target, type) {
         var self = this;
         return Q.when(self.relative(target, source), function (relative) {
-            return self.symbolicLink(target, relative, "file");
+            return self.symbolicLink(target, relative, type || "file");
         });
     };
 
