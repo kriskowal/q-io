@@ -554,7 +554,7 @@ Reader instances have the following methods:
 
 Additionally, the `Reader` constructor has the following methods:
 
--   `read(tream, charset)` accepts any foreachable and returns either a
+-   `read(stream, charset)` accepts any foreachable and returns either a
     buffer or a string if given a charset.
 -   `join(buffers)` consolidates an array of buffers into a single
     buffer.  The buffers array is collapsed in place and the new first
@@ -649,7 +649,7 @@ to follow the remaining unrouted path from the redirect location, so if
 you move an entire directory tree from one location to another, this
 redirect can forward to all of them.
 
-### redurectTree(request, location) : Response
+### redirectTree(request, location) : Response
 
 Produces an `HTTP 301 Temporary redirect` from one directory tree to
 another, using `redirect`.
