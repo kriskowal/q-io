@@ -308,7 +308,9 @@ exports.FileTree = function (root, options) {
     options.notFound = options.notFound || exports.notFound;
     options.file = options.file || exports.file;
     options.directory = options.directory || exports.directory;
-    root = FS.canonical(root);
+    options.fs = options.fs || FS;
+    var fs = options.fs;
+    root = fs.canonical(root);
     return function (request, response) {
         var redirect = options.redirect || (
             request.permanent || options.permanent ?
@@ -316,16 +318,16 @@ exports.FileTree = function (root, options) {
             exports.temporaryRedirect
         );
         return Q.when(root, function (root) {
-            var path = FS.join(root, request.pathInfo.slice(1));
-            return Q.when(FS.canonical(path), function (canonical) {
-                if (!FS.contains(root, canonical))
+            var path = fs.join(root, request.pathInfo.slice(1));
+            return Q.when(fs.canonical(path), function (canonical) {
+                if (!fs.contains(root, canonical))
                     return options.notFound(request, response);
                 if (path !== canonical && options.redirectSymbolicLinks)
-                    return redirect(request, FS.relativeFromFile(path, canonical));
+                    return redirect(request, fs.relativeFromFile(path, canonical));
                 // TODO: relativeFromFile should be designed for URL’s, not generalized paths.
-                return Q.when(FS.stat(canonical), function (stat) {
+                return Q.when(fs.stat(canonical), function (stat) {
                     if (stat.isFile()) {
-                        return options.file(request, canonical, options.contentType);
+                        return options.file(request, canonical, options.contentType, fs);
                     } else if (stat.isDirectory()) {
                         return options.directory(request, canonical, options.contentType);
                     } else {
@@ -345,10 +347,11 @@ exports.FileTree = function (root, options) {
  * @param {String} contentType
  * @returns {Response}
  */
-exports.file = function (request, path, contentType) {
+exports.file = function (request, path, contentType, fs) {
+    fs = fs || FS;
     // TODO last-modified header
     contentType = contentType || MIME_TYPES.lookup(path);
-    return Q.when(FS.stat(path), function (stat) {
+    return Q.when(fs.stat(path), function (stat) {
         var etag = exports.etag(stat);
         var range; // undefined or {begin, end}
         var status = 200;
@@ -395,7 +398,7 @@ exports.file = function (request, path, contentType) {
         return {
             "status": status,
             "headers": headers,
-            "body": FS.open(path, range)
+            "body": fs.open(path, range)
         };
     });
 };
