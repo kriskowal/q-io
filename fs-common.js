@@ -59,7 +59,11 @@ exports.update = function (exports, workingDirectory) {
             options.flags = flags;
             options.carset = charset;
         }
-        options.flags = "w" + (options.flags || "").replace(/w/g, "");
+        flags = "w" + (flags || "").replace(/[wb]/g, "");
+        if (content instanceof Buffer) {
+            flags += "b";
+        }
+        options.flags = flags;
         return Q.when(self.open(path, options), function (stream) {
             return Q.when(stream.write(content), function () {
                 return stream.close();
@@ -76,7 +80,11 @@ exports.update = function (exports, workingDirectory) {
             options.flags = flags;
             options.carset = charset;
         }
-        options.flags = "w+" + (options.flags || "").replace(/[w\+]/g, "");
+        flags = "w+" + (options.flags || "").replace(/[w\+]/g, "");
+        if (content instanceof Buffer) {
+            flags += "b";
+        }
+        options.flags = flags;
         return Q.when(self.open(path, options), function (stream) {
             return Q.when(stream.write(content), function () {
                 return stream.close();
