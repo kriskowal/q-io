@@ -264,19 +264,48 @@ MockFs.prototype.move = function (source, target) {
         source = self.absolute(source);
         target = self.absolute(target);
 
+        // do not copy over self (shortcut for the common case)
         if (source === target) return;
 
         var sourceDirectory = self.directory(source);
         var sourceDirectoryNode = self._root._walk(sourceDirectory)._follow(sourceDirectory);
         var sourceName = self.base(source);
-        var sourceNode = sourceDirectoryNode._entries[sourceName]; // not followed
+        var sourceNode = sourceDirectoryNode._entries[sourceName];
+
+        if (!sourceNode) {
+            var error = new Error("Can't copy non-existent file: " + source);
+            error.code = "ENOENT";
+            throw error;
+        }
+
+        sourceNode = sourceNode._follow(source);
+
+        // check again after following symbolic links
+        if (!sourceNode) {
+            var error = new Error("Can't copy non-existent file: " + source);
+            error.code = "ENOENT";
+            throw error;
+        }
+
         var targetDirectory = self.directory(target);
         var targetDirectoryNode = self._root._walk(targetDirectory)._follow(targetDirectory);
         var targetName = self.base(target);
-        if (targetDirectoryNode._entries[targetName] && targetDirectoryNode._entires[targetName].isDirectory()) {
-            // move the node into the directory
-            targetDirectoryNode = targetDirectoryNode._entries[targetName]._follow(target);
+        var targetNode = targetDirectoryNode._entries[targetName]; // might not exist, not followed
+
+        if (targetNode) {
+            targetNode = targetNode._follow(target);
         }
+
+        // do not copy over self, even with symbolic links to confuse the issue
+        if (targetNode === sourceNode) {
+            return;
+        }
+
+        if (targetNode && targetNode.isDirectory()) {
+            // move the node into the directory
+            targetDirectoryNode = targetNode;
+        }
+
         targetDirectoryNode._entries[targetName] = sourceNode;
         delete sourceDirectoryNode._entries[sourceName];
     });
@@ -479,7 +508,9 @@ LinkNode.prototype.isSymbolicLink = function () {
 LinkNode.prototype._follow = function (via, memo) {
     memo = memo || Set();
     if (memo.has(this)) {
-        throw new Error("Can't follow symbolic link cycle at " + JSON.stringify(via));
+        var error = new Error("Can't follow symbolic link cycle at " + JSON.stringify(via));
+        error.code = "ELOOP";
+        throw error;
     }
     memo.add(this);
     var link = this._fs.join(via, "..", this._link);
