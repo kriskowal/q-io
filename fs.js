@@ -123,6 +123,13 @@ exports.makeDirectory = function (path, mode) {
     FS.mkdir(path, mode, function (error) {
         if (error) {
             error.message = "Can't makeDirectory " + JSON.stringify(path) + " with mode " + mode + ": " + error.message;
+            if (error.code === "EISDIR") {
+                error.exists = true;
+                error.isDirectory = true;
+            }
+            if (error.code === "EEXISTS") {
+                error.exists = true;
+            }
             done.reject(error);
         } else {
             done.resolve();

@@ -126,6 +126,8 @@ exports.update = function (exports, workingDirectory) {
                     });
                 });
             } else if (stat.isSymbolicLink()) {
+                // TODO copy the link and type with readPath (but what about
+                // Windows junction type?)
                 return self.symbolicCopy(source, target);
             }
         });
@@ -186,12 +188,12 @@ exports.update = function (exports, workingDirectory) {
                 at.push(part);
                 var parts = self.join(at);
                 var made = self.makeDirectory(parts, mode);
-                return Q.when(made, null, function rejected(reason) {
+                return Q.when(made, null, function rejected(error) {
                     // throw away errors for already made directories
-                    if (reason.code == "EEXIST" || reason.code == "EISDIR") {
+                    if (error.exists) {
                         return;
                     } else {
-                        return Q.reject(reason);
+                        throw error;
                     }
                 });
             });

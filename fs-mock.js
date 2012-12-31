@@ -150,10 +150,17 @@ MockFs.prototype.makeDirectory = function (path) {
         var name = self.base(path);
         var node = self._root._walk(directory);
         if (!node.isDirectory()) {
-            throw new Error("Can't make directory in non-directory: " + path);
+            var error =  new Error("Can't make directory in non-directory: " + path);
+            error.code = "EEXISTS";
+            error.exists = true;
+            throw error;
         }
         if (node._entries[name]) {
-            throw new Error("Can't make directory. Entry exists: " + path);
+            var error = new Error("Can't make directory. Entry exists: " + path);
+            error.code = "EISDIR";
+            error.exists = true;
+            error.isDirectory = true;
+            throw error;
         }
         node._entries[name] = new DirectoryNode(self);
     });
