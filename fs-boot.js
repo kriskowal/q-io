@@ -181,7 +181,7 @@ exports.normal = function () {
         }
         for (var j = 0, jj = parts.length; j < jj; j++) {
             var part = parts[j];
-            if (part == "." || part == "") {
+            if (part === "." || part === "") {
             } else if (part == "..") {
                 if (children.length) {
                     children.pop();

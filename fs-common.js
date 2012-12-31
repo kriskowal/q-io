@@ -273,7 +273,7 @@ exports.update = function (exports, workingDirectory) {
 
     exports.absolute = function (path) {
         if (this.isAbsolute(path))
-            return path;
+            return this.normal(path);
         return this.join(workingDirectory(), path);
     };
 
