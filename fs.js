@@ -102,13 +102,23 @@ exports.remove = function (path) {
 };
 
 exports.move = function (source, target) {
-    return Q.ninvoke(FS, "rename", String(source), String(target))
-    .fail(function (error) {
-        error.message = (
-            "Can't move " + JSON.stringify(source) + " to " +
-            JSON.stringify(target) + " because " + error.message
-        );
-        throw error;
+    source = String(source);
+    target = String(target);
+    return exports.exists(target)
+    .then(function (exists) {
+        if (exists) {
+            var error = new Error("Can't move over existing entry " + target);
+            error.code = "EEXISTS";
+            throw error;
+        }
+        return Q.ninvoke(FS, "rename", source, target)
+        .fail(function (error) {
+            error.message = (
+                "Can't move " + JSON.stringify(source) + " to " +
+                JSON.stringify(target) + " because " + error.message
+            );
+            throw error;
+        });
     });
 };
 
