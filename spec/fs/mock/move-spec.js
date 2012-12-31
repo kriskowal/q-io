@@ -3,6 +3,7 @@
 require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
+var Mock = require("../../../fs-mock");
 
 describe("move", function () {
     it("should move", function () {
@@ -166,6 +167,29 @@ describe("move", function () {
                 expect(content).toBe("Hello, World!\n");
             })
         });
+
+    });
+
+    it("should fail to move over an existing directory", function () {
+        var mock = Mock({
+            "hi.txt": "Hello, World!",
+            "hello": {}
+        });
+
+        return Q.fcall(function () {
+            return mock.isDirectory("/hello");
+        })
+        .then(function (isDirectory) {
+            expect(isDirectory).toBe(true);
+        })
+
+        .then(function () {
+            return mock.move("/hi.txt", "/hello");
+        })
+        .then(function () {
+            throw new Error("Move should not succeed.");
+        }, function (error) {
+        })
 
     });
 
