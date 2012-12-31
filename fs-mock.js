@@ -263,6 +263,9 @@ MockFs.prototype.move = function (source, target) {
     return Q.fcall(function () {
         source = self.absolute(source);
         target = self.absolute(target);
+
+        if (source === target) return;
+
         var sourceDirectory = self.directory(source);
         var sourceDirectoryNode = self._root._walk(sourceDirectory)._follow(sourceDirectory);
         var sourceName = self.base(source);
