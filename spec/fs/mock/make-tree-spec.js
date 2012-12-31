@@ -44,5 +44,29 @@ describe("makeTree", function () {
 
     });
 
+    it("should make a branch of a tree even if some of it already exists", function () {
+
+        var mock = Mock({
+            "a/b": {}
+        });
+
+        return Q.fcall(function () {
+            return mock.makeTree("a/b/c/d");
+        })
+
+        .then(function () {
+            return mock.listTree();
+        })
+        .then(function (list) {
+            expect(list).toEqual([
+                ".",
+                "a",
+                "a/b",
+                "a/b/c",
+                "a/b/c/d"
+            ]);
+        })
+    });
+
 });
 
