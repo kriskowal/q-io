@@ -41,6 +41,9 @@ MockFs.prototype._init = function (files, tree) {
         var fileNode = new FileNode(this);
         if (!(content instanceof Buffer)) {
             if (typeof content === "object") {
+                // make directory
+                this._root._walk(path, true);
+                // make content
                 this._init(content, path);
                 return;
             } else {
@@ -302,8 +305,9 @@ MockFs.prototype.move = function (source, target) {
         }
 
         if (targetNode && targetNode.isDirectory()) {
-            // move the node into the directory
-            targetDirectoryNode = targetNode;
+            var error = new Error("Can't copy over existing directory: " + target);
+            error.code = "EISDIR";
+            throw error;
         }
 
         targetDirectoryNode._entries[targetName] = sourceNode;
