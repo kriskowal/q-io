@@ -137,7 +137,7 @@ exports.makeDirectory = function (path, mode) {
                 error.exists = true;
                 error.isDirectory = true;
             }
-            if (error.code === "EEXISTS") {
+            if (error.code === "EEXIST") {
                 error.exists = true;
             }
             done.reject(error);
