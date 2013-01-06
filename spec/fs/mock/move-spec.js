@@ -193,5 +193,27 @@ describe("move", function () {
 
     });
 
+    it("should fail to move over an existing directory of the same name", function () {
+        var mock = Mock({
+            "hello": {}
+        });
+
+        return Q.fcall(function () {
+            return mock.isDirectory("/hello");
+        })
+        .then(function (isDirectory) {
+            expect(isDirectory).toBe(true);
+        })
+
+        .then(function () {
+            return mock.move("/hello", "/hello");
+        })
+        .then(function () {
+            throw new Error("Move should not succeed.");
+        }, function (error) {
+        })
+
+    });
+
 });
 

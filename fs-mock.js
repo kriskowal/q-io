@@ -267,9 +267,6 @@ MockFs.prototype.move = function (source, target) {
         source = self.absolute(source);
         target = self.absolute(target);
 
-        // do not copy over self (shortcut for the common case)
-        if (source === target) return;
-
         var sourceDirectory = self.directory(source);
         var sourceDirectoryNode = self._root._walk(sourceDirectory)._follow(sourceDirectory);
         var sourceName = self.base(source);
@@ -299,15 +296,15 @@ MockFs.prototype.move = function (source, target) {
             targetNode = targetNode._follow(target);
         }
 
-        // do not copy over self, even with symbolic links to confuse the issue
-        if (targetNode === sourceNode) {
-            return;
-        }
-
         if (targetNode && targetNode.isDirectory()) {
             var error = new Error("Can't copy over existing directory: " + target);
             error.code = "EISDIR";
             throw error;
+        }
+
+        // do not copy over self, even with symbolic links to confuse the issue
+        if (targetNode === sourceNode) {
+            return;
         }
 
         targetDirectoryNode._entries[targetName] = sourceNode;
