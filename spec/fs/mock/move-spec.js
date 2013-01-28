@@ -4,6 +4,7 @@ require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
+var EOL = require('os').EOL;
 
 describe("move", function () {
     it("should move", function () {
@@ -51,7 +52,7 @@ describe("move", function () {
                 return mock.read("new-hello.txt");
             })
             .then(function (content) {
-                expect(content).toBe("Hello, World!\n");
+                expect(content).toBe("Hello, World!" + EOL);
             })
 
         });
@@ -138,7 +139,7 @@ describe("move", function () {
                 return mock.read("hello.txt");
             })
             .then(function (content) {
-                expect(content).toBe("Hello, World!\n");
+                expect(content).toBe("Hello, World!" + EOL);
             })
 
             // move!
@@ -164,7 +165,7 @@ describe("move", function () {
                 return mock.read("hello.txt");
             })
             .then(function (content) {
-                expect(content).toBe("Hello, World!\n");
+                expect(content).toBe("Hello, World!" + EOL);
             })
         });
 
