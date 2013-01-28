@@ -4,6 +4,7 @@ require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
+var _n = FS.normal;
 
 describe("copyTree", function () {
     it("should copy a tree", function () {
@@ -39,14 +40,14 @@ describe("copyTree", function () {
             expect(list).toEqual([
                 ".",
                 "a",
-                "a/b",
-                "a/b/c",
-                "a/b/c/d",
-                "a/b/c/e",
-                "a/f",
-                "a/f/c",
-                "a/f/c/d",
-                "a/f/c/e"
+                _n("a/b"),
+                _n("a/b/c"),
+                _n("a/b/c/d"),
+                _n("a/b/c/e"),
+                _n("a/f"),
+                _n("a/f/c"),
+                _n("a/f/c/d"),
+                _n("a/f/c/e")
             ]);
         })
 

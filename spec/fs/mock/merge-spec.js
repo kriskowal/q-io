@@ -4,6 +4,7 @@ require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
+var _n = FS.normal;
 
 describe("makeTree", function () {
     it("should make a branch of a tree", function () {
@@ -33,8 +34,8 @@ describe("makeTree", function () {
                 expect(list.sort()).toEqual([
                     ".",
                     "1",
-                    "1/2",
-                    "1/2/3",
+                    _n("1/2"),
+                    _n("1/2/3"),
                     "a",
                     "b",
                     "c",

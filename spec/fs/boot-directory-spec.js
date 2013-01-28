@@ -1,5 +1,6 @@
 
 var FS = require("../../fs-boot");
+var _n = FS.normal;
 
 var specs = [
     {
@@ -16,7 +17,7 @@ var specs = [
     },
     {
         "from": "..",
-        "to": "../.."
+        "to": _n("../..")
     },
     {
         "from": "../foo",
@@ -24,11 +25,11 @@ var specs = [
     },
     {
         "from": "/foo/bar",
-        "to": "/foo"
+        "to": _n("/foo")
     },
     {
         "from": "/foo",
-        "to": "/"
+        "to": _n("/")
     },
     {
         "from": "/",

@@ -4,6 +4,7 @@ require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
+var _n = FS.normal;
 
 describe("makeTree", function () {
     it("should make a branch of a tree", function () {
@@ -23,8 +24,8 @@ describe("makeTree", function () {
             expect(list).toEqual([
                 ".",
                 "a",
-                "a/b",
-                "a/b/c"
+                _n("a/b"),
+                _n("a/b/c")
             ]);
         })
 
@@ -61,9 +62,9 @@ describe("makeTree", function () {
             expect(list).toEqual([
                 ".",
                 "a",
-                "a/b",
-                "a/b/c",
-                "a/b/c/d"
+                _n("a/b"),
+                _n("a/b/c"),
+                _n("a/b/c/d")
             ]);
         })
     });

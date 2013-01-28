@@ -1,6 +1,7 @@
 
 require("../../lib/jasmine-promise");
 var MockFs = require("../../../fs-mock");
+var _n = require('../../../fs').normal;
 
 describe("link", function () {
     it("should", function () {
@@ -41,9 +42,9 @@ describe("link", function () {
             expect(content).toEqual([
                 ".",
                 "a",
-                "a/b",
-                "a/b/c.txt",
-                "a/b/d.txt"
+                _n("a/b"),
+                _n("a/b/c.txt"),
+                _n("a/b/d.txt")
             ])
         })
 
