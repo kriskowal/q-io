@@ -3,7 +3,6 @@
 require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
-var EOL = require('os').EOL;
 
 describe("read", function () {
     it("should read a file from a mock filesystem", function () {
@@ -15,7 +14,7 @@ describe("read", function () {
                 return mock.read("hello.txt");
             })
             .then(function (content) {
-                expect(content).toBe("Hello, World!" + EOL);
+                expect(content).toBe("Hello, World!\n");
             })
 
         });

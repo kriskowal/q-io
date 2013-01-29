@@ -3,7 +3,6 @@
 require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
-var EOL = require('os').EOL;
 
 describe("write", function () {
     it("should write a file to a mock filesystem", function () {
@@ -12,7 +11,7 @@ describe("write", function () {
         .then(function (mock) {
 
             return Q.fcall(function () {
-                return mock.write("hello.txt", "Goodbye!" + EOL);
+                return mock.write("hello.txt", "Goodbye!\n");
             })
             .then(function () {
                 return mock.isFile("hello.txt");
