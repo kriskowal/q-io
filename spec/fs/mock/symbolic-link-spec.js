@@ -1,7 +1,7 @@
 
 require("../../lib/jasmine-promise");
 var MockFs = require("../../../fs-mock");
-var _n = require('../../../fs').normal;
+var normalize = require('../../../fs').normal;
 
 describe("symbolic link", function () {
     it("should", function () {
@@ -50,9 +50,9 @@ describe("symbolic link", function () {
             expect(content).toEqual([
                 ".",
                 "a",
-                _n("a/b"),
-                _n("a/b/c.txt"),
-                _n("a/b/d.txt")
+                normalize("a/b"),
+                normalize("a/b/c.txt"),
+                normalize("a/b/d.txt")
             ])
         })
 
