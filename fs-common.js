@@ -182,7 +182,7 @@ exports.update = function (exports, workingDirectory) {
         var parts = self.split(path);
         var at = [];
         if (self.isAbsolute(path))
-            at.push(self.ROOT);
+            at.push(parts.shift());
         return parts.reduce(function (parent, part) {
             return Q.when(parent, function () {
                 at.push(part);
