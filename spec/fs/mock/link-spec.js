@@ -1,6 +1,7 @@
 
 require("../../lib/jasmine-promise");
 var MockFs = require("../../../fs-mock");
+var normalize = require('../../../fs').normal;
 
 describe("link", function () {
     it("should", function () {
@@ -41,9 +42,9 @@ describe("link", function () {
             expect(content).toEqual([
                 ".",
                 "a",
-                "a/b",
-                "a/b/c.txt",
-                "a/b/d.txt"
+                normalize("a/b"),
+                normalize("a/b/c.txt"),
+                normalize("a/b/d.txt")
             ])
         })
 
