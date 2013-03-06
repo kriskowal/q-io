@@ -8,9 +8,9 @@ var Set = require("collections/set");
 
 module.exports = MockFs;
 
-function MockFs(files) {
+function MockFs(files, workingDirectory) {
     if (!(this instanceof MockFs)) {
-        return new MockFs(files);
+        return new MockFs(files, workingDirectory);
     }
     this._root = new DirectoryNode(this, "/");
 
@@ -22,7 +22,7 @@ function MockFs(files) {
         return workingDirectory;
     });
 
-    var workingDirectory = this.ROOT;
+    workingDirectory = workingDirectory || this.ROOT;
     if (files) {
         this._init(files);
     }

@@ -181,8 +181,11 @@ exports.update = function (exports, workingDirectory) {
         var self = this;
         var parts = self.split(path);
         var at = [];
-        if (self.isAbsolute(path))
-            at.push(parts.shift());
+        if (self.isAbsolute(path)) {
+            // On Windows use the root drive (e.g. "C:"), on *nix the first
+            // part is the falsey "", and so use the ROOT ("/")
+            at.push(parts.shift() || self.ROOT);
+        }
         return parts.reduce(function (parent, part) {
             return Q.when(parent, function () {
                 at.push(part);
