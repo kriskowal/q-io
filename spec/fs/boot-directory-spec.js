@@ -1,5 +1,6 @@
 
 var FS = require("../../fs-boot");
+var normalize = FS.normal;
 
 var specs = [
     {
@@ -16,7 +17,7 @@ var specs = [
     },
     {
         "from": "..",
-        "to": "../.."
+        "to": normalize("../..")
     },
     {
         "from": "../foo",
@@ -24,11 +25,11 @@ var specs = [
     },
     {
         "from": "/foo/bar",
-        "to": "/foo"
+        "to": normalize("/foo")
     },
     {
         "from": "/foo",
-        "to": "/"
+        "to": normalize("/")
     },
     {
         "from": "/",

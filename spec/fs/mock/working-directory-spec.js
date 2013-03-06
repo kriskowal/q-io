@@ -2,12 +2,10 @@
 
 require("../../lib/jasmine-promise");
 var Q = require("q");
-var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
-var normalize = FS.normal;
 
-describe("removeTree", function () {
-    it("should remove a tree", function () {
+describe("mock working directory", function () {
+    it("should perform actions relative to the given working directory", function () {
 
         var mock = Mock({
             "a/b": {
@@ -16,20 +14,14 @@ describe("removeTree", function () {
                     "e": 99
                 }
             }
-        });
+        }, "a/b/c");
 
-        return Q.fcall(function () {
-            return mock.removeTree("a/b/c");
-        })
-
-        .then(function () {
-            return mock.listTree();
-        })
+        return mock.listTree()
         .then(function (list) {
             expect(list).toEqual([
                 ".",
-                "a",
-                normalize("a/b")
+                "d",
+                "e"
             ]);
         })
 
