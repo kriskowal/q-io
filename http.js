@@ -191,7 +191,7 @@ exports.ServerRequest = function (_request, ssl) {
     /*** {String} url */
     request.url = URL.format({
         protocol: request.scheme,
-        hostname: _request.headers.host,
+        host: _request.headers.host,
         port: request.port === (ssl ? 443 : 80) ? null : request.port,
         path: request.path
     });
