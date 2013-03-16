@@ -97,10 +97,9 @@ var Q = require("q");
 var NODE_FS = require("fs");
 var HTTP = require("./http");
 var FS = require("./fs");
-var URL = require("url");
 var MIME_PARSE = require("mimeparse");
 var MIME_TYPES = require("mime");
-var URL = require("url");
+var URL = require("url2");
 var inspect = require("util").inspect;
 var QS = require("querystring");
 var Cookie = require("./http-cookie");
@@ -334,6 +333,8 @@ exports.FileTree = function (root, options) {
     var fs = options.fs;
     root = fs.canonical(root);
     return function (request, response) {
+        var location = URL.parse(request.url);
+        request.fs = fs;
         var redirect = options.redirect || (
             request.permanent || options.permanent ?
             exports.permanentRedirect :
@@ -347,6 +348,7 @@ exports.FileTree = function (root, options) {
                 if (path !== canonical && options.redirectSymbolicLinks)
                     return redirect(request, fs.relativeFromFile(path, canonical));
                 // TODO: relativeFromFile should be designed for URL’s, not generalized paths.
+                // HTTP.relative(pathToDirectoryLocation(path), pathToFile/DirectoryLocation(canonical))
                 return Q.when(fs.stat(canonical), function (stat) {
                     if (stat.isFile()) {
                         return options.file(request, canonical, options.contentType, fs);
@@ -379,7 +381,7 @@ exports.file = function (request, path, contentType, fs) {
         var status = 200;
         var headers = {
             "content-type": contentType,
-            "etag": etag
+            etag: etag
         };
 
         // Partial range requests
@@ -396,7 +398,7 @@ exports.file = function (request, path, contentType, fs) {
                 // Like Apache, ignore the range header if it is invalid
                 if (range) {
                     if (range.end > stat.size)
-                        return exports.responseForStatus(416); // not satisfiable
+                        return exports.responseForStatus(request, 416); // not satisfiable
                     status = 206; // partial content
                     headers["content-range"] = (
                         "bytes " +
@@ -412,15 +414,17 @@ exports.file = function (request, path, contentType, fs) {
             // We do not use date-based caching
             // TODO consider if-match?
             if (etag == request.headers["if-none-match"])
-                return exports.responseForStatus(304);
+                return exports.responseForStatus(request, 304);
             headers["content-length"] = "" + stat.size;
         }
 
         // TODO sendfile
         return {
-            "status": status,
-            "headers": headers,
-            "body": fs.open(path, range)
+            status: status,
+            headers: headers,
+            body: fs.open(path, range),
+            file: path,
+            range: range
         };
     });
 };
@@ -446,8 +450,8 @@ var interpretRange = function (text, size) {
         end = +match[2] + 1;
     }
     return {
-        "begin": begin,
-        "end": end
+        begin: begin,
+        end: end
     };
 };
 
@@ -488,7 +492,268 @@ exports.etag = function (stat) {
  * @param {Response}
  */
 exports.directory = function (request, path) {
-    return Q.reject("directory listing not yet implemented");
+    var response = exports.notFound(request);
+    response.directory = path;
+    return response;
+};
+
+exports.ListDirectories = function (app, listDirectory) {
+    listDirectory = listDirectory || exports.listDirectory;
+    return function (request) {
+        if (request.directoryIndex) {
+            throw new Error("DirectoryIndex must be used after ListDirectories");
+        }
+        request.listDirectories = true;
+        return Q.fcall(app, request)
+        .then(function (response) {
+            if (response.directory !== void 0) {
+                return exports.listDirectory(request, response);
+            } else {
+                return response;
+            }
+        });
+    };
+};
+
+exports.listDirectory = function (request, response) {
+    // TODO advisory to have JSON or HTML fragment handler.
+    request.location = URL.parse(request.path);
+    if (request.location.file) {
+        return exports.redirect(request, request.location.file + "/");
+    }
+    var handlers = {};
+    handlers["text/plain"] = exports.listDirectoryText;
+    handlers["text/markdown"] = exports.listDirectoryMarkdown;
+    if (request.handleHtmlFragmentResponse) {
+        handlers["text/html"] = exports.listDirectoryHtmlFragment;
+    }
+    if (request.handleJsonResponse) {
+        handlers["application/json"] = exports.listDirectoryJson;
+    }
+    var handleResponse = exports.negotiate(request, handlers) || function () {
+        return response;
+    };
+    return handleResponse(request, response);
+};
+
+exports.listDirectoryHtmlFragment = function (request, response) {
+    return exports.listDirectoryData(request, response)
+    .then(function (data) {
+        return {
+            status: 200,
+            headers: {
+                "content-type": "text/html"
+            },
+            htmlTitle: "Directory Index",
+            htmlFragment: {
+                forEach: function (write) {
+                    write("<ul class=\"directory-index\">\n");
+                    Object.keys(data).forEach(function (name) {
+                        var stat = data[name];
+                        var suffix = "";
+                        if (stat.type === "directory") {
+                            suffix = "/";
+                        }
+                        write("    <li class=\"entry " + stat.type + "\"><a href=\"" + escapeHtml(name + suffix) + "\">" + escapeHtml(name + suffix) + "</a></li>\n");
+                    });
+                    write("</ul>\n");
+                }
+            }
+        };
+    });
+};
+
+exports.listDirectoryText = function (request, response) {
+    return exports.listDirectoryData(request, response)
+    .then(function (data) {
+        return {
+            status: 200,
+            headers: {
+                "content-type": "text/plain"
+            },
+            body: {
+                forEach: function (write) {
+                    Object.keys(data).forEach(function (name) {
+                        var stat = data[name];
+                        var suffix = "";
+                        if (stat.type === "directory") {
+                            suffix = "/";
+                        }
+                        write(name + suffix + "\n");
+                    });
+                }
+            }
+        };
+    });
+};
+
+exports.listDirectoryMarkdown = function (request, response) {
+    return exports.listDirectoryData(request, response)
+    .then(function (data) {
+        return {
+            status: 200,
+            headers: {
+                "content-type": "text/plain"
+            },
+            body: {
+                forEach: function (write) {
+                    write("\n# Directory Index\n\n");
+                    Object.keys(data).forEach(function (name) {
+                        var stat = data[name];
+                        var suffix = "";
+                        if (stat.type === "directory") {
+                            suffix = "/";
+                        }
+                        write("-   " + name + suffix + "\n");
+                    });
+                    write("\n");
+                }
+            }
+        };
+    });
+};
+
+exports.listDirectoryJson = function (request, response) {
+    return exports.listDirectoryData(request, response)
+    .then(function (data) {
+        return {
+            status: 200,
+            headers: {},
+            data: data
+        };
+    });
+};
+
+exports.listDirectoryData = function (request, response) {
+    if (!request.fs) {
+        throw new Error("Can't list a directory without a designated file system");
+    }
+    var fs = request.fs;
+    return Q.invoke(fs, "list", response.directory)
+    .then(function (list) {
+        return list.map(function (name) {
+            return Q.invoke(fs, "stat", fs.join(response.directory, name))
+            .then(function (stat) {
+                if (stat.isDirectory()) {
+                    return {name: name, stat: {
+                        type: "directory"
+                    }};
+                } else if (stat.isFile()) {
+                    return {name: name, stat: {
+                        type: "file"
+                    }};
+                }
+            });
+        })
+    })
+    .all()
+    .then(function (stats) {
+        var data = {};
+        stats.forEach(function (entry) {
+            if (entry) {
+                data[entry.name] = entry.stat;
+            }
+        });
+        return data;
+    });
+};
+
+exports.DirectoryIndex = function (app) {
+    return function (request) {
+        request.directoryIndex = true;
+        request.location = URL.parse(request.path);
+        // redirect index.html to containing directory
+        // TODO worry about whether this file actually exists
+        if (request.location.file === "index.html") {
+            return exports.redirect(request, ".");
+        } else {
+            return Q.fcall(app, request)
+            .then(function (response) {
+                if (response.directory !== void 0) {
+                    if (request.location.file) {
+                        return exports.redirect(request, request.location.file + "/");
+                    } else {
+                        var index = request.fs.join(response.directory, "index.html");
+                        return Q.invoke(request.fs, "isFile", index)
+                        .then(function (isFile) {
+                            if (isFile) {
+                                request.url = URL.resolve(request.url, "index.html");
+                                request.pathInfo += "index.html";
+                                return app(request);
+                            } else {
+                                return response;
+                            }
+                        });
+                    }
+                } else {
+                    return response;
+                }
+            });
+        }
+    };
+};
+
+exports.HandleHtmlFragmentResponses = function (app, handleHtmlFragmentResponse) {
+    handleHtmlFragmentResponse = handleHtmlFragmentResponse || exports.handleHtmlFragmentResponse;
+    return function (request) {
+        request.handleHtmlFragmentResponse = handleHtmlFragmentResponse;
+        return Q.fcall(app, request)
+        .then(function (response) {
+            if (response.htmlFragment) {
+                return Q.fcall(handleHtmlFragmentResponse, response);
+            } else {
+                return response;
+            }
+        });
+    };
+};
+
+exports.handleHtmlFragmentResponse = function (response) {
+    var htmlFragment = response.htmlFragment;
+    delete response.htmlFragment;
+    response.headers["content-type"] = "text/html";
+    response.body = {
+        forEach: function (write) {
+            write("<!doctype html>\n");
+            write("<html>\n");
+            write("    <head>\n");
+            if (response.htmlTitle !== void 0) {
+                write("         <title>" + escapeHtml(response.htmlTitle) + "</title>\n");
+            }
+            write("    </head>\n");
+            write("    <body>\n");
+            htmlFragment.forEach(function (line) {
+                write("        " + line);
+            });
+            write("    </body>\n");
+            write("</html>\n");
+        }
+    };
+    return response;
+};
+
+exports.HandleJsonResponses = function (app, reviver, tab) {
+    return function (request) {
+        request.handleJsonResponse = exports.handleJsonResponse;
+        return Q.fcall(app, request)
+        .then(function (response) {
+            if (response.data !== void 0) {
+                return Q.fcall(exports.handleJsonResponse, response, reviver, tab);
+            } else {
+                return response;
+            }
+        });
+    };
+};
+
+exports.handleJsonResponse = function (response, revivier, tab) {
+    response.headers["content-type"] = "application/json";
+    response.body = {
+        forEach: function (write) {
+            write(JSON.stringify(response.data, revivier, tab));
+        }
+    };
+    return response;
 };
 
 /**
@@ -599,17 +864,47 @@ exports.redirect = function (request, location, status, tree) {
         );
     }
 
+    var handlers = {};
+    handlers["text/plain"] = exports.redirectText;
+    if (request.handleHtmlFragmentResponse) {
+        handlers["text/html"] = exports.redirectHtml;
+    }
+    var handler = exports.negotiate(request, handlers) || exports.redirectText;
+    return handler(request, location, status);
+
+};
+
+exports.redirectText = function (request, location, status) {
+    var content = (
+        (request.permanent ? "Permanent redirect\n" : "Temporary redirect\n") +
+        "See: " + location + "\n"
+    );
+    var contentLength = content.length;
     return {
-        "status": status,
-        "headers": {
-            "location": location,
+        status: status,
+        headers: {
+            location: location,
+            "content-type": "text/plain"
+        },
+        body: [content]
+    };
+};
+
+exports.redirectHtml = function (request, location, status) {
+    var title = request.permanent ? "Permanent redirect" : "Temporary redirect";
+    return {
+        status: status,
+        headers: {
+            location: location,
             "content-type": "text/html"
         },
-        "body": [
-            'Go to <a href="' + location + '">' + // TODO escape
-            location +
-            "</a>"
-        ]
+        htmlTitle: title,
+        htmlFragment: {
+            forEach: function (write) {
+                write("<h1>" + escapeHtml(title) + "</h1>\n");
+                write("<p>See: <a href=\"" + escapeHtml(location) + "\">" + escapeHtml(location) + "</a></p>\n");
+            }
+        }
     };
 };
 
@@ -706,6 +1001,14 @@ exports.Host = Negotiator(function (request) {
     return (request.headers.host || "*") + ":" + request.port;
 }, "host", null);
 
+exports.negotiate = negotiate;
+function negotiate(request, types, header) {
+    var keys = Object.keys(types);
+    var accept = request.headers[header || "accept"] || "*";
+    var best = MIME_PARSE.bestMatch(keys, accept);
+    return types[best];
+}
+
 // Branch on a selector function based on the request
 exports.Select = function (select) {
     return function (request, response) {
@@ -739,9 +1042,13 @@ exports.Error = function (app, debug) {
         return Q.when(app(request, response), null, function (error) {
             if (!debug)
                 error = undefined;
-            return exports.responseForStatus(500, error && error.stack || error);
+            return exports.responseForStatus(request, 500, error && error.stack || error);
         });
     };
+};
+
+exports.Debug = function (app) {
+    return exports.Error(app, true);
 };
 
 /**
@@ -940,11 +1247,11 @@ exports.Inspect = function (app) {
     return exports.Method({"GET": function (request, response) {
         return Q.when(app(request, response), function (object) {
             return {
-                "status": 200,
-                "headers": {
+                status: 200,
+                headers: {
                     "content-type": "text/plain"
                 },
-                "body": [inspect(object)]
+                body: [inspect(object)]
             }
         });
     }});
@@ -982,11 +1289,11 @@ exports.CookieSession = function (Session) {
                 return exports.TemporaryRedirect("../")(request, response);
             // TODO more flexible session error page
             return {
-                "status": 404,
-                "headers": {
+                status: 404,
+                headers: {
                     "content-type": "text/plain"
                 },
-                "body": [
+                body: [
                     "Access requires cookies"
                 ]
             }
@@ -1002,15 +1309,15 @@ exports.CookieSession = function (Session) {
         // new session
         } else {
             var session = {
-                "id": nextUuid(),
-                "lastAccess": new Date()
+                id: nextUuid(),
+                lastAccess: new Date()
             };
             sessions[session.id] = session;
             session.route = Session(session);
             var response = exports.TemporaryRedirect(request.scriptInfo + "~session/")(request, response);
             response.headers["set-cookie"] = Cookie.stringify(
                 "session.id", session.id, {
-                    "path": request.scriptInfo
+                    path: request.scriptInfo
                 }
             );
             return response;
@@ -1053,7 +1360,7 @@ exports.PathSession = function (Session) {
         } else if (Object.has(sessions, request.pathInfo.slice(1))) {
             return Object.get(sessions, request.pathInfo.slice(1)).route(request, response);
         } else {
-            return exports.responseForStatus(404, "Session does not exist");
+            return exports.responseForStatus(request, 404, "Session does not exist");
         }
     };
 };
@@ -1169,7 +1476,7 @@ exports.STATUS_WITH_NO_ENTITY_BODY = function (status) {
  */
 exports.appForStatus = function (status) {
     return function (request) {
-        return exports.responseForStatus(status, request.method + " " + request.path);
+        return exports.responseForStatus(request, status, request.method + " " + request.path);
     };
 };
 
@@ -1181,21 +1488,11 @@ exports.appForStatus = function (status) {
  * code and message as its body, if the status supports
  * a body.
  */
-exports.responseForStatus = function(status, optMessage) {
+exports.responseForStatus = function(request, status, addendum) {
     if (exports.HTTP_STATUS_CODES[status] === undefined)
         throw "Unknown status code";
 
     var message = exports.HTTP_STATUS_CODES[status];
-
-    if (optMessage)
-        message += ": " + optMessage;
-
-    var content = message + "\r\n";
-
-    var response = {
-        "status": status,
-        "headers": {}
-    };
 
     // RFC 2616, 10.2.5:
     // The 204 response MUST NOT include a message-body, and thus is always
@@ -1203,13 +1500,51 @@ exports.responseForStatus = function(status, optMessage) {
     // RFC 2616, 10.3.5:
     // The 304 response MUST NOT contain a message-body, and thus is always
     // terminated by the first empty line after the header fields.
-    if (!exports.STATUS_WITH_NO_ENTITY_BODY(status)) {
-        response.headers['content-length'] = content.length;
-        response.headers['content-type'] = 'text/plain';
-        response.body = [content];
+    if (exports.STATUS_WITH_NO_ENTITY_BODY(status)) {
+        return {status: status, headers: {}};
+    } else {
+        var handlers = {};
+        handlers["text/plain"] = exports.textResponseForStatus;
+        if (request.handleHtmlFragmentResponse) {
+            handlers["text/html"] = exports.htmlResponseForStatus;
+        }
+        var responseForStatus = exports.negotiate(request, handlers) || exports.textResponseForStatus;
+        return responseForStatus(request, status, message, addendum);
     }
+};
 
-    return response;
+exports.textResponseForStatus = function (request, status, message, addendum) {
+    var content = message + "\n";
+    if (addendum) {
+        content += addendum + "\n";
+    }
+    var contentLength = content.length;
+    return {
+        status: status,
+        statusMessage: message,
+        headers: {
+            "content-length": contentLength
+        },
+        body: [content]
+    };
+};
+
+exports.htmlResponseForStatus = function (request, status, message, addendum) {
+    return {
+        status: status,
+        statusMessage: message,
+        headers: {},
+        htmlTitle: message,
+        htmlFragment: {
+            forEach: function (write) {
+                write("<h1>" + escapeHtml(message) + "</h1>\n");
+                write("<p>Status: " + status + "</p>\n");
+                if (addendum) {
+                    write("<pre>" + escapeHtml(addendum) + "</pre>\n");
+                }
+            }
+        }
+    }
 };
 
 /**
@@ -1433,5 +1768,13 @@ function pathContains(container, content) {
 
 function concat(arrays) {
     return [].concat.apply([], arrays);
+}
+
+function escapeHtml(text) {
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
 }
 
