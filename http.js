@@ -136,6 +136,7 @@ exports.Server = function (respond) {
 
     self.node = server;
     self.nodeServer = server; // Deprecated
+    self.address = server.address.bind(server);
 
     return self;
 };

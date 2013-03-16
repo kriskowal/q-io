@@ -22,7 +22,7 @@ describe("http server and client", function () {
 
         return server.listen(0)
         .then(function (server) {
-            var port = server.node.address().port;
+            var port = server.address().port;
 
             var request = {
                 "host": "localhost",
