@@ -8,8 +8,17 @@ var FS = require("../../fs");
 describe("http client and server apps", function () {
 
     it("should read a partial range", function () {
+
         var fixture = FS.join(module.directory || __dirname, "fixtures", "1234.txt");
-        return Http.Server(Apps.Cap(Apps.File(fixture)))
+
+        var app = new Apps.Chain()
+        .use(Apps.Cap)
+        .use(function () {
+            return Apps.File(fixture);
+        })
+        .end()
+
+        return Http.Server(app)
         .listen(0)
         .then(function (server) {
             var port = server.node.address().port;

@@ -14,24 +14,29 @@ describe("http proxy", function () {
         var requestActual;
         var responseActual;
 
-        var server1 = Http.Server(
-            Apps.Trap(
-                Apps.Tap(
-                    Apps.Branch({
-                        "foo": Apps.Branch({
-                            "bar": Apps.Cap(Apps.Content(["Hello, World!"]))
+        var app = Apps.Chain()
+        .use(Apps.Trap, function (response) {
+            responseActual = response;
+            return response;
+        })
+        .use(Apps.Tap, function (request) {
+            requestActual = request;
+        })
+        .use(function (next) {
+            return Apps.Branch({
+                "foo": Apps.Branch({
+                    "bar": new Apps.Chain()
+                        .use(Apps.Cap)
+                        .use(function () {
+                            return Apps.Content(["Hello, World!"])
                         })
-                    }),
-                    function (request) {
-                        requestActual = request;
-                    }
-                ),
-                function (response) {
-                    responseActual = response;
-                    return response;
-                }
-            )
-        );
+                        .end()
+                })
+            })
+        })
+        .end();
+
+        var server1 = Http.Server(app);
 
         return Q.when(server1.listen(0))
         .then(function (server1) {
