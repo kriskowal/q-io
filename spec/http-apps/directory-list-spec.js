@@ -30,7 +30,7 @@ describe("directory lists", function () {
                 charset: 'utf-8'
             })
             .then(function (content) {
-                expect(content).toEqual("9012/\n1234.txt\n5678.txt\n");
+                expect(content).toEqual("1234.txt\n5678.txt\n9012/\n");
             })
             .finally(server.stop);
         });
@@ -70,9 +70,9 @@ describe("directory lists", function () {
                     "    </head>\n" +
                     "    <body>\n" +
                     "        <ul class=\"directory-index\">\n" +
-                    "            <li class=\"entry directory\"><a href=\"9012/\">9012/</a></li>\n" +
                     "            <li class=\"entry file\"><a href=\"1234.txt\">1234.txt</a></li>\n" +
                     "            <li class=\"entry file\"><a href=\"5678.txt\">5678.txt</a></li>\n" +
+                    "            <li class=\"entry directory\"><a href=\"9012/\">9012/</a></li>\n" +
                     "        </ul>\n" +
                     "    </body>\n" +
                     "</html>\n"

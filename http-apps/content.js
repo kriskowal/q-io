@@ -1,5 +1,7 @@
 
 var Negotiate = require("./negotiate");
+var QS = require("qs");
+var URL = require("url2");
 
 /**
  * Makes an app that returns a response with static content
@@ -78,5 +80,14 @@ exports.Inspect = function (app) {
             }
         });
     }});
+};
+
+/**
+ */
+exports.ParseQuery = function (app) {
+    return function (request, response) {
+        request.query = QS.parse(URL.parse(request.url).query || "");
+        return app(request, response);
+    };
 };
 

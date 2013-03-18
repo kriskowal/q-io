@@ -251,7 +251,7 @@ exports.listDirectoryHtmlFragment = function (request, response) {
             htmlFragment: {
                 forEach: function (write) {
                     write("<ul class=\"directory-index\">\n");
-                    Object.keys(data).forEach(function (name) {
+                    Object.keys(data).sort().forEach(function (name) {
                         var stat = data[name];
                         var suffix = "";
                         if (stat.type === "directory") {
@@ -276,7 +276,7 @@ exports.listDirectoryText = function (request, response) {
             },
             body: {
                 forEach: function (write) {
-                    Object.keys(data).forEach(function (name) {
+                    Object.keys(data).sort().forEach(function (name) {
                         var stat = data[name];
                         var suffix = "";
                         if (stat.type === "directory") {
@@ -334,6 +334,7 @@ exports.listDirectoryData = function (request, response) {
     var fs = request.fs;
     return Q.invoke(fs, "list", response.directory)
     .then(function (list) {
+        list.sort();
         return list.map(function (name) {
             return Q.invoke(fs, "stat", fs.join(response.directory, name))
             .then(function (stat) {

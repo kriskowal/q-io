@@ -60,6 +60,7 @@ exports.content = ContentApps.content;
 exports.ok = ContentApps.ok;
 exports.ContentRequest = ContentApps.ContentRequest;
 exports.Inspect = ContentApps.Inspect;
+exports.ParseQuery = ContentApps.ParseQuery;
 
 var FsApps = require("./http-apps/fs");
 exports.File = FsApps.File;
@@ -143,28 +144,8 @@ exports.Debug = DecoratorApps.Debug;
 exports.Log = DecoratorApps.Log;
 exports.Time = DecoratorApps.Time;
 exports.Headers = DecoratorApps.Headers;
+exports.Permanent = DecoratorApps.Permanent;
 exports.Decorators = DecoratorApps.Decorators;
-
-/**
- */
-exports.ParseQuery = function (app) {
-    return function (request, response) {
-        request.query = QS.parse(URL.parse(request.url).query || "");
-        return app(request, response);
-    };
-};
-
-// Create an application from the "app" exported by a module
-exports.require = function (id, _require) {
-    _require = _require || require;
-    var async = _require.async || _require;
-    var exports = async(id);
-    return function (request, response) {
-        return Q.when(exports, function (exports) {
-            return exports.app(request, response);
-        });
-    }
-};
 
 var CookieApps = require("./http-apps/cookie");
 exports.CookieJar = CookieApps.CookieJar;
