@@ -347,6 +347,8 @@ exports.listDirectoryData = function (request, response) {
                         type: "file"
                     }};
                 }
+            }, function () {
+                // ignore unstatable entries
             });
         })
     })

@@ -26,7 +26,7 @@ exports.HandleHtmlFragmentResponses = function (app, handleHtmlFragmentResponse)
 exports.handleHtmlFragmentResponse = function (response) {
     var htmlFragment = response.htmlFragment;
     delete response.htmlFragment;
-    response.headers["content-type"] = "text/html";
+    response.headers["content-type"] = "text/html; charset=utf-8";
     response.body = {
         forEach: function (write) {
             write("<!doctype html>\n");

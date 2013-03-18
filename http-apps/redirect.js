@@ -1,6 +1,8 @@
 
 var Q = require("q");
 var URL = require("url2");
+var Negotiation = require("./negotiate");
+var HtmlApps = require("./html");
 
 /**
  * @param {String} path
@@ -115,7 +117,7 @@ exports.redirect = function (request, location, status, tree) {
     if (request.handleHtmlFragmentResponse) {
         handlers["text/html"] = exports.redirectHtml;
     }
-    var handler = exports.negotiate(request, handlers) || exports.redirectText;
+    var handler = Negotiation.negotiate(request, handlers) || exports.redirectText;
     return handler(request, location, status);
 
 };
@@ -147,10 +149,10 @@ exports.redirectHtml = function (request, location, status) {
         htmlTitle: title,
         htmlFragment: {
             forEach: function (write) {
-                write("<h1>" + escapeHtml(title) + "</h1>\n");
+                write("<h1>" + HtmlApps.escapeHtml(title) + "</h1>\n");
                 write(
-                    "<p>See: <a href=\"" + escapeHtml(location) + "\">" +
-                    escapeHtml(location) +
+                    "<p>See: <a href=\"" + HtmlApps.escapeHtml(location) + "\">" +
+                    HtmlApps.escapeHtml(location) +
                     "</a></p>\n"
                 );
             }
