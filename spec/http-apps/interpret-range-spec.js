@@ -1,7 +1,7 @@
 
 // http://labs.apache.org/webarch/http/draft-fielding-http/p5-range.html#range.units
 
-var Apps = require("../../http-apps");
+var Apps = require("../../http-apps/fs");
 
 var size = 10000;
 var tests = [
