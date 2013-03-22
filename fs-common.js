@@ -29,7 +29,7 @@ exports.update = function (exports, workingDirectory) {
         } else {
             options = options || {};
             options.flags = flags;
-            options.carset = charset;
+            options.charset = charset;
         }
         options.flags = "r" + (options.flags || "").replace(/r/g, "");
         return Q.when(this.open(path, options), function (stream) {
@@ -57,7 +57,7 @@ exports.update = function (exports, workingDirectory) {
         } else {
             options = options || {};
             options.flags = flags;
-            options.carset = charset;
+            options.charset = charset;
         }
         flags = "w" + (options.flags || "").replace(/[wb]/g, "");
         if (content instanceof Buffer) {
@@ -78,7 +78,7 @@ exports.update = function (exports, workingDirectory) {
         } else {
             options = options || {};
             options.flags = flags;
-            options.carset = charset;
+            options.charset = charset;
         }
         flags = "w+" + (options.flags || "").replace(/[w\+]/g, "");
         if (content instanceof Buffer) {
