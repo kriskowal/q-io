@@ -19,8 +19,12 @@ exports.update = function (exports, workingDirectory) {
     }
 
     /**
-     * @param {String} path
-     * @param {Object} options
+     * Read a complete file.
+     * @param {String} path    Path to the file.
+     * @param {Object} [options]   An object with options.
+     * @param {String} [options.flags]  The mode to open the file with.
+     * @param {String} [options.charset]  The charset to open the file with.
+     * second argument.
      * @returns {Promise * (String || Buffer)}
      */
     exports.read = function (path, flags, charset, options) {
@@ -29,7 +33,7 @@ exports.update = function (exports, workingDirectory) {
         } else {
             options = options || {};
             options.flags = flags;
-            options.carset = charset;
+            options.charset = charset;
         }
         options.flags = "r" + (options.flags || "").replace(/r/g, "");
         return Q.when(this.open(path, options), function (stream) {
@@ -44,9 +48,12 @@ exports.update = function (exports, workingDirectory) {
     };
 
     /**
-     * @param {String} path
+     * Write content to a file, overwriting the existing content.
+     * @param {String} path    Path to the file.
      * @param {String || Buffer} content
-     * @param {Object} options
+     * @param {Object} [options]   An object with options.
+     * @param {String} [options.flags]  The mode to open the file with.
+     * @param {String} [options.charset]  The charset to open the file with.
      * @returns {Promise * Undefined} a promise that resolves
      * when the writing is complete.
      */
@@ -57,9 +64,9 @@ exports.update = function (exports, workingDirectory) {
         } else {
             options = options || {};
             options.flags = flags;
-            options.carset = charset;
+            options.charset = charset;
         }
-        flags = "w" + (flags || "").replace(/[wb]/g, "");
+        flags = "w" + (options.flags || "").replace(/[wb]/g, "");
         if (content instanceof Buffer) {
             flags += "b";
         }
@@ -71,6 +78,16 @@ exports.update = function (exports, workingDirectory) {
         });
     };
 
+    /**
+     * Append content to the end of a file.
+     * @param {String} path    Path to the file.
+     * @param {String || Buffer} content
+     * @param {Object} [options]   An object with options.
+     * @param {String} [options.flags]  The mode to open the file with.
+     * @param {String} [options.charset]  The charset to open the file with.
+     * @returns {Promise * Undefined} a promise that resolves
+     * when the writing is complete.
+     */
     exports.append = function (path, content, flags, charset, options) {
         var self = this;
         if (typeof flags == "object") {
@@ -78,7 +95,7 @@ exports.update = function (exports, workingDirectory) {
         } else {
             options = options || {};
             options.flags = flags;
-            options.carset = charset;
+            options.charset = charset;
         }
         flags = "w+" + (options.flags || "").replace(/[w\+]/g, "");
         if (content instanceof Buffer) {
