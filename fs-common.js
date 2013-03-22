@@ -59,7 +59,7 @@ exports.update = function (exports, workingDirectory) {
             options.flags = flags;
             options.carset = charset;
         }
-        flags = "w" + (flags || "").replace(/[wb]/g, "");
+        flags = "w" + (options.flags || "").replace(/[wb]/g, "");
         if (content instanceof Buffer) {
             flags += "b";
         }
