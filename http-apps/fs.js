@@ -80,7 +80,10 @@ exports.file = function (request, path, contentType, fs) {
     contentType = contentType || MimeTypes.lookup(path);
     return Q.when(fs.stat(path), function (stat) {
         var etag = exports.etag(stat);
-        var range; // undefined or {begin, end}
+        var options = {
+            flags: "rb"
+        };
+        var range;
         var status = 200;
         var headers = {
             "content-type": contentType,
@@ -110,6 +113,8 @@ exports.file = function (request, path, contentType, fs) {
                     );
                     headers["content-length"] = "" + (range.end - range.begin);
                 }
+                options.begin = range.begin;
+                options.end = range.end;
             }
         // Full requests
         } else {
@@ -125,7 +130,7 @@ exports.file = function (request, path, contentType, fs) {
         return {
             status: status,
             headers: headers,
-            body: fs.open(path, range),
+            body: fs.open(path, options),
             file: path,
             range: range
         };
