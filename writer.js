@@ -40,6 +40,9 @@ function Writer(_stream, charset) {
     self.write = function (content) {
         if (!_stream.writeable && !_stream.writable)
             return Q.reject(new Error("Can't write to non-writable (possibly closed) stream"));
+        if (_stream.encoding == "binary" && !(content instanceof Buffer)) {
+            content = new Buffer(content);
+        }
         if (!_stream.write(content)) {
             return drained.promise;
         } else {
