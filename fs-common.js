@@ -66,8 +66,12 @@ exports.update = function (exports, workingDirectory) {
             options.flags = flags;
             options.charset = charset;
         }
-        flags = "w" + (options.flags || "").replace(/[wb]/g, "");
-        if (content instanceof Buffer) {
+        flags = "w" + (options.flags || "").replace(/[w]/g, "");
+        if (flags.indexOf("b") !== -1) {
+            if (!(content instanceof Buffer)) {
+                content = new Buffer(content);
+            }
+        } else if (content instanceof Buffer) {
             flags += "b";
         }
         options.flags = flags;
