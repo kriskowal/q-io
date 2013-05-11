@@ -54,7 +54,7 @@ function RootFs(outer, root) {
     COMMON.update(inner, workingDirectory);
 
     inner.list = function (path) {
-        return Q.when(attenuate(path), function (path) {
+        return attenuate(path).then(function (path) {
             return outer.list(path.outer);
         }).then(null, function (reason) {
             return Q.reject("Can't list " + JSON.stringify(path));
@@ -62,7 +62,7 @@ function RootFs(outer, root) {
     };
 
     inner.open = function (path, flags, charset) {
-        return Q.when(attenuate(path), function (path) {
+        return attenuate(path).then(function (path) {
             return outer.open(path.outer, flags, charset);
         }).then(null, function (reason) {
             return Q.reject("Can't open " + JSON.stringify(path));
@@ -70,7 +70,7 @@ function RootFs(outer, root) {
     };
 
     inner.stat = function (path) {
-        return Q.when(attenuate(path), function (path) {
+        return attenuate(path).then(function (path) {
             return outer.stat(path.outer);
         }).then(null, function (reason) {
             return Q.reject("Can't stat " + JSON.stringify(path));
@@ -78,10 +78,18 @@ function RootFs(outer, root) {
     };
 
     inner.canonical = function (path) {
-        return Q.when(attenuate(path), function (path) {
+        return attenuate(path).then(function (path) {
             return path.inner;
         }).then(null, function (reason) {
             return Q.reject("Can't find canonical of " + JSON.stringify(path));
+        });
+    };
+
+    inner.makeDirectory = function (path) {
+        return attenuate(path).then(function (path) {
+            return outer.makeDirectory(path.outer);
+        }).catch(function (error) {
+            throw new Error("Can't make directory " + JSON.stringify(path));
         });
     };
 
