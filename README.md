@@ -721,6 +721,25 @@ A factory that produces an HTTP application that responds to all
 requests with files within a branch of the file system starting at the
 given path and using any unprocessed portion of the request location.
 
+Options include:
+
+-   `notFound(request, response)`: alternate 404 responder, defaults to
+    `HttpApps.notFound`
+-   `file(request, path, contentType, fs)`: alternate file responder,
+    defaults to `HttpApps.file`
+-   `contentType`: forces the content type of file requests, forwarded
+    to the `file` handler.
+-   `directory(request, path, contentType, fs)`: alternate directory
+    responder, defaults to `HttpApps.directory`.
+-   `redirectSymbolicLinks`: directs the client to use a redirect
+    response for symbolic links instead of following links internally.
+-   `permanent`: symbolic links that are turned into HTTP redirects will
+    be permanent.
+-   `followInsecureSymbolicLinks`: directs `FileTree` to serve files
+    that are outside the root path of the file tree if a symbolic link
+    traverses there.
+-   `fs`: alternate file system, defaults to the `fs` module.
+
 ### Redirect(path) : Application
 
 A factory that produces an HTTP application that temporarily redirects

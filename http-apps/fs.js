@@ -62,7 +62,7 @@ exports.FileTree = function (root, options) {
                     if (stat.isFile()) {
                         return options.file(request, canonical, options.contentType, fs);
                     } else if (stat.isDirectory()) {
-                        return options.directory(request, canonical, options.contentType);
+                        return options.directory(request, canonical, options.contentType, fs);
                     } else {
                         return options.notFound(request, response);
                     }

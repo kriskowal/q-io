@@ -1,4 +1,8 @@
 
+1.7.0
+
+ - Added FileTree option followInsecureSymbolicLinks (@francoisfrisch)
+
 0.0.12
 
  - Addressed Node 0.7.* compatibility. (@strager)
