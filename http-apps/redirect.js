@@ -1,6 +1,7 @@
 
 var Q = require("q");
 var URL = require("url2");
+var Http = require("../http");
 var Negotiation = require("./negotiate");
 var HtmlApps = require("./html");
 
@@ -168,7 +169,7 @@ exports.RedirectTrap = function (app, maxRedirects) {
         var self = this;
         var args = arguments;
 
-        request = HTTP.normalizeRequest(request);
+        request = Http.normalizeRequest(request);
 
         // try redirect loop
         function next() {
