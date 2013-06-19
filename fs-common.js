@@ -199,6 +199,7 @@ exports.update = function (exports, workingDirectory) {
     };
 
     exports.makeTree = function (path, mode) {
+        path = String(path);
         var self = this;
         var parts = self.split(path);
         var at = [];

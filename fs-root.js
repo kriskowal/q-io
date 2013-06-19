@@ -31,8 +31,12 @@ function RootFs(outer, root) {
         // and rejoin it on the outer root
         actual = outer.join(root, actual);
         // and find the corresponding real path
-        actual = outer.canonical(actual);
-        return Q.when(actual, function (actual) {
+        return outer.canonical(actual)
+        .then(function (actual) {
+            return actual;
+        }, function () {
+            return actual;
+        }).then(function (actual) {
             // and verify that the outer canonical path is
             // actually inside the inner canonical path, to
             // prevent break-outs
