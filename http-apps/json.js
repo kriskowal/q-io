@@ -1,5 +1,5 @@
 var Q = require("q");
-exports.ok = require("./content").ok;
+var Content = require("./content");
 
 exports.HandleJsonResponses = function (app, reviver, tab) {
     return function (request) {
@@ -54,7 +54,7 @@ exports.json = function (content, reviver, tabs) {
     } catch (exception) {
         return Q.reject(exception);
     }
-    return exports.ok([json]);
+    return Content.ok([json]);
 };
 
 /**
