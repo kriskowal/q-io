@@ -22,6 +22,8 @@ function Writer(_stream, charset) {
 
     _stream.on("error", function (reason) {
         begin.reject(reason);
+        drained.reject(reason);
+        drained = Q.defer();
     });
 
     _stream.on("drain", function () {
@@ -40,7 +42,7 @@ function Writer(_stream, charset) {
     self.write = function (content) {
         if (!_stream.writeable && !_stream.writable)
             return Q.reject(new Error("Can't write to non-writable (possibly closed) stream"));
-        if (_stream.encoding == "binary" && !(content instanceof Buffer)) {
+        if (typeof content !== "string") {
             content = new Buffer(content);
         }
         if (!_stream.write(content)) {
