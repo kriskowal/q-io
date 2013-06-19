@@ -1,5 +1,5 @@
-
 var Q = require("q");
+exports.ok = require("./content").ok;
 
 exports.HandleJsonResponses = function (app, reviver, tab) {
     return function (request) {
