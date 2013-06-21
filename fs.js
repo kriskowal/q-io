@@ -101,31 +101,16 @@ exports.remove = function (path) {
     return done.promise;
 };
 
-exports.move = function (source, target, overwrite) {
-    var checkExists;
+exports.move = function (source, target) {
     source = String(source);
     target = String(target);
-    if (!overwrite) {
-        checkExists = exports.exists(target)
-        .then(function (exists) {
-            if (exists) {
-                var error = new Error("Can't move over existing entry " + target);
-                error.code = "EEXISTS";
-                throw error;
-            }
-        });
-    } else {
-        checkExists = Q();
-    }
-    return checkExists.then(function () {
-        return Q.ninvoke(FS, "rename", source, target)
-        .fail(function (error) {
-            error.message = (
-                "Can't move " + JSON.stringify(source) + " to " +
-                JSON.stringify(target) + " because " + error.message
-            );
-            throw error;
-        });
+    return Q.ninvoke(FS, "rename", source, target)
+    .fail(function (error) {
+        error.message = (
+            "Can't move " + JSON.stringify(source) + " to " +
+            JSON.stringify(target) + " because " + error.message
+        );
+        throw error;
     });
 };
 
