@@ -101,11 +101,15 @@ exports.remove = function (path) {
     return done.promise;
 };
 
-exports.move = function (source, target) {
+exports.rename = function (source, target) {
     source = String(source);
     target = String(target);
     return Q.ninvoke(FS, "rename", source, target)
     .fail(function (error) {
+        if (error.code === "EXDEV") {
+            error.message = "source and target are on different devices: " + error.message;
+            error.crossDevice = true;
+        }
         error.message = (
             "Can't move " + JSON.stringify(source) + " to " +
             JSON.stringify(target) + " because " + error.message
@@ -124,14 +128,16 @@ exports.makeDirectory = function (path, mode) {
     }
     FS.mkdir(path, mode, function (error) {
         if (error) {
-            error.message = "Can't makeDirectory " + JSON.stringify(path) + " with mode " + mode + ": " + error.message;
             if (error.code === "EISDIR") {
                 error.exists = true;
                 error.isDirectory = true;
+                error.message = "directory already exists: " + error.message;
             }
             if (error.code === "EEXIST") {
                 error.exists = true;
+                error.message = "file exists at that path: " + error.message;
             }
+            error.message = "Can't makeDirectory " + JSON.stringify(path) + " with mode " + mode + ": " + error.message;
             done.reject(error);
         } else {
             done.resolve();

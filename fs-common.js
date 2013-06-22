@@ -113,6 +113,21 @@ exports.update = function (exports, workingDirectory) {
         });
     };
 
+    exports.move = function (source, target) {
+        var self = this;
+        return this.rename(source, target)
+        .catch(function (error) {
+            if (error.crossDevice) {
+                return self.copyTree(source, target)
+                .then(function () {
+                    return self.removeTree(source);
+                });
+            } else {
+                throw error;
+            }
+        });
+    };
+
     exports.copy = function (source, target) {
         var self = this;
         return Q.spread([
