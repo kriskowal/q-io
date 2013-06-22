@@ -261,7 +261,7 @@ MockFs.prototype.chmod = function (path, mode) {
     });
 };
 
-MockFs.prototype.move = function (source, target) {
+MockFs.prototype.rename = function (source, target) {
     var self = this;
     return Q.fcall(function () {
         source = self.absolute(source);
