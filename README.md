@@ -152,17 +152,17 @@ given path or if no file exists at the path.
 Removes a file or directory at a given path, recursively removing any
 contained files and directories, without following symbolic links.
 
+### rename(source, target)
+
+Moves a file or directory from one path to another using the underlying
+`rename(2)` implementation, thus it cannot move a file across devices.
+
 ### move(source, target)
 
-Moves a file or directory from one path to another.  Cannot move over a
-target directory, even if it is empty.  Otherwise, does nothing if the
-source and target are the same entry in the file system.
-
-Node's `rename` implementation, at least on Mac OS X, does not enforce
-the rule that writing over an empty directory should fail.  Since Q-IO
-enforces this rule in software, it is not atomic and there is a chance
-that an empty directory will be created over the target path between
-when `move` checks for it and when it overwrites it.
+Moves a file or directory from one path to another.  If the source and
+target are on different devices, falls back to copying and removing,
+using `copyTree(source, target)` and, if completely successful,
+`removeTree(source)`.
 
 ### link(source, taget)
 
@@ -918,6 +918,6 @@ Use `npm run cover` to generate and view a coverage report of Q-IO.
 
 ---
 
-Copyright 2009–2012 Kristopher Michael Kowal
+Copyright 2009–2013 Kristopher Michael Kowal
 MIT License (enclosed)
 
