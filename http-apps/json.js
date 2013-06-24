@@ -1,5 +1,6 @@
 var Q = require("q");
 var Content = require("./content");
+var Status = require("./status");
 
 exports.HandleJsonResponses = function (app, reviver, tab) {
     return function (request) {
@@ -64,8 +65,8 @@ exports.json = function (content, reviver, tabs) {
  */
 exports.JsonRequest = function (app, badRequest) {
     if (!badRequest)
-        badRequest = exports.badRequest;
-    return exports.ContentRequest(function (content, request, response) {
+        badRequest = Status.badRequest;
+    return Content.ContentRequest(function (content, request, response) {
         try {
             var object = JSON.parse(content);
         } catch (error) {
