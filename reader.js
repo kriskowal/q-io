@@ -87,6 +87,8 @@ function Reader(_stream, charset) {
         _stream.destroy();
     };
 
+    self.node = _stream;
+
     return begin.promise;
 }
 
