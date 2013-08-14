@@ -1,4 +1,9 @@
 
+1.9.2
+
+ - Fixes `append` and aligns open flags with the underlying Node, except for
+   the default of UTF-8 if bytewise is not specified in the mode flag.
+
 1.7.0
 
  - Added FileTree option followInsecureSymbolicLinks (@francoisfrisch)

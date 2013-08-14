@@ -31,7 +31,7 @@ depending on the flags.
 The options can be omitted, abbreviated to a `flags` string, or expanded
 to an `options` object.
 
--   ``flags``: ``r``, ``w``, ``a``, ``b``, default of `r`, not binary
+-   ``flags``: ``r``, ``w``, ``a``, ``b``, default of `r`, not bytewise
 -   ``charset``: default of ``utf-8``
 -   ``bufferSize``: in bytes
 -   ``mode``: UNIX permissions
@@ -42,7 +42,7 @@ to an `options` object.
 
 `read` is a shortcut for opening a file and reading the entire contents
 into memory.  It returns a promise for the whole file contents.  By
-default, `read` provides a string decoded from UTF-8.  With the binary
+default, `read` provides a string decoded from UTF-8.  With the bytewise
 mode flag, provides a `Buffer`.
 
 The options argument is identical to that of `open`.  

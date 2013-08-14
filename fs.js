@@ -78,7 +78,7 @@ exports.open = dampen(function (path, flags, charset, options) {
     } else {
         charset = charset || 'utf-8';
     }
-    if (flags.indexOf("w") >= 0) {
+    if (flags.indexOf("w") >= 0 || flags.indexOf("a") >= 0) {
         var stream = FS.createWriteStream(String(path), nodeOptions);
         return Writer(stream, charset);
     } else {

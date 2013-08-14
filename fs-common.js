@@ -21,21 +21,24 @@ exports.update = function (exports, workingDirectory) {
     /**
      * Read a complete file.
      * @param {String} path    Path to the file.
-     * @param {Object} [options]   An object with options.
      * @param {String} [options.flags]  The mode to open the file with.
      * @param {String} [options.charset]  The charset to open the file with.
+     * @param {Object} [options]   An object with options.
      * second argument.
      * @returns {Promise * (String || Buffer)}
      */
     exports.read = function (path, flags, charset, options) {
-        if (typeof flags == "object") {
+        if (typeof flags === "object") {
             options = flags;
+        } else if (typeof charset === "object") {
+            options = charset;
+            options.flags = flags;
         } else {
             options = options || {};
             options.flags = flags;
             options.charset = charset;
         }
-        options.flags = "r" + (options.flags || "").replace(/r/g, "");
+        options.flags = options.flags || "r";
         return Q.when(this.open(path, options), function (stream) {
             return stream.read();
         }, function (error) {
@@ -51,22 +54,25 @@ exports.update = function (exports, workingDirectory) {
      * Write content to a file, overwriting the existing content.
      * @param {String} path    Path to the file.
      * @param {String || Buffer} content
-     * @param {Object} [options]   An object with options.
      * @param {String} [options.flags]  The mode to open the file with.
      * @param {String} [options.charset]  The charset to open the file with.
+     * @param {Object} [options]   An object with options.
      * @returns {Promise * Undefined} a promise that resolves
      * when the writing is complete.
      */
     exports.write = function (path, content, flags, charset, options) {
         var self = this;
-        if (typeof flags == "object") {
+        if (typeof flags === "object") {
             options = flags;
+        } else if (typeof charset === "object") {
+            options = charset;
+            options.flags = flags;
         } else {
             options = options || {};
             options.flags = flags;
             options.charset = charset;
         }
-        flags = "w" + (options.flags || "").replace(/[w]/g, "");
+        flags = options.flags || "w";
         if (flags.indexOf("b") !== -1) {
             if (!(content instanceof Buffer)) {
                 content = new Buffer(content);
@@ -86,22 +92,25 @@ exports.update = function (exports, workingDirectory) {
      * Append content to the end of a file.
      * @param {String} path    Path to the file.
      * @param {String || Buffer} content
-     * @param {Object} [options]   An object with options.
      * @param {String} [options.flags]  The mode to open the file with.
      * @param {String} [options.charset]  The charset to open the file with.
+     * @param {Object} [options]   An object with options.
      * @returns {Promise * Undefined} a promise that resolves
      * when the writing is complete.
      */
     exports.append = function (path, content, flags, charset, options) {
         var self = this;
-        if (typeof flags == "object") {
+        if (typeof flags === "object") {
             options = flags;
+        } else if (typeof charset === "object") {
+            options = charset;
+            options.flags = flags;
         } else {
             options = options || {};
             options.flags = flags;
             options.charset = charset;
         }
-        flags = "w+" + (options.flags || "").replace(/[w\+]/g, "");
+        flags = options.flags || "a";
         if (content instanceof Buffer) {
             flags += "b";
         }
