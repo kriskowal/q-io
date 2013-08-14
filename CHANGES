@@ -3,6 +3,30 @@
 
  - Fixes `append` and aligns open flags with the underlying Node, except for
    the default of UTF-8 if bytewise is not specified in the mode flag.
+ - Add `node` property to `Reader`, as advertised.
+ - Bug fixes
+
+1.9.1
+
+ - Brings the mock file system API up to date with file system as of 1.9.0.
+
+1.9.0
+
+ - Distinguishes `move` and `rename`.  `move` will work across file system
+   boundaries.
+
+1.8.0
+
+ - Allows `move` to overwrite the target, or overwrite a target directory if
+   empty.
+
+1.7.2
+
+ - Fixes JSON content HTTP responses.
+
+1.7.1
+
+ - Fixes a bug in the HTTP redirect trap.
 
 1.7.0
 
