@@ -57,7 +57,7 @@ describe("write", function () {
         .then(function (mock) {
             mock.open = function (path, options) {
                 expect(path).toBe("hello.txt");
-                expect(options.flags).toBe("wa");
+                expect(options.flags).toBe("a");
                 expect(options.charset).toBe("utf8");
                 return Q.resolve({write: function () {}, close: function () {}});
             };
