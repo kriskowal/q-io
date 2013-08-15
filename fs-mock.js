@@ -98,8 +98,8 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             if (!fileNode.isFile()) {
                 throw new Error("Can't write non-file " + path);
             }
-            fileNode._lastModified = new Date();
-            fileNode._lastAccessed = new Date();
+            fileNode._modified = new Date();
+            fileNode._accessed = new Date();
             return new BufferStream(fileNode._chunks, charset);
         } else { // read
             if (!node._entries[base]) {
@@ -109,7 +109,7 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             if (!fileNode.isFile()) {
                 throw new Error("Can't read non-file " + path);
             }
-            fileNode._lastAccessed = new Date();
+            fileNode._accessed = new Date();
             if ("begin" in options && "end" in options) {
                 return new BufferStream(
                     [
