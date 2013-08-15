@@ -1,4 +1,3 @@
-
 var Q = require("q");
 var Boot = require("./fs-boot");
 var Common = require("./fs-common");
@@ -151,7 +150,14 @@ MockFs.prototype.makeDirectory = function (path) {
         path = self.absolute(path);
         var directory = self.directory(path);
         var name = self.base(path);
-        var node = self._root._walk(directory);
+        
+        try {
+            var node = self._root._walk(directory);
+        } catch (e) {
+            e.code = "ENOENT";
+            throw e;
+        }
+        
         if (!node.isDirectory()) {
             var error =  new Error("Can't make directory in non-directory: " + path);
             error.code = "EEXISTS";
