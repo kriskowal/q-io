@@ -379,7 +379,9 @@ Node.prototype._walkParts = function (parts, make, via) {
         if (part === "") {
             return this._walkParts(parts, make, this._fs.join(via, part));
         } else {
-            throw new Error("Can't find " + JSON.stringify(this._fs.resolve(part, this._fs.join(parts))) + " via " + JSON.stringify(via));
+            var error = new Error("Can't find " + JSON.stringify(this._fs.resolve(part, this._fs.join(parts))) + " via " + JSON.stringify(via));
+            error.code = "ENOENT";
+            throw error;
         }
     }
 };
@@ -469,7 +471,10 @@ DirectoryNode.prototype._walkParts = function (parts, make, via) {
         if (make) {
             this._entries[part] = new DirectoryNode(this._fs);
         } else {
-            throw new Error("Can't find " + JSON.stringify(this._fs.join(parts)) + " via " + JSON.stringify(via));
+            var error = new Error("Can't find " + JSON.stringify(this._fs.join(parts)) + " via " + JSON.stringify(via));
+            error.code = "ENOENT";
+            throw error;
+
         }
     }
     return this._entries[part]._walkParts(parts, make, this._fs.join(via, part));
