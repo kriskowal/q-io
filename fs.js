@@ -58,8 +58,9 @@ exports.open = dampen(function (path, flags, charset, options) {
     }
     options = options || {};
     flags = flags || "r";
+    var nodeFlags = flags.replace(/b/g, "") || "r";
     var nodeOptions = {
-        "flags": flags.replace(/b/g, "")
+        "flags": nodeFlags
     };
     if ("bufferSize" in options) {
         nodeOptions.bufferSize = options.bufferSize;

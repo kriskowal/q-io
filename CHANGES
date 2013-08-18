@@ -1,4 +1,8 @@
 
+1.9.3
+
+ - Fixes a regression in supporting `FS.read(path, "b")`.
+
 1.9.2
 
  - Fixes `append` and aligns open flags with the underlying Node, except for
