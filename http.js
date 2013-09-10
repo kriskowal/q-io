@@ -280,7 +280,8 @@ exports.request = function (request) {
             "port": request.port || (ssl ? 443 : 80),
             "path": request.path || "/",
             "method": request.method || "GET",
-            "headers": headers
+            "headers": headers,
+            "agent": request.agent || undefined
         }, function (_response) {
             deferred.resolve(exports.ClientResponse(_response, request.charset));
             _response.on("error", function (error) {
