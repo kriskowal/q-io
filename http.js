@@ -281,7 +281,7 @@ exports.request = function (request) {
             "path": request.path || "/",
             "method": request.method || "GET",
             "headers": headers,
-            "agent": request.agent || undefined
+            "agent": request.agent
         }, function (_response) {
             deferred.resolve(exports.ClientResponse(_response, request.charset));
             _response.on("error", function (error) {
