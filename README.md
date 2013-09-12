@@ -493,7 +493,10 @@ A complete request object has the following properties.
     corresponding values, possibly an array for multiple headers
     of the same name.
 -   ``agent``
-    a custom node [HTTP](http://nodejs.org/api/http.html#http_class_http_agent) or [HTTPS](http://nodejs.org/api/https.html#https_class_https_agent) agent. HTTP and HTTPS agents can implement custom socket pools, allow use of SSL client certificates and self-signed certificates.
+    a custom node [HTTP](http://nodejs.org/api/http.html#http_class_http_agent)
+    or [HTTPS](http://nodejs.org/api/https.html#https_class_https_agent)
+    agent. HTTP and HTTPS agents can implement custom socket pools,
+    allow use of SSL client certificates and self-signed certificates.
 -   ``body``
 -   ``node`` the wrapped Node request object
 
