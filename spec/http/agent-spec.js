@@ -57,29 +57,40 @@ describe("https agent", function () {
 
         var port = server.address().port;
 
-        var agent = new HTTPS.Agent({
-            rejectUnauthorized: false
-        });
-
-        var request = {
+        var allow = http.request({
             "host": "localhost",
             "port": port,
             "ssl": true,
-            "agent": agent
-        };
-
-        return http.request(request)
+            "agent": new HTTPS.Agent({
+                rejectUnauthorized: false
+            })
+        })
         .then(function (response) {
             expect(Q.isPromise(response.body)).toBe(false);
             return response.body.read()
             .then(function (body) {
                 expect(body.toString("utf-8")).toBe("ok");
             });
-        })
-        .finally(function () {
+        });
+
+        var reject = http.request({
+            host: "localhost",
+            port: port,
+            ssl: true,
+            agent: new HTTPS.Agent({
+                rejectUnauthorized: true
+            })
+        }).then(function (response) {
+            // should not be here
+            expect(response).toBeUndefined();
+        }).fail(function(err) {
+            expect(Q.isPromise(err)).toBe(false);
+            expect(err).toEqual(jasmine.any(Error));
+            expect(err.message).toBe('DEPTH_ZERO_SELF_SIGNED_CERT');
+        });
+
+        return Q.all([allow, reject]).finally(function () {
             server.close();
         });
     });
-
 });
-
