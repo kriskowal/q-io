@@ -71,7 +71,6 @@ describe("https agent", function () {
         return http.request(request)
         .then(function (response) {
             expect(Q.isPromise(response.body)).toBe(false);
-            var acc = [];
             return response.body.read()
             .then(function (body) {
                 expect(body.toString("utf-8")).toBe("ok");
