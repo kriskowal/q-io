@@ -1,4 +1,8 @@
 
+1.10.0
+
+ - Add support for HTTP agents (@yuxhuang)
+
 1.9.4
 
  - Updated dependencies
