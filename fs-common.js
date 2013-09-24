@@ -235,7 +235,7 @@ exports.update = function (exports, workingDirectory) {
         return parts.reduce(function (parent, part) {
             return Q.when(parent, function () {
                 at.push(part);
-                var parts = self.join(at);
+                var parts = self.join(at) || ".";
                 var made = self.makeDirectory(parts, mode);
                 return Q.when(made, null, function rejected(error) {
                     // throw away errors for already made directories
