@@ -19,6 +19,7 @@ function Writer(_stream, charset) {
 
     var begin = Q.defer();
     var drained = Q.defer();
+    var finished = Q.defer();
 
     _stream.on("error", function (reason) {
         begin.reject(reason);
@@ -30,6 +31,12 @@ function Writer(_stream, charset) {
         begin.resolve(self);
         drained.resolve();
         drained = Q.defer();
+    });
+    
+    _stream.on("finish", function () {
+        begin.resolve(self);
+        drained.resolve();
+        finished.resolve();
     });
 
     /***
@@ -73,7 +80,7 @@ function Writer(_stream, charset) {
     self.close = function () {
         _stream.end();
         drained.resolve(); // we will get no further drain events
-        return Q.resolve(); // closing not explicitly observable
+        return finished.promise; // closing not explicitly observable
     };
 
     /***
