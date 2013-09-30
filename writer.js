@@ -80,7 +80,11 @@ function Writer(_stream, charset) {
     self.close = function () {
         _stream.end();
         drained.resolve(); // we will get no further drain events
-        return finished.promise; // closing not explicitly observable
+        if(process.version.split('.')[1] < 10){ // closing not explicitly observable
+            return Q.resolve() // just resolve for old Streams
+        } else {
+            return finished.promise;
+        }
     };
 
     /***
