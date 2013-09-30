@@ -11,33 +11,35 @@ var Q = require("q");
  * text writer.
  */
 module.exports = Writer;
+
+/**
+ * Check if we have a newer Stream API 
+ *
+ * @returns {Boolean} 
+ */
+function supportsFinish () {
+    return process.version.split('.')[1] >= 10;
+}
+
+
 function Writer(_stream, charset) {
     var self = Object.create(Writer.prototype);
 
     if (charset && _stream.setEncoding) // TODO complain about inconsistency
         _stream.setEncoding(charset);
 
-    var begin = Q.defer();
     var drained = Q.defer();
-    var finished = Q.defer();
 
     _stream.on("error", function (reason) {
-        begin.reject(reason);
         drained.reject(reason);
         drained = Q.defer();
     });
 
     _stream.on("drain", function () {
-        begin.resolve(self);
         drained.resolve();
         drained = Q.defer();
     });
     
-    _stream.on("finish", function () {
-        begin.resolve(self);
-        drained.resolve();
-        finished.resolve();
-    });
 
     /***
      * Writes content to the stream.
@@ -78,9 +80,25 @@ function Writer(_stream, charset) {
      * flushing, and closed.
      */
     self.close = function () {
+        var finished = false;
+        
+        if(supportsFinish()){ // new Streams, listen for `finish` event
+            finished = Q.defer();
+            _stream.on("finish", function () {
+                finished.resolve();
+            });
+            _stream.on("error", function (reason) {
+                finished.reject(reason);
+            });
+        }
+        
         _stream.end();
         drained.resolve(); // we will get no further drain events
-        return finished.promise; // closing not explicitly observable
+        if(finished){ // closing not explicitly observable
+            return finished.promise;
+        } else {
+            return Q.resolve() // just resolve for old Streams
+        }
     };
 
     /***
