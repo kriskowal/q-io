@@ -11,23 +11,24 @@ var Q = require("q");
  * text writer.
  */
 module.exports = Writer;
+
+var version = process.version.split('.');
+var supportsFinish = version[0] >= 0 && version[1] >= 10;
+
 function Writer(_stream, charset) {
     var self = Object.create(Writer.prototype);
 
     if (charset && _stream.setEncoding) // TODO complain about inconsistency
         _stream.setEncoding(charset);
 
-    var begin = Q.defer();
     var drained = Q.defer();
 
     _stream.on("error", function (reason) {
-        begin.reject(reason);
         drained.reject(reason);
         drained = Q.defer();
     });
 
     _stream.on("drain", function () {
-        begin.resolve(self);
         drained.resolve();
         drained = Q.defer();
     });
@@ -71,9 +72,25 @@ function Writer(_stream, charset) {
      * flushing, and closed.
      */
     self.close = function () {
+        var finished;
+
+        if (supportsFinish) { // new Streams, listen for `finish` event
+            finished = Q.defer();
+            _stream.on("finish", function () {
+                finished.resolve();
+            });
+            _stream.on("error", function (reason) {
+                finished.reject(reason);
+            });
+        }
+
         _stream.end();
         drained.resolve(); // we will get no further drain events
-        return Q.resolve(); // closing not explicitly observable
+        if (finished) { // closing not explicitly observable
+            return finished.promise;
+        } else {
+            return Q(); // just resolve for old Streams
+        }
     };
 
     /***
@@ -89,6 +106,6 @@ function Writer(_stream, charset) {
         return Q.resolve(); // destruction not explicitly observable
     };
 
-    return Q.resolve(self); // todo returns the begin.promise
+    return Q(self); // todo returns the begin.promise
 }
 
