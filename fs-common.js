@@ -1,4 +1,3 @@
-
 var Q = require("q");
 var Boot = require("./fs-boot");
 var RootFs = require("./fs-root");
@@ -251,7 +250,7 @@ exports.update = function (exports, workingDirectory) {
 
     exports.removeTree = function (path) {
         var self = this;
-        return Q.when(self.stat(path), function (stat) {
+        return Q.when(self.statLink(path), function (stat) {
             if (stat.isSymbolicLink()) {
                 return self.remove(path);
             } else if (stat.isDirectory()) {
