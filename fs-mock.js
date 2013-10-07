@@ -2,9 +2,9 @@
 var Q = require("q");
 var Boot = require("./fs-boot");
 var Common = require("./fs-common");
-var BufferStream = require("./buffer-stream");
-var Reader = require("./reader");
 var Set = require("collections/set");
+var join = require("./streams").join;
+var MockStream = require("./fs-mock-stream");
 
 module.exports = MockFs;
 
@@ -86,10 +86,12 @@ MockFs.prototype.open = function (path, flags, charset, options) {
         }
         flags = flags || "r";
         var binary = flags.indexOf("b") >= 0;
-        var write = flags.indexOf("w") >= 0;
+        var append = flags.indexOf("a") >= 0;
+        var write = flags.indexOf("w") >= 0 || append;
         if (!binary) {
             charset = charset || "utf-8";
         }
+        var stream;
         if (write) {
             if (!node._entries[base]) {
                 node._entries[base] = new FileNode(this);
@@ -98,9 +100,13 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             if (!fileNode.isFile()) {
                 throw new Error("Can't write non-file " + path);
             }
+            var chunks = fileNode._chunks;
+            if (!append) {
+                chunks.splice(0, chunks.length);
+            }
             fileNode._modified = new Date();
             fileNode._accessed = new Date();
-            return new BufferStream(fileNode._chunks, charset);
+            stream = new MockStream(chunks, charset);
         } else { // read
             if (!node._entries[base]) {
                 throw new Error("Can't read non-existant " + path);
@@ -111,17 +117,19 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             }
             fileNode._accessed = new Date();
             if ("begin" in options && "end" in options) {
-                return new BufferStream(
+                stream = new MockStream(
                     [
-                        Reader.join(fileNode._chunks)
+                        join(fileNode._chunks)
                         .slice(options.begin, options.end)
                     ],
                     charset
                 );
             } else {
-                return new BufferStream(fileNode._chunks, charset);
+                stream = new MockStream(fileNode._chunks, charset);
             }
+            stream.close();
         }
+        return Q(stream);
     });
 };
 

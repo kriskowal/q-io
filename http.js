@@ -9,7 +9,8 @@ var HTTP = require("http"); // node
 var HTTPS = require("https"); // node
 var URL = require("url2"); // node
 var Q = require("q");
-var Reader = require("./reader");
+var NodeReader = require("./node/reader");
+var NodeWriter = require("./node/writer");
 
 /**
  * @param {respond(request Request)} respond a JSGI responder function that
@@ -26,65 +27,23 @@ exports.Server = function (respond) {
 
     var server = HTTP.createServer(function (_request, _response) {
         var request = exports.ServerRequest(_request);
-        var response = exports.ServerResponse(_response);
+        return Q.fcall(respond, request)
+        .then(function (response) {
+            if (!response)
+                return;
 
-        var closed = Q.defer();
-        _request.on("end", function (error, value) {
-            if (error) {
-                closed.reject(error);
-            } else {
-                closed.resolve(value);
-            }
-        });
+            _response.writeHead(response.status, response.headers);
 
-        Q.when(request, function (request) {
-            return Q.when(respond(request, response), function (response) {
-                if (!response)
-                    return;
-
-                _response.writeHead(response.status, response.headers);
-
-                if (response.onclose || response.onClose)
-                    Q.when(closed, response.onclose || response.onClose);
-
-                return Q.when(response.body, function (body) {
-                    var length;
-                    if (
-                        Array.isArray(body) &&
-                        (length = body.length) &&
-                        body.every(function (chunk) {
-                            return typeof chunk === "string"
-                        })
-                    ) {
-                        body.forEach(function (chunk, i) {
-                            if (i < length - 1) {
-                                _response.write(chunk, response.charset);
-                            } else {
-                                _response.end(chunk, response.charset);
-                            }
-                        });
-                    } else if (body) {
-                        var end;
-                        var done = body.forEach(function (chunk) {
-                            end = Q.when(end, function () {
-                                return Q.when(chunk, function (chunk) {
-                                    _response.write(chunk, response.charset);
-                                });
-                            });
-                        });
-                        return Q.when(done, function () {
-                            return Q.when(end, function () {
-                                _response.end();
-                            });
-                        });
-                    } else {
-                        _response.end();
-                    }
-                });
-
+            var writer = NodeWriter(_response, response.charset);
+            return Q(response.body || nobody).invoke("forEach", function (chunk) {
+                return writer.write(chunk);
             })
+            .then(function () {
+                return writer.close();
+            })
+            .finally(response.onclose || response.onClose || noop);
         })
-        .done(); // should be .fail(self.emitter("error"))
+        .done();
 
     });
 
@@ -196,7 +155,7 @@ exports.ServerRequest = function (_request, ssl) {
         path: request.path
     });
     /*** A Q IO asynchronous text reader */
-    request.body = Reader(_request);
+    request.body = NodeReader(_request);
     /*** {Object} HTTP headers (JSGI)*/
     request.headers = _request.headers;
     /*** The underlying Node request */
@@ -205,10 +164,7 @@ exports.ServerRequest = function (_request, ssl) {
     /*** The underlying Node TCP connection */
     request.nodeConnection = _request.connection;
 
-    return Q.when(request.body, function (body) {
-        request.body = body;
-        return request;
-    });
+    return request;
 };
 
 exports.ServerResponse = function (_response, ssl) {
@@ -362,9 +318,12 @@ exports.ClientResponse = function (_response, charset) {
     response.node = _response;
     response.nodeResponse = _response; // Deprecated
     response.nodeConnection = _response.connection; // Deprecated
-    return Q.when(Reader(_response, charset), function (body) {
+    return Q.when(NodeReader(_response, charset), function (body) {
         response.body = body;
         return response;
     });
 };
+
+function noop() {}
+var nobody = [];
 
