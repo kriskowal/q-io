@@ -18,19 +18,27 @@ var supportsFinish = version[0] >= 0 && version[1] >= 10;
 function Writer(_stream, charset) {
     var self = Object.create(Writer.prototype);
 
+    self.charset = charset;
+
     if (charset && _stream.setEncoding) // TODO complain about inconsistency
         _stream.setEncoding(charset);
 
     var drained = Q.defer();
+    var finished = Q.defer();
 
     _stream.on("error", function (reason) {
         drained.reject(reason);
+        finished.reject(reason);
         drained = Q.defer();
     });
 
     _stream.on("drain", function () {
         drained.resolve();
         drained = Q.defer();
+    });
+
+    _stream.on("finish", function () {
+        finished.resolve();
     });
 
     /***
@@ -49,7 +57,7 @@ function Writer(_stream, charset) {
         if (!_stream.write(content)) {
             return drained.promise;
         } else {
-            return Q.resolve();
+            return Q();
         }
     };
 
@@ -72,25 +80,14 @@ function Writer(_stream, charset) {
      * flushing, and closed.
      */
     self.close = function () {
-        var finished;
 
-        if (supportsFinish) { // new Streams, listen for `finish` event
-            finished = Q.defer();
-            _stream.on("finish", function () {
-                finished.resolve();
-            });
-            _stream.on("error", function (reason) {
-                finished.reject(reason);
-            });
+        if (!supportsFinish) { // new Streams, listen for `finish` event
+            finished.resolve();
         }
 
         _stream.end();
         drained.resolve(); // we will get no further drain events
-        if (finished) { // closing not explicitly observable
-            return finished.promise;
-        } else {
-            return Q(); // just resolve for old Streams
-        }
+        return finished.promise;
     };
 
     /***
@@ -106,6 +103,6 @@ function Writer(_stream, charset) {
         return Q.resolve(); // destruction not explicitly observable
     };
 
-    return Q(self); // todo returns the begin.promise
+    return self;
 }
 
