@@ -82,5 +82,11 @@ describe("makeTree", function () {
             return FS.removeTree("a");
         })
     });
+
+    it("should tolerate .", function () {
+        return Q.fcall(function () {
+            return FS.makeTree(".");
+        })
+    });
 });
 
