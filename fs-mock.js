@@ -202,9 +202,6 @@ MockFs.prototype.statLink = function (path) {
     return Q.fcall(function () {
         path = self.absolute(path);
         var node = self._root._walk(path);
-        if (!node.isSymbolicLink()) {
-            throw new Error("Path is not symbolic link: " + JSON.stringify(path));
-        }
         return node;
     });
 };
