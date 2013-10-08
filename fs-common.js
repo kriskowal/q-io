@@ -459,5 +459,35 @@ exports.update = function (exports, workingDirectory) {
         });
     };
 
+    exports.Stats = Stats;
+    function Stats(nodeStat) {
+        this.node = nodeStat;
+        this.size = nodeStat.size;
+    }
+
+    var stats = [
+        "isDirectory",
+        "isFile",
+        "isBlockDevice",
+        "isCharacterDevice",
+        "isSymbolicLink",
+        "isFIFO",
+        "isSocket"
+    ];
+
+    stats.forEach(function (name) {
+        Stats.prototype[name] = function () {
+            return this.node[name]();
+        };
+    });
+
+    Stats.prototype.lastModified = function () {
+        return new Date(this.node.mtime);
+    };
+
+    Stats.prototype.lastAccessed = function () {
+        return new Date(this.node.atime);
+    };
+
 }
 

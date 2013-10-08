@@ -193,7 +193,7 @@ MockFs.prototype.stat = function (path) {
     var self = this;
     return Q.fcall(function () {
         path = self.absolute(path);
-        return self._root._walk(path)._follow(path);
+        return new self.Stats(self._root._walk(path)._follow(path));
     });
 };
 
@@ -445,6 +445,16 @@ FileNode.prototype = Object.create(Node.prototype);
 FileNode.prototype.isFile = function () {
     return true;
 };
+
+Object.defineProperty(FileNode.prototype, "size", {
+    configurable: true,
+    enumerable: true,
+    get: function () {
+        return this._chunks.reduce(function (size, chunk) {
+            return size += chunk.length;
+        }, 0);
+    }
+});
 
 function DirectoryNode(fs) {
     Node.call(this, fs);
