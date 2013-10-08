@@ -191,42 +191,13 @@ exports.stat = function (path) {
                 error.message = "Can't stat " + JSON.stringify(path) + ": " + error;
                 done.reject(error);
             } else {
-                done.resolve(new Stats(stat));
+                done.resolve(new self.Stats(stat));
             }
         });
     } catch (error) {
         done.reject(error);
     }
     return done.promise;
-};
-
-var Stats = function (nodeStat) {
-    this.node = nodeStat;
-    this.size = nodeStat.size;
-};
-
-var stats = [
-    "isDirectory",
-    "isFile",
-    "isBlockDevice",
-    "isCharacterDevice",
-    "isSymbolicLink",
-    "isFIFO",
-    "isSocket"
-];
-
-stats.forEach(function (name) {
-    Stats.prototype[name] = function () {
-        return this.node[name]();
-    };
-});
-
-Stats.prototype.lastModified = function () {
-    return new Date(this.node.mtime);
-};
-
-Stats.prototype.lastAccessed = function () {
-    return new Date(this.node.atime);
 };
 
 exports.statLink = function (path) {
