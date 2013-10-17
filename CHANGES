@@ -1,4 +1,10 @@
 
+1.10.2
+
+ - Fix remoteTree for directories containing symbolic links.
+ - Tolerate "." in makeTree
+ - Stream writers now return reliable promises for finishing and flushing.
+
 1.10.0
 
  - Add support for HTTP agents (@yuxhuang)
