@@ -10,8 +10,8 @@
 
 var FS = require("fs"); // node
 var Q = require("q");
-var Reader = require("./reader");
-var Writer = require("./writer");
+var makeReader = require("./node/reader");
+var Writer = require("./node/writer");
 var Common = require("./fs-common");
 var Mock = require("./fs-mock");
 var Root = require("./fs-root");
@@ -84,7 +84,7 @@ exports.open = dampen(function (path, flags, charset, options) {
         return Writer(stream, charset);
     } else {
         var stream = FS.createReadStream(String(path), nodeOptions);
-        return Reader(stream, charset);
+        return makeReader(stream, charset);
     }
 });
 
