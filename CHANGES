@@ -1,4 +1,8 @@
 
+1.10.3
+
+ - Fix support of Node 0.6 path separators (@Sevinf)
+
 1.10.2
 
  - Fix remoteTree for directories containing symbolic links.
