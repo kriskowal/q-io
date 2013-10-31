@@ -39,7 +39,7 @@ var path = require("path");
  * * `/` on Windows
  */
 
-exports.ROOT = exports.SEPARATOR = path.sep;
+exports.ROOT = exports.SEPARATOR = path.sep || (process.platform === "win32" ? "\\": "/");
 if (path.sep === "\\") {
     exports.ALT_SEPARATOR = "/";
 } else {
