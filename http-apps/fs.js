@@ -52,7 +52,7 @@ exports.FileTree = function (root, options) {
         return Q.when(root, function (root) {
             var path = fs.join(root, request.pathInfo.slice(1));
             return Q.when(fs.canonical(path), function (canonical) {
-                if (!fs.contains(root, canonical) && !options.followInsecureSymlinks)
+                if (!fs.contains(root, canonical) && !options.followInsecureSymbolicLinks)
                     return options.notFound(request, response);
                 if (path !== canonical && options.redirectSymbolicLinks)
                     return redirect(request, fs.relativeFromFile(path, canonical));
