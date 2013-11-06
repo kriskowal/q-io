@@ -1,4 +1,8 @@
 
+1.10.4
+
+ - The FileTree option followInsecureSymlinks is deprecated in favor of followInsecureSymbolicLinks. (@francoisfrisch)
+
 1.10.3
 
  - Fix support of Node 0.6 path separators (@Sevinf)
