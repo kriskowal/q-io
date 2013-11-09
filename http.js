@@ -312,7 +312,7 @@ exports.request = function (request) {
                     _request.end();
                 });
             });
-        });
+        }).done();
 
         return deferred.promise;
     });
