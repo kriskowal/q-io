@@ -1,86 +1,94 @@
+<!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
-1.10.3
+## 1.10.3
 
  - Fix support of Node 0.6 path separators (@Sevinf)
 
-1.10.2
+## 1.10.2
 
  - Fix remoteTree for directories containing symbolic links.
  - Tolerate "." in makeTree
  - Stream writers now return reliable promises for finishing and flushing.
 
-1.10.0
+## 1.10.0
 
  - Add support for HTTP agents (@yuxhuang)
 
-1.9.4
+## 1.9.4
 
  - Updated dependencies
 
-1.9.3
+## 1.9.3
 
  - Fixes a regression in supporting `FS.read(path, "b")`.
 
-1.9.2
+## 1.9.2
 
  - Fixes `append` and aligns open flags with the underlying Node, except for
    the default of UTF-8 if bytewise is not specified in the mode flag.
  - Add `node` property to `Reader`, as advertised.
  - Bug fixes
 
-1.9.1
+## 1.9.1
 
  - Brings the mock file system API up to date with file system as of 1.9.0.
 
-1.9.0
+## 1.9.0
 
  - Distinguishes `move` and `rename`.  `move` will work across file system
    boundaries.
 
-1.8.0
+## 1.8.0
 
  - Allows `move` to overwrite the target, or overwrite a target directory if
    empty.
 
-1.7.2
+## 1.7.2
 
  - Fixes JSON content HTTP responses.
 
-1.7.1
+## 1.7.1
 
  - Fixes a bug in the HTTP redirect trap.
 
-1.7.0
+## 1.7.0
 
  - Added FileTree option followInsecureSymbolicLinks (@francoisfrisch)
 
-0.0.12
+## 0.0.12
 
  - Addressed Node 0.7.* compatibility. (@strager)
  - Synchronized Q to 0.8.2.
 
-0.0.11
+## 0.0.11
+
  - Synchronized Q dependency.
 
-0.0.10
+## 0.0.10
+
  - Removed spurious log message.
 
-0.0.9
+## 0.0.9
+
  - Fixed a bug in observing the closing of files. (#1, @hornairs)
 
-0.0.8
+## 0.0.8
+
  - Reorganized, moved q-io to the top level.
  - Reved dependencies.
  - Moved q-io-buffer to its own project.
 
-0.0.3
+## 0.0.3
+
  - reved up Q to version 0.2 so duck-promises will work
 
-0.0.2
+## 0.0.2
+
  - added buffer-io
  - added buffer mode to readers and writers
 
-0.0.1
+## 0.0.1
+
  - fixed dependency on broken q package
  - restructured for overlay style packaging compatibility
 
