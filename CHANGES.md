@@ -1,5 +1,10 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 1.10.4
+
+ - Fixes the `followInsecureSymbolicLinks` flag on the file tree HTTP
+   app. (@francoisfrisch)
+
 ## 1.10.3
 
  - Fix support of Node 0.6 path separators (@Sevinf)
