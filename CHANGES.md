@@ -4,6 +4,8 @@
 
  - Fixes the `followInsecureSymbolicLinks` flag on the file tree HTTP
    app. (@francoisfrisch)
+ - Fixes an error that gets missed when an HTTP request body is not
+   a proper forEachable. (@OliverJAsh)
 
 ## 1.10.3
 
