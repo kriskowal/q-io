@@ -1,5 +1,9 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 1.10.6
+
+ - Restores support for host negotiation terms.
+
 ## 1.10.5
 
  - Fixes support for host negotiation.

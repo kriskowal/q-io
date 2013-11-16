@@ -76,24 +76,34 @@ exports.Charset = Negotiator("accept-charset", "charset");
 exports.Encoding = Negotiator("accept-encoding", "encoding");
 
 exports.Host = function (appForHost, notAcceptable) {
-    var patterns = Object.keys(appForHost).map(function (pattern) {
+    var table = Object.keys(appForHost).map(function (pattern) {
         var parts = pattern.split(":");
-        return [parts[0] || "*", parts[1] || "*", appForHost[pattern]];
+        return [
+            pattern,
+            parts[0] || "*",
+            parts[1] || "*",
+            appForHost[pattern]
+        ];
     });
     if (!notAcceptable) {
         notAcceptable = Status.notAcceptable;
     }
     return function (request) {
         // find first matching host for app
-        for (var index = 0; index < patterns.length; index++) {
-            var pattern = patterns[index]; // [hostname, port, app]
-            var hostname = pattern[0];
-            var port = pattern[1];
-            var app = pattern[2];
+        for (var index = 0; index < table.length; index++) {
+            var row = table[index]; // [hostname, port, app]
+            var pattern = row[0];
+            var hostname = row[1];
+            var port = row[2];
+            var app = row[3];
             if (
                 (hostname === "*" || hostname === request.hostname) &&
                 (port === "*" || port === "" + request.port)
             ) {
+                if (!request.terms) {
+                    request.terms = {};
+                }
+                request.terms.host = pattern;
                 return app(request);
             }
         }
