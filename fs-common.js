@@ -159,8 +159,8 @@ exports.update = function (exports, workingDirectory) {
             if (stat.isFile()) {
                 return self.copy(source, target);
             } else if (stat.isDirectory()) {
-                return Q.when(self.makeDirectory(target), function () {
-                    return Q.when(self.list(source), function (list) {
+                return self.exists(target).then(function (targetExists) {
+                    var copySubTree = Q.when(self.list(source), function (list) {
                         return Q.all(list.map(function (child) {
                             return self.copyTree(
                                 self.join(source, child),
@@ -168,6 +168,13 @@ exports.update = function (exports, workingDirectory) {
                             );
                         }));
                     });
+                    if (targetExists) {
+                        return copySubTree;
+                    } else {
+                        return Q.when(self.makeDirectory(target), function () {
+                            return copySubTree;
+                        });
+                    }
                 });
             } else if (stat.isSymbolicLink()) {
                 // TODO copy the link and type with readPath (but what about
