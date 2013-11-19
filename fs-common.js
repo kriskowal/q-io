@@ -159,7 +159,7 @@ exports.update = function (exports, workingDirectory) {
             if (stat.isFile()) {
                 return self.copy(source, target);
             } else if (stat.isDirectory()) {
-                return self.exists(target).then(function (dstExists) {
+                return self.exists(target).then(function (targetExists) {
                     var copySubTree = Q.when(self.list(source), function (list) {
                         return Q.all(list.map(function (child) {
                             return self.copyTree(
@@ -168,7 +168,7 @@ exports.update = function (exports, workingDirectory) {
                             );
                         }));
                     });
-                    if (dstExists) {
+                    if (targetExists) {
                         return copySubTree;
                     } else {
                         return Q.when(self.makeDirectory(target), function () {
