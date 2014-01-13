@@ -235,13 +235,13 @@ exports.normalizeRequest = function (request) {
     }
     if (request.url) {
         var url = URL.parse(request.url);
-        request.host = url.hostname;
+        request.hostname = url.hostname;
         request.port = url.port;
         request.ssl = url.protocol === "https:";
         request.method = request.method || "GET";
         request.path = (url.pathname || "") + (url.search || "");
         request.headers = request.headers || {};
-        request.headers.host = url.hostname; // FIXME name consistency
+        request.headers.host = url.host;
     }
     return request;
 };
@@ -280,11 +280,10 @@ exports.request = function (request) {
         var http = ssl ? HTTPS : HTTP;
 
         var headers = request.headers || {};
-
         headers.host = headers.host || request.host;
 
         var _request = http.request({
-            "host": request.host,
+            "hostname": request.hostname,
             "port": request.port || (ssl ? 443 : 80),
             "path": request.path || "/",
             "method": request.method || "GET",
