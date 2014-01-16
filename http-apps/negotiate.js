@@ -100,9 +100,7 @@ exports.Host = function (appForHost, notAcceptable) {
                 (hostname === "*" || hostname === request.hostname) &&
                 (port === "*" || port === "" + request.port)
             ) {
-                if (!request.terms) {
-                    request.terms = {};
-                }
+                request.terms = request.terms || {};
                 request.terms.host = pattern;
                 return app(request);
             }
