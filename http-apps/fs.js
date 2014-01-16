@@ -106,11 +106,15 @@ exports.file = function (request, path, contentType, fs) {
                 // Normal 200 for entire, altered content
             } else {
                 // Truncate to the first requested continuous range
-                range = interpretFirstRange(request.headers["range"]);
+                range = interpretFirstRange(request.headers["range"], stat.size);
                 // Like Apache, ignore the range header if it is invalid
                 if (range) {
-                    if (range.end > stat.size)
+                    if (range.end > stat.size) {
+                        range.end = stat.size;
+                    }
+                    if (range.end <= range.begin) {
                         return StatusApps.responseForStatus(request, 416); // not satisfiable
+                    }
                     status = 206; // partial content
                     headers["content-range"] = (
                         "bytes " +
@@ -118,9 +122,11 @@ exports.file = function (request, path, contentType, fs) {
                         "/" + stat.size
                     );
                     headers["content-length"] = "" + (range.end - range.begin);
+                    options.begin = range.begin;
+                    options.end = range.end;
+                } else {
+                    return StatusApps.responseForStatus(request, 416); // not satisfiable
                 }
-                options.begin = range.begin;
-                options.end = range.end;
             }
         // Full requests
         } else {
@@ -154,8 +160,8 @@ var interpretRange = function (text, size) {
         return;
     var begin, end;
     if (match[1] == "") {
-        begin = size - match[2];
-        end = size;
+        begin = 0;
+        end = +match[2] + 1;
     } else if (match[2] == "") {
         begin = +match[1];
         end = size;
@@ -177,12 +183,10 @@ var interpretFirstRange = exports.interpretFirstRange = function (text, size) {
     var range = interpretRange(texts[0], size);
     for (var i = 0, ii = texts.length; i < ii; i++) {
         var next = interpretRange(texts[i], size);
-        if (!next)
-            break;
         if (next.begin <= range.end) {
             range.end = next.end;
         } else {
-            break;
+            return; // Can't satisfy non-contiguous ranges TODO
         }
     }
     return range;
