@@ -138,8 +138,16 @@ exports.ServerRequest = function (_request, ssl) {
     /*** {String} (JSGI) */
     request.scheme = "http";
 
-    request.host = _request.headers.host;
-    request.port = _request.connection.address().port;
+    var address = _request.connection.address();
+    /*** {String} hostname */
+    if (_request.headers.host) {
+        request.hostname = _request.headers.host.split(":")[0];
+    } else {
+        request.hostname = address.address;
+    }
+    /*** {String} host */
+    request.host = request.hostname + ":" + address.port;
+    request.port = address.port;
 
     var socket = _request.socket;
     /*** {String} */

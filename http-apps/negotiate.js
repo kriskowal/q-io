@@ -1,6 +1,7 @@
 
 var Q = require("q");
 var MimeParse = require("mimeparse");
+var Status = require("./status");
 
 exports.negotiate = negotiate;
 function negotiate(request, types, header) {
@@ -34,12 +35,8 @@ var Negotiator = function (requestHeader, responseHeader, respond) {
     return function (types, notAcceptable) {
         var keys = Object.keys(types);
         if (!notAcceptable)
-            notAcceptable = exports.notAcceptable;
-        return function (request, response) {
-            var header = requestHeader;
-            if (typeof header === "function") {
-                header = requestHeader(request);
-            }
+            notAcceptable = Status.notAcceptable;
+        return function (request) {
             var accept = request.headers[requestHeader] || "*";
             var type = MimeParse.bestMatch(keys, accept);
             request.terms = request.terms || {};
@@ -57,7 +54,7 @@ var Negotiator = function (requestHeader, responseHeader, respond) {
                     return response;
                 });
             } else {
-                return notAcceptable(request, response);
+                return notAcceptable(request);
             }
         };
     };
@@ -77,9 +74,40 @@ exports.ContentType = Negotiator("accept", "content-type");
 exports.Language = Negotiator("accept-language", "language");
 exports.Charset = Negotiator("accept-charset", "charset");
 exports.Encoding = Negotiator("accept-encoding", "encoding");
-exports.Host = Negotiator(function (request) {
-    return (request.headers.host || "*") + ":" + request.port;
-}, "host", null);
+
+exports.Host = function (appForHost, notAcceptable) {
+    var table = Object.keys(appForHost).map(function (pattern) {
+        var parts = pattern.split(":");
+        return [
+            pattern,
+            parts[0] || "*",
+            parts[1] || "*",
+            appForHost[pattern]
+        ];
+    });
+    if (!notAcceptable) {
+        notAcceptable = Status.notAcceptable;
+    }
+    return function (request) {
+        // find first matching host for app
+        for (var index = 0; index < table.length; index++) {
+            var row = table[index]; // [hostname, port, app]
+            var pattern = row[0];
+            var hostname = row[1];
+            var port = row[2];
+            var app = row[3];
+            if (
+                (hostname === "*" || hostname === request.hostname) &&
+                (port === "*" || port === "" + request.port)
+            ) {
+                request.terms = request.terms || {};
+                request.terms.host = pattern;
+                return app(request);
+            }
+        }
+        return notAcceptable(request);
+    };
+};
 
 // Branch on a selector function based on the request
 exports.Select = function (select) {

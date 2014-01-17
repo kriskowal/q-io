@@ -16,19 +16,14 @@ var tests = [
         oracle: {begin: 500, end: 1000}
     },
     {
-        description: "The final 500 bytes (byte offsets 9500-9999, inclusive)",
-        input: "bytes=-500",
-        oracle: {begin: 9500, end: 10000}
+        description: "The initial 500 bytes with 0 elided",
+        input: "bytes=-499",
+        oracle: {begin: 0, end: 500}
     },
     {
-        description: "The final 500 bytes (byte offsets 9500-9999, inclusive)",
+        description: "The final 500 bytes with final elided (byte offsets 9500-9999, inclusive)",
         input: "bytes=9500-",
         oracle: {begin: 9500, end: 10000}
-    },
-    {
-        description: "The first and last bytes only (bytes 0 and 9999)",
-        input: "bytes=0-0,-1",
-        oracle: {begin: 0, end: 1}
     },
     {
         description: "Legal but not canonical specification of the second 500 bytes (byte offsets 500-999, inclusive)",
