@@ -1,8 +1,16 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 1.10.7
+
+ - Fixes support for range content requests, such that Q-IO based web serves can
+   host static audio and video content to the web. Further work needed for the
+   more escoteric non-contiguous multi-range requests.
+ - Allow `copyTree` to write over existing trees. (@nerfin)
+
 ## 1.10.6
 
- - Restores support for host negotiation terms.
+ - Restores the "request.terms.host" property to report which host pattern was
+   selected by a host negotiator.
 
 ## 1.10.5
 
