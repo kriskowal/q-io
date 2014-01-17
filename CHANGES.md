@@ -1,6 +1,6 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
-## 1.10.7
+## 1.10.7-8
 
  - Fixes support for range content requests, such that Q-IO based web serves can
    host static audio and video content to the web. Further work needed for the
