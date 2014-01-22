@@ -1,4 +1,3 @@
-
 [![Build Status](https://secure.travis-ci.org/kriskowal/q-io.png)](http://travis-ci.org/kriskowal/q-io)
 
 # Q-IO
@@ -703,7 +702,7 @@ This is not yet implemented.
 ### json(object, visitor, tabs) : Response
 
 Returns an `HTTP 200 Ok` response from some JSON, using the same
-argumensts as `JSON.stringify`.
+arguments as `JSON.stringify`.
 
 ### Content(body, contentType, status) : Application
 
