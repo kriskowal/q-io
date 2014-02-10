@@ -86,13 +86,13 @@ MockFs.prototype.open = function (path, flags, charset, options) {
         }
         flags = flags || "r";
         var binary = flags.indexOf("b") >= 0;
+        var write = flags.indexOf("w") >= 0;
         var append = flags.indexOf("a") >= 0;
-        var write = flags.indexOf("w") >= 0 || append;
         if (!binary) {
             charset = charset || "utf-8";
         }
         var stream;
-        if (write) {
+        if (write || append) {
             if (!node._entries[base]) {
                 node._entries[base] = new FileNode(this);
             }
@@ -106,6 +106,9 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             }
             fileNode._modified = new Date();
             fileNode._accessed = new Date();
+            if (!append) {
+                fileNode._chunks.length = 0;
+            }
             stream = new MockStream(chunks, charset);
         } else { // read
             if (!node._entries[base]) {
