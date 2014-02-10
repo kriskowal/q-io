@@ -18,7 +18,11 @@ describe("write", function () {
             })
             .then(function (isFile) {
                 expect(isFile).toBe(true);
-            });
+                return mock.read("hello.txt");
+            })
+            .then(function (content) {
+                expect(content.toString("utf-8")).toBe("Goodbye!\n");
+            })
         });
     });
 
