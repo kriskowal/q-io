@@ -81,6 +81,14 @@ function RootFs(outer, root) {
         });
     };
 
+    inner.statLink = function (path) {
+        return attenuate(path).then(function (path) {
+            return outer.statLink(path.outer);
+        }).then(null, function (reason) {
+            return Q.reject("Can't statLink " + JSON.stringify(path));
+        });
+    };
+
     inner.canonical = function (path) {
         return attenuate(path).then(function (path) {
             return path.inner;
@@ -94,6 +102,14 @@ function RootFs(outer, root) {
             return outer.makeDirectory(path.outer);
         }).catch(function (error) {
             throw new Error("Can't make directory " + JSON.stringify(path));
+        });
+    };
+
+    inner.removeDirectory = function (path) {
+        return attenuate(path).then(function (path) {
+            return outer.removeDirectory(path.outer);
+        }).catch(function (error) {
+            throw new Error("Can't remove directory " + JSON.stringify(path));
         });
     };
 
