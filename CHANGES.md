@@ -1,5 +1,9 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 1.11.0
+
+ - Adds `removeDirectory` and `statLink` to the Mock file system interface.
+
 ## 1.10.7-8
 
  - Fixes support for range content requests, such that Q-IO based web serves can
