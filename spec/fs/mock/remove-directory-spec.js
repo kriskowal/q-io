@@ -1,6 +1,5 @@
 "use strict";
 
-require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 
@@ -11,7 +10,7 @@ describe("removeDirectory", function () {
         .then(function (mock) {
 
             // now you see it
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return mock.isDirectory("fixture");
             })
             .then(function (isDirectory) {

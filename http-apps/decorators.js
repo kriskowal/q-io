@@ -7,7 +7,7 @@ var StatusApps = require("./status");
 exports.Normalize = function (app) {
     return function (request, response) {
         var request = HTTP.normalizeRequest(request);
-        return Q.when(app(request, response), function (response) {
+        return Q(app).call(void 0, request).then(function (response) {
             return HTTP.normalizeResponse(response);
         });
     };
@@ -31,7 +31,7 @@ exports.Date = function (app, present) {
  */
 exports.Error = function (app, debug) {
     return function (request, response) {
-        return Q.when(app(request, response), null, function (error) {
+        return Q(app).call(void 0, request).catch(function (error) {
             if (!debug)
                 error = undefined;
             return StatusApps.responseForStatus(request, 500, error && error.stack || error);
@@ -68,7 +68,7 @@ exports.Log = function (app, log, stamp) {
             "-->     " +
             requestLine
         ));
-        return Q.when(app(request, response), function (response) {
+        return Q(app).call(void 0, request).then(function (response) {
             if (response) {
                 log(stamp(
                     remoteHost + " " +
@@ -86,14 +86,14 @@ exports.Log = function (app, log, stamp) {
                 ));
             }
             return response;
-        }, function (reason) {
+        }, function (error) {
             log(stamp(
                 remoteHost + " " +
                 "!!!     " +
                 requestLine + " " +
-                (reason && reason.message || reason)
+                (error && error.message || error)
             ));
-            return Q.reject(reason);
+            throw error;
         });
     };
 };
@@ -110,7 +110,7 @@ exports.Log = function (app, log, stamp) {
 exports.Time = function (app) {
     return function (request, response) {
         var start = new Date();
-        return Q.when(app(request, response), function (response) {
+        return Q(app).call(void 0, request).then(function (response) {
             var stop = new Date();
             if (response && response.headers) {
                 response.headers["x-response-time"] = "" + (stop - start);
@@ -130,7 +130,7 @@ exports.Time = function (app) {
  */
 exports.Headers = function (app, headers) {
     return function (request, response) {
-        return Q.when(app(request, response), function (response) {
+        return Q(app).call(void 0, request).then(function (response) {
             if (response && response.headers) {
                 Object.keys(headers).forEach(function (key) {
                     if (!(key in response.headers)) {

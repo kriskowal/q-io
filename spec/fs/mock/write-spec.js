@@ -1,6 +1,5 @@
 "use strict";
 
-require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 /*global describe,it,expect */
@@ -10,7 +9,7 @@ describe("write", function () {
         return FS.mock(FS.join(__dirname, "fixture"))
         .then(function (mock) {
 
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return mock.write("hello.txt", "Goodbye!\n");
             })
             .then(function () {
@@ -29,7 +28,7 @@ describe("write", function () {
     it("takes a flags argument", function () {
         return FS.mock(FS.join(__dirname, "fixture"))
         .then(function (mock) {
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return mock.write("hello.txt", "Goodbye!\n", "a");
             })
             .then(function () {
@@ -44,7 +43,7 @@ describe("write", function () {
     it("takes an options object with flags", function () {
         return FS.mock(FS.join(__dirname, "fixture"))
         .then(function (mock) {
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return mock.write("hello.txt", "Goodbye!\n", { flags: "a" });
             })
             .then(function () {
@@ -63,7 +62,7 @@ describe("write", function () {
                 expect(path).toBe("hello.txt");
                 expect(options.flags).toBe("a");
                 expect(options.charset).toBe("utf8");
-                return Q.resolve({write: function () {}, close: function () {}});
+                return Q({write: Q, close: Q});
             };
 
             return mock.write("hello.txt", "Goodbye!\n", "a", "utf8");

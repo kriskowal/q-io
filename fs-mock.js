@@ -57,7 +57,7 @@ MockFs.prototype._init = function (files, tree) {
 
 MockFs.prototype.list = function (path) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         var node = self._root._walk(path)._follow(path);
         if (!node.isDirectory()) {
@@ -69,7 +69,7 @@ MockFs.prototype.list = function (path) {
 
 MockFs.prototype.open = function (path, flags, charset, options) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         var directory = self.directory(path);
         var base = self.base(path);
@@ -138,7 +138,7 @@ MockFs.prototype.open = function (path, flags, charset, options) {
 
 MockFs.prototype.remove = function (path) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         var directory = self.directory(path);
         var name = self.base(path);
@@ -158,7 +158,7 @@ MockFs.prototype.remove = function (path) {
 
 MockFs.prototype.makeDirectory = function (path) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         var directory = self.directory(path);
         var name = self.base(path);
@@ -182,7 +182,7 @@ MockFs.prototype.makeDirectory = function (path) {
 
 MockFs.prototype.removeDirectory = function (path) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         var directory = self.directory(path);
         var name = self.base(path);
@@ -202,7 +202,7 @@ MockFs.prototype.removeDirectory = function (path) {
 
 MockFs.prototype.stat = function (path) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         return new self.Stats(self._root._walk(path)._follow(path));
     });
@@ -210,7 +210,7 @@ MockFs.prototype.stat = function (path) {
 
 MockFs.prototype.statLink = function (path) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         var node = self._root._walk(path);
         return node;
@@ -219,7 +219,7 @@ MockFs.prototype.statLink = function (path) {
 
 MockFs.prototype.link = function (source, target) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         source = self.absolute(source);
         target = self.absolute(target);
         var sourceNode = self._root._walk(source)._follow(source);
@@ -241,7 +241,7 @@ MockFs.prototype.link = function (source, target) {
 
 MockFs.prototype.symbolicLink = function (target, relative, type) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         target = self.absolute(target);
         var directory = self.directory(target);
         var base = self.base(target);
@@ -255,7 +255,7 @@ MockFs.prototype.symbolicLink = function (target, relative, type) {
 
 MockFs.prototype.chown = function (path, owner) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         self._root._walk(path)._follow(path)._owner = owner;
     });
@@ -263,7 +263,7 @@ MockFs.prototype.chown = function (path, owner) {
 
 MockFs.prototype.chmod = function (path, mode) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         self._root._walk(path)._follow(path)._mode = mode;
     });
@@ -271,7 +271,7 @@ MockFs.prototype.chmod = function (path, mode) {
 
 MockFs.prototype.rename = function (source, target) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         source = self.absolute(source);
         target = self.absolute(target);
 
@@ -322,7 +322,7 @@ MockFs.prototype.rename = function (source, target) {
 
 MockFs.prototype.readLink = function (path) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         var node = self._root._walk(path);
         if (!self.isSymbolicLink()) {
@@ -334,7 +334,7 @@ MockFs.prototype.readLink = function (path) {
 
 MockFs.prototype.canonical = function (path) {
     var self = this;
-    return Q.fcall(function () {
+    return Q.try(function () {
         path = self.absolute(path);
         return self._root._canonical(path);
     });
@@ -342,14 +342,14 @@ MockFs.prototype.canonical = function (path) {
 
 MockFs.mock = mock;
 function mock(fs, root) {
-    return Q.when(fs.listTree(root), function (list) {
+    return fs.listTree(root).then(function (list) {
         var tree = {};
         return Q.all(list.map(function (path) {
             var actual = fs.join(root, path);
             var relative = fs.relativeFromDirectory(root, actual);
-            return Q.when(fs.stat(actual), function (stat) {
+            return fs.stat(actual).then(function (stat) {
                 if (stat.isFile()) {
-                    return Q.when(fs.read(path, "rb"), function (content) {
+                    return fs.read(path, "rb").then(function (content) {
                         tree[relative] = content;
                     });
                 }

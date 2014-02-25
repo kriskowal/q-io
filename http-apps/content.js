@@ -57,20 +57,24 @@ exports.ok = function (content, contentType, status) {
  * @returns {App}
  */
 exports.ContentRequest = function (app) {
-    return function (request, response) {
-        return Q.when(request.body.read(), function (body) {
-            return app(body, request, response);
+    return function (request) {
+        return Q(request.body || nobody).invoke("join", "")
+        .then(function (body) {
+            return app(body, request);
         });
     };
 };
+
+var nobody = [];
 
 /**
  * @param {Function(Request):Object}
  * @returns {App}
  */
 exports.Inspect = function (app) {
-    return Negotiate.Method({"GET": function (request, response) {
-        return Q.when(app(request, response), function (object) {
+    return Negotiate.Method({"GET": function (request) {
+        return Q(app).call(void 0, request)
+        .then(function (object) {
             return {
                 status: 200,
                 headers: {
@@ -85,9 +89,9 @@ exports.Inspect = function (app) {
 /**
  */
 exports.ParseQuery = function (app) {
-    return function (request, response) {
+    return function (request) {
         request.query = QS.parse(URL.parse(request.url).query || "");
-        return app(request, response);
+        return app(request);
     };
 };
 

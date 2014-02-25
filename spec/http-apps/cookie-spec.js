@@ -1,5 +1,4 @@
 
-require("../lib/jasmine-promise");
 var Q = require("q");
 var Http = require("../../http");
 var Apps = require("../../http-apps");
@@ -9,7 +8,7 @@ describe("http cookies", function () {
     var hosts = ["localhost", "127.0.0.1"];
 
     hosts.forEach(function (host) {
-        it("should work on host" + host, function () {
+        it("should work on host " + host, function () {
 
             var server = Http.Server(function (request) {
                 return {
@@ -25,7 +24,7 @@ describe("http cookies", function () {
 
             return server.listen(0)
             .then(function (server) {
-                var address = server.node.address();
+                var address = server.address();
                 return request("http://" + host + ":" + address.port)
                 .get("body")
                 .invoke("read")

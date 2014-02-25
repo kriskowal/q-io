@@ -1,6 +1,5 @@
 "use strict";
 
-require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 /*global describe,it,expect */

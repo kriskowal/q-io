@@ -1,6 +1,5 @@
 "use strict";
 
-require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
@@ -13,7 +12,7 @@ describe("makeTree", function () {
             "a": {}
         });
 
-        return Q.fcall(function () {
+        return Q.try(function () {
             return mock.makeTree("a/b/c");
         })
 
@@ -51,7 +50,7 @@ describe("makeTree", function () {
             "a/b": {}
         });
 
-        return Q.fcall(function () {
+        return Q.try(function () {
             return mock.makeTree("a/b/c/d");
         })
 
@@ -78,7 +77,7 @@ describe("makeTree", function () {
             }
         }, "/a/b");
 
-        return Q.fcall(function () {
+        return Q.try(function () {
             return mock.makeTree("/a/b/c/x/y/z");
         })
         .then(function () {

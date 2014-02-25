@@ -48,7 +48,8 @@ function Writer(_stream, charset) {
      * be resolved when the buffer is empty, meaning
      * that all of the content has been sent.
      */
-    self.write = function (content) {
+    // TODO consider removing support for "write"
+    self.write = self.yield = function (content) {
         if (!_stream.writeable && !_stream.writable)
             return Q.reject(new Error("Can't write to non-writable (possibly closed) stream"));
         if (typeof content !== "string") {
@@ -79,7 +80,8 @@ function Writer(_stream, charset) {
      * be resolved when the stream has finished writing,
      * flushing, and closed.
      */
-    self.close = function () {
+    // TODO consider removing support for "close"
+    self.close = self.return = function () {
 
         if (!supportsFinish) { // new Streams, listen for `finish` event
             finished.resolve();
@@ -97,10 +99,11 @@ function Writer(_stream, charset) {
      * @returns {Promise * Undefined} a promise that will
      * be resolved when the stream has finished closing.
      */
-    self.destroy = function () {
+    self.destroy = // TODO remove support for destroy. Use cancel.
+    self.cancel = self.throw = function () {
         _stream.destroy();
         drained.resolve(); // we will get no further drain events
-        return Q.resolve(); // destruction not explicitly observable
+        return Q(); // destruction not explicitly observable
     };
 
     return self;

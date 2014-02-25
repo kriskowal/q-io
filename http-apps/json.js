@@ -5,10 +5,10 @@ var Status = require("./status");
 exports.HandleJsonResponses = function (app, reviver, tab) {
     return function (request) {
         request.handleJsonResponse = exports.handleJsonResponse;
-        return Q.fcall(app, request)
+        return Q(app).call(void 0, request)
         .then(function (response) {
             if (response.data !== void 0) {
-                return Q.fcall(exports.handleJsonResponse, response, reviver, tab);
+                return exports.handleJsonResponse(response, reviver, tab);
             } else {
                 return response;
             }
@@ -18,11 +18,7 @@ exports.HandleJsonResponses = function (app, reviver, tab) {
 
 exports.handleJsonResponse = function (response, revivier, tab) {
     response.headers["content-type"] = "application/json";
-    response.body = {
-        forEach: function (write) {
-            write(JSON.stringify(response.data, revivier, tab));
-        }
-    };
+    response.body = [JSON.stringify(response.data, reviver, tab)];
     return response;
 };
 
@@ -37,7 +33,8 @@ exports.handleJsonResponse = function (response, revivier, tab) {
  */
 exports.Json = function (app, reviver, tabs) {
     return function (request, response) {
-        return Q.when(app(request, response), function (object) {
+        return Q(app).call(void 0, request)
+        .then(function (object) {
             return exports.json(object, reviver, tabs);
         });
     };
@@ -50,12 +47,7 @@ exports.Json = function (app, reviver, tabs) {
  * @returns {Response}
  */
 exports.json = function (content, reviver, tabs) {
-    try {
-        var json = JSON.stringify(content, reviver, tabs);
-    } catch (exception) {
-        return Q.reject(exception);
-    }
-    return Content.ok([json]);
+    return Content.ok([JSON.stringify(content, reviver, tabs)]);
 };
 
 /**

@@ -1,6 +1,11 @@
 
+// TODO Writable, with support for buffer
+// TODO WritableBuffer (that copies to a given writer)
+// TODO consider pipe instead of copy
+// TODO look into distinction between pipeTo and pipeThrough
+
 var Q = require("q");
-var Queue = require("./queue");
+var Queue = require("q/queue");
 var makeSemaphore = require("./semaphore");
 
 // Readable must implement `next`
@@ -31,7 +36,7 @@ Readable.prototype.forEach = function (callback, thisp, maxInFlight, notify) {
             return self.next()
             .then(function (iteration) {
                 if (notify) {
-                    notify.fcall(++inFlight, maxInFlight).done();
+                    notify.call(void 0, ++inFlight, maxInFlight).done();
                 }
                 if (iteration.done) {
                     deferred.resolve(iteration.value);
@@ -43,14 +48,14 @@ Readable.prototype.forEach = function (callback, thisp, maxInFlight, notify) {
                     })
                     .then(function () {
                         if (notify) {
-                            notify.fcall(--inFlight, maxInFlight).done();
+                            notify.call(void 0, --inFlight, maxInFlight).done();
                         }
                         semaphore.put();
                     });
                 }
             });
         })
-        .fail(deferred.reject);
+        .catch(deferred.reject);
     }
 
     next();
@@ -59,35 +64,35 @@ Readable.prototype.forEach = function (callback, thisp, maxInFlight, notify) {
 };
 
 Readable.prototype.map = function (callback, thisp, maxInFlight, notify) {
+    callback = Q(callback);
     var inFlight = 0;
     var done = false;
     var pipe = new Pipe(this, maxInFlight, notify);
     pipe.input.reduce(function (undefined, value, index) {
         inFlight++;
-        Q.fcall(function () {
-            return callback.call(thisp, value);
-        })
+        callback.call(thisp, value)
         .then(function (value) {
             inFlight--;
-            pipe.output["yield"](value, index);
+            pipe.output.yield(value, index);
             if (done && inFlight === 0) {
-                pipe.output["return"]();
+                pipe.output.return();
             }
         })
         .then(null, function (error) {
-            pipe.output["throw"](error);
+            pipe.output.throw(error);
         });
     }, void 0)
     .then(function () {
         done = true;
         if (inFlight === 0) {
-            pipe.output["return"]();
+            pipe.output.return();
         }
     });
     return pipe.output;
 };
 
 Readable.prototype.reduce = function (callback, basis, maxInFlight, notify) {
+    callback = Q(callback);
     var self = this;
     var inFlight = 0;
     var done = false;
@@ -130,15 +135,13 @@ Readable.prototype.reduce = function (callback, basis, maxInFlight, notify) {
             } else {
                 ++inFlight;
                 if (notify) {
-                    notify.fcall(inFlight, maxInFlight).done();
+                    notify.call(void 0, inFlight, maxInFlight).done();
                 }
                 next();
                 return Q(iteration.value)
                 .then(function (value) {
                     bases.get().then(function (basis) {
-                        Q.fcall(function () {
-                            return callback(basis, value, iteration.index);
-                        })
+                        callback.call(void 0, basis, value, iteration.index)
                         .then(function (value) {
                             bases.put(value);
                             semaphore.put();
@@ -146,7 +149,7 @@ Readable.prototype.reduce = function (callback, basis, maxInFlight, notify) {
                         .then(null, deferred.reject);
                         --inFlight;
                         if (notify) {
-                            notify.fcall(inFlight, maxInFlight).done();
+                            notify.call(void 0, inFlight, maxInFlight).done();
                         }
                         check();
                     })
@@ -181,7 +184,7 @@ Readable.prototype.buffer = function (maxInFlight, notify) {
             pipe.output.put(iteration);
         })
         .then(null, function (error) {
-            pipe.output["throw"](error);
+            pipe.output.throw(error);
         });
     }
     next();
@@ -202,17 +205,18 @@ Readable.prototype.all = function (maxInFlight, notify) {
  */
 Readable.prototype.copy = function (output) {
     return this.forEach(function (chunk) {
-        return output["yield"](chunk);
+        return output.yield(chunk);
     })
     .then(function () {
-        output["return"]();
+        return output.return();
     });
 };
 
 /*
  * Reads an entire forEachable stream of buffers and returns a single buffer.
  */
-Readable.prototype.read = function read() {
+Readable.prototype.read = // TODO consider one or the other
+Readable.prototype.join = function (delimiter) {
     var chunks = [];
     var self = this;
     return this.forEach(function (chunk) {
@@ -220,15 +224,20 @@ Readable.prototype.read = function read() {
     })
     .then(function () {
         if (self.charset) {
-            return chunks.join("");
+            return chunks.join(delimiter || "");
         } else {
-            return join(chunks);
+            return join(chunks, delimiter);
         }
     });
 }
 
 exports.join = join;
-function join(buffers) {
+function join(buffers, delimiter) {
+    if (delimiter !== void 0) {
+        delimiter = Buffer(delimiter);
+    } else if (!delimiter) {
+        delimiter = void 0;
+    }
     var length = 0;
     var at;
     var i;
@@ -238,6 +247,9 @@ function join(buffers) {
     for (i = 0; i < ii; i++) {
         buffer = buffers[i];
         length += buffer.length;
+        if (delimiter && i !== 0) {
+            length += delimiter.length;
+        }
     }
     result = new Buffer(length);
     at = 0;
@@ -245,10 +257,23 @@ function join(buffers) {
         buffer = buffers[i];
         buffer.copy(result, at, 0);
         at += buffer.length;
+        if (delimiter && i !== 0) {
+            buffer.copy(delimiter, at, 0);
+            at += delimiter.length;
+        }
     }
     buffers.splice(0, ii, result);
     return result;
 }
+
+Readable.prototype.cancel = function () {
+};
+
+Readable.prototype.done = function () {
+    this.forEach(noop).done();
+};
+
+function noop() {}
 
 // ------------------------------------------------------------------------
 
@@ -318,7 +343,7 @@ BufferStream.prototype.next = function () {
  * @param {Any} value
  * @param {Number?} index
  */
-BufferStream.prototype["yield"] = function (value, index) {
+BufferStream.prototype.yield = function (value, index) {
     if (index === undefined) {
         index = this.index++;
     }
@@ -329,7 +354,7 @@ BufferStream.prototype["yield"] = function (value, index) {
  * Adds a completion value to the queue of iterations.  This signals the end of
  * the sequence, like closing a stream.
  */
-BufferStream.prototype["return"] = function (value) {
+BufferStream.prototype.return = function (value) {
     return this.put(new Iteration(value, true));
 };
 
@@ -338,20 +363,22 @@ BufferStream.prototype["return"] = function (value) {
  * like closing a stream with an error, or throwing an exception from a
  * generator.
  */
-BufferStream.prototype["throw"] = function (error) {
+BufferStream.prototype.throw = function (error) {
     this.put(Q.reject(error));
 };
 
+// TODO consider removing the write/close/destroy interface entirely
 BufferStream.prototype.write = function (value) {
-    return this["yield"](value);
+    return this.yield(value);
 };
 
 BufferStream.prototype.close = function (value) {
-    return this["return"](value);
+    return this.return(value);
 };
 
-BufferStream.prototype.destroy = function (error) {
-    return this["throw"](error);
+BufferStream.prototype.destroy = // TODO remove support for destroy
+BufferStream.prototype.cancel = function (error) {
+    return this.throw(error);
 };
 
 exports.Iteration = Iteration;
@@ -395,7 +422,7 @@ function Pipe(input, maxInFlight, notify) {
             return semaphore.get().then(function () {
                 if (notify) {
                     inFlight++;
-                    notify.fcall(inFlight, maxInFlight).done();
+                    notify.call(void 0, inFlight, maxInFlight).done();
                 }
                 return input.next();
             });
@@ -408,7 +435,7 @@ function Pipe(input, maxInFlight, notify) {
         get: function () {
             if (notify) {
                 inFlight--;
-                notify.fcall(inFlight, maxInFlight).done();
+                notify.call(void 0, inFlight, maxInFlight).done();
             }
             semaphore.put();
             return output.get();

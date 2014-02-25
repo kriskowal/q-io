@@ -16,12 +16,12 @@ var StatusApps = require("./status");
  */
 exports.Cap = function (app, notFound) {
     notFound = notFound || StatusApps.notFound;
-    return function (request, response) {
+    return function (request) {
         // TODO Distinguish these cases
         if (request.pathInfo === "" || request.pathInfo === "/") {
-            return app(request, response);
+            return app(request);
         } else {
-            return notFound(request, response);
+            return notFound(request);
         }
     };
 };
@@ -33,9 +33,9 @@ exports.Cap = function (app, notFound) {
  * the request to the wrapped app.
  */
 exports.Tap = function (app, tap) {
-    return function (request, response) {
+    return function (request) {
         var self = this, args = arguments;
-        return Q.when(tap.apply(this, arguments), function (response) {
+        return Q(tap).apply(this, arguments).then(function (response) {
             if (response) {
                 return response;
             } else {
@@ -50,8 +50,8 @@ exports.Tap = function (app, tap) {
  * alter or replace the response of the wrapped application.
  */
 exports.Trap = function (app, trap) {
-    return function (request, response) {
-        return Q.when(app.apply(this, arguments), function (response) {
+    return function (request) {
+        return Q(app).apply(this, arguments).then(function (response) {
             if (response) {
                 response.headers = response.headers || {};
                 return trap(response, request) || response;
@@ -78,9 +78,9 @@ exports.Branch = function (paths, notFound) {
         paths = {};
     if (!notFound)
         notFound = StatusApps.notFound;
-    return function (request, response) {
+    return function (request) {
         if (!/^\//.test(request.pathInfo)) {
-            return notFound(request, response);
+            return notFound(request);
         }
         var path = request.pathInfo.slice(1);
         var parts = path.split("/");
@@ -88,9 +88,9 @@ exports.Branch = function (paths, notFound) {
         if (Object.has(paths, part)) {
             request.scriptName = request.scriptName + part + "/";
             request.pathInfo = path.slice(part.length);
-            return Object.get(paths, part)(request, response);
+            return Object.get(paths, part)(request);
         }
-        return notFound(request, response);
+        return notFound(request);
     };
 };
 
@@ -103,12 +103,12 @@ exports.Branch = function (paths, notFound) {
  * @returns {App}
  */
 exports.FirstFound = function (cascade) {
-    return function (request, response) {
+    return function (request) {
         var i = 0, ii = cascade.length;
         function next() {
-            var response = cascade[i++](request, response);
+            var response = cascade[i++](request);
             if (i < ii) {
-                return Q.when(response, function (response) {
+                return Q(response).then(function (response) {
                     if (response.status === 404) {
                         return next();
                     } else {

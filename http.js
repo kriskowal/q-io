@@ -11,6 +11,7 @@ var URL = require("url2"); // node
 var Q = require("q");
 var NodeReader = require("./node/reader");
 var NodeWriter = require("./node/writer");
+var Reader = require("./reader");
 
 /**
  * @param {respond(request Request)} respond a JSGI responder function that
@@ -24,26 +25,32 @@ var NodeWriter = require("./node/writer");
  */
 exports.Server = function (respond) {
     var self = Object.create(exports.Server.prototype);
+    respond = Q(respond);
+
+    // TODO Server should produce a request stream. The request stream must be
+    // consumed for new connections to be accepted, so we have server
+    // back-pressure. The server may pass an error through, indicating a
+    // failure to respond. The streamed object could conceivably be a {request,
+    // response} promise pair.
 
     var server = HTTP.createServer(function (_request, _response) {
         var request = exports.ServerRequest(_request);
-        return Q.fcall(respond, request)
+        return respond.call(void 0, request)
         .then(function (response) {
             if (!response)
                 return;
 
             _response.writeHead(response.status, response.headers);
 
+            // TODO remove support for response.charset?
+            var reader = Reader(response.body || nobody);
             var writer = NodeWriter(_response, response.charset);
-            return Q(response.body || nobody).invoke("forEach", function (chunk) {
-                return writer.write(chunk);
-            })
-            .then(function () {
-                return writer.close();
-            })
+            // TODO cancel reader or writer if something bad happens?
+            return reader.copy(writer)
             .finally(response.onclose || response.onClose || noop);
         })
         .done();
+        // TODO stream errors so they can be captured
 
     });
 
@@ -61,9 +68,15 @@ exports.Server = function (respond) {
      * @returns {Promise * Undefined} a promise that will
      * resolve when the server is stopped.
      */
+    self.cancel = // TODO consider consolidating these names
     self.stop = function () {
         server.close();
         listening = undefined;
+        //server.getConnections(function (error, connections) {
+        //    if (connections) {
+        //        console.warn(connections + " outstanding connections at time to of close");
+        //    }
+        //});
         return stopped.promise;
     };
 
@@ -227,7 +240,7 @@ exports.normalizeResponse = function (response) {
  * @returns {Promise * Response} promise for a response
  */
 exports.request = function (request) {
-    return Q.when(request, function (request) {
+    return Q(request).then(function (request) {
 
         request = exports.normalizeRequest(request);
 
@@ -247,38 +260,24 @@ exports.request = function (request) {
             "headers": headers,
             "agent": request.agent
         }, function (_response) {
-            deferred.resolve(exports.ClientResponse(_response, request.charset));
+            // TODO request.charset or request.acceptCharset?
+            var response = exports.ClientResponse(_response, request.charset);
+            deferred.resolve(response);
             _response.on("error", function (error) {
-                // TODO find a better way to channel
-                // this into the response
-                console.warn(error && error.stack || error);
                 deferred.reject(error);
+                response.body.throw(error);
             });
+            reader.cancel();
+            writer.cancel();
         });
 
-        _request.on("error", function (error) {
-            deferred.reject(error);
-        });
+        _request.on("error", deferred.reject);
 
-        Q.when(request.body, function (body) {
-            var end, done;
-            if (body) {
-                done = body.forEach(function (chunk) {
-                    end = Q.when(end, function () {
-                        return Q.when(chunk, function (chunk) {
-                            _request.write(chunk, request.charset);
-                        });
-                    });
-                });
-            }
-            return Q.when(end, function () {
-                return Q.when(done, function () {
-                    _request.end();
-                });
-            });
-        }).done();
-
-        return deferred.promise;
+        // TODO request.charset or request.acceptCharset?
+        var reader = Reader(request.body || nobody);
+        var writer = NodeWriter(_request, request.charset);
+        return reader.copy(writer)
+        .thenResolve(deferred.promise);
     });
 };
 
@@ -296,16 +295,15 @@ exports.read = function (request, qualifier) {
     qualifier = qualifier || function (response) {
         return response.status === 200;
     };
-    return Q.when(exports.request(request), function (response) {
+    return exports.request(request).then(function (response) {
         if (!qualifier(response)){
             var error = new Error("HTTP request failed with code " + response.status);
             error.response = response;
             throw error;
         }
-        return Q.post(response.body, 'read', []);
+        return Q(response.body).invoke("join", "");
     });
 };
-
 
 /**
  * A wrapper for the Node HTTP Response as provided
@@ -326,10 +324,8 @@ exports.ClientResponse = function (_response, charset) {
     response.node = _response;
     response.nodeResponse = _response; // Deprecated
     response.nodeConnection = _response.connection; // Deprecated
-    return Q.when(NodeReader(_response, charset), function (body) {
-        response.body = body;
-        return response;
-    });
+    response.body = NodeReader(_response, charset);
+    return response;
 };
 
 function noop() {}

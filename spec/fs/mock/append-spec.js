@@ -1,6 +1,5 @@
 "use strict";
 
-require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 /*global describe,it,expect */
@@ -10,7 +9,7 @@ describe("append", function () {
     it("appends to a file on a mock filesystem", function () {
         return FS.mock(FS.join(__dirname, "fixture"))
         .then(function (mock) {
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return mock.append("hello.txt", "Goodbye!\n");
             })
             .then(function () {
@@ -30,7 +29,7 @@ describe("append", function () {
                 expect(options.flags).toBe("a");
                 expect(options.charset).toBe("utf8");
 
-                return Q.resolve({write: function () {}, close: function () {}});
+                return Q({write: Q, close: Q});
             };
 
             return mock.append("hello.txt", "Goodbye!\n", "a", "utf8");

@@ -15,7 +15,7 @@ var Deprecate = require("../deprecate");
  * @returns {App}
  */
 exports.File = function (path, contentType) {
-    return function (request, response) {
+    return function (request) {
         return exports.file(request, String(path), contentType);
     };
 };
@@ -42,7 +42,7 @@ exports.FileTree = function (root, options) {
     options.fs = options.fs || FS;
     var fs = options.fs;
     root = fs.canonical(root);
-    return function (request, response) {
+    return function (request) {
         var location = URL.parse(request.url);
         request.fs = fs;
         var redirect = options.redirect || (
@@ -50,26 +50,27 @@ exports.FileTree = function (root, options) {
             RedirectApps.permanentRedirect :
             RedirectApps.temporaryRedirect
         );
-        return Q.when(root, function (root) {
+        return root.then(function (root) {
             var path = fs.join(root, request.pathInfo.slice(1));
-            return Q.when(fs.canonical(path), function (canonical) {
-                if (!fs.contains(root, canonical) && !options.followInsecureSymbolicLinks)
-                    return options.notFound(request, response);
+            return fs.canonical(path).then(function (canonical) {
+                if (!fs.contains(root, canonical) && !options.followInsecureSymbolicLinks) {
+                    return options.notFound(request);
+                }
                 if (path !== canonical && options.redirectSymbolicLinks)
                     return redirect(request, fs.relativeFromFile(path, canonical));
                 // TODO: relativeFromFile should be designed for URL’s, not generalized paths.
                 // HTTP.relative(pathToDirectoryLocation(path), pathToFile/DirectoryLocation(canonical))
-                return Q.when(fs.stat(canonical), function (stat) {
+                return fs.stat(canonical).then(function (stat) {
                     if (stat.isFile()) {
                         return options.file(request, canonical, options.contentType, fs);
                     } else if (stat.isDirectory()) {
                         return options.directory(request, canonical, options.contentType, fs);
                     } else {
-                        return options.notFound(request, response);
+                        return options.notFound(request);
                     }
                 });
             }, function (reason) {
-                return options.notFound(request, response);
+                return options.notFound(request);
             });
         });
     };
@@ -79,7 +80,7 @@ exports.file = function (request, path, contentType, fs) {
     fs = fs || FS;
     // TODO last-modified header
     contentType = contentType || MimeTypes.lookup(path);
-    return Q.when(fs.stat(path), function (stat) {
+    return fs.stat(path).then(function (stat) {
         var etag = exports.etag(stat);
         var options = {
             flags: "rb"
@@ -217,7 +218,7 @@ exports.ListDirectories = function (app, listDirectory) {
             throw new Error("DirectoryIndex must be used after ListDirectories");
         }
         request.listDirectories = true;
-        return Q.fcall(app, request)
+        return Q(app).call(void 0, request)
         .then(function (response) {
             if (response.directory !== void 0) {
                 return exports.listDirectory(request, response);
@@ -342,11 +343,11 @@ exports.listDirectoryData = function (request, response) {
         throw new Error("Can't list a directory without a designated file system");
     }
     var fs = request.fs;
-    return Q.invoke(fs, "list", response.directory)
+    return Q(fs).invoke("list", response.directory)
     .then(function (list) {
         list.sort();
         return list.map(function (name) {
-            return Q.invoke(fs, "stat", fs.join(response.directory, name))
+            return Q(fs).invoke("stat", fs.join(response.directory, name))
             .then(function (stat) {
                 if (stat.isDirectory()) {
                     return {name: name, stat: {
@@ -359,6 +360,9 @@ exports.listDirectoryData = function (request, response) {
                 }
             }, function () {
                 // ignore unstatable entries
+                // TODO consider raising an error to increase awareness that
+                // listDirectoryData does not work on directory trees that are
+                // in flux.
             });
         })
     })
@@ -384,14 +388,14 @@ exports.DirectoryIndex = function (app, indexFile) {
         if (request.location.file === indexFile) {
             return RedirectApps.redirect(request, ".");
         } else {
-            return Q.fcall(app, request)
+            return Q(app).call(void 0, request)
             .then(function (response) {
                 if (response.directory !== void 0) {
                     if (request.location.file) {
                         return RedirectApps.redirect(request, request.location.file + "/");
                     } else {
                         var index = request.fs.join(response.directory, indexFile);
-                        return Q.invoke(request.fs, "isFile", index)
+                        return Q(request.fs).invoke("isFile", index)
                         .then(function (isFile) {
                             if (isFile) {
                                 request.url = URL.resolve(request.url, indexFile);

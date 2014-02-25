@@ -1,6 +1,5 @@
 "use strict";
 
-require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
@@ -27,7 +26,7 @@ describe("makeTree", function () {
 
         return merged.then(function (merged) {
 
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return merged.listTree();
             })
             .then(function (list) {

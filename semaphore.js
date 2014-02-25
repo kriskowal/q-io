@@ -1,6 +1,6 @@
 
 var Q = require("q");
-var Queue = require("./queue");
+var Queue = require("q/queue");
 
 module.exports = makeSemaphore;
 function makeSemaphore(size) {

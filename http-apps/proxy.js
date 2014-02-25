@@ -12,7 +12,7 @@ exports.Proxy = function (app) {
         };
     }
     return function (request, response) {
-        return Q.when(app.apply(this, arguments), function (request) {
+        return Q(app).apply(this, arguments).then(function (request) {
             return HTTP.request(request);
         });
     };

@@ -12,10 +12,10 @@ exports.HandleHtmlFragmentResponses = function (app, handleHtmlFragmentResponse)
     handleHtmlFragmentResponse = handleHtmlFragmentResponse || exports.handleHtmlFragmentResponse;
     return function (request) {
         request.handleHtmlFragmentResponse = handleHtmlFragmentResponse;
-        return Q.fcall(app, request)
+        return Q(app).call(void 0, request)
         .then(function (response) {
             if (response.htmlFragment) {
-                return Q.fcall(handleHtmlFragmentResponse, response);
+                return handleHtmlFragmentResponse(response);
             } else {
                 return response;
             }

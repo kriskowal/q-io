@@ -42,7 +42,8 @@ var Negotiator = function (requestHeader, responseHeader, respond) {
             request.terms = request.terms || {};
             request.terms[responseHeader] = type;
             if (Object.has(keys, type)) {
-                return Q.when(types[type](request, response), function (response) {
+                return Q(types[type]).call(void 0, request)
+                .then(function (response) {
                     if (
                         respond !== null &&
                         response &&
@@ -112,7 +113,7 @@ exports.Host = function (appForHost, notAcceptable) {
 // Branch on a selector function based on the request
 exports.Select = function (select) {
     return function (request, response) {
-        return Q.when(select(request, response), function (app) {
+        return Q(select).call(void 0, request).then(function (app) {
             return app(request, response);
         });
     };

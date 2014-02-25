@@ -8,7 +8,7 @@ function MockStream(chunks, charset) {
     this._chunks = chunks;
     this._readBuffer = new BufferStream();
     chunks.forEach(function (chunk) {
-        this._readBuffer["yield"](chunk);
+        this._readBuffer.yield(chunk);
     }, this);
     this.charset = charset;
 }
@@ -21,24 +21,24 @@ MockStream.prototype.next = function () {
     return this._readBuffer.next();
 };
 
-MockStream.prototype["yield"] = function (chunk) {
+MockStream.prototype.yield = function (chunk) {
     if (this.charset) {
         chunk = new Buffer(chunk, this.charset);
     }
     this._chunks.push(chunk);
-    this._readBuffer["yield"](chunk);
+    this._readBuffer.yield(chunk);
     return Q();
 };
 
-MockStream.prototype["return"] = function (value) {
+MockStream.prototype.return = function (value) {
     this._closed = true;
-    this._readBuffer["return"](value);
+    this._readBuffer.return(value);
     return Q();
 };
 
-MockStream.prototype["throw"] = function (error) {
+MockStream.prototype.throw = function (error) {
     this._closed = true;
-    this._readBuffer["throw"](error);
+    this._readBuffer.throw(error);
     return Q();
 };
 

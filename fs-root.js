@@ -46,7 +46,9 @@ function RootFs(outer, root) {
                     "outer": actual
                 };
             } else {
-                return Q.reject("Can't find: " + JSON.stringify(path));
+                var error = new Error("Can't find: " + JSON.stringify(path));
+                delete error.stack;
+                throw error;
             }
         });
     }
@@ -113,7 +115,7 @@ function RootFs(outer, root) {
         });
     };
 
-    return Q.when(outer.canonical(root), function (_root) {
+    return outer.canonical(root).then(function (_root) {
         root = _root;
         return inner;
     });

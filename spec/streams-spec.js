@@ -1,5 +1,4 @@
 
-require("./lib/jasmine-promise");
 var Q = require("q");
 var BufferStream = require("../buffer-stream");
 var Reader = require("../reader");
@@ -233,7 +232,7 @@ describe("map", function () {
                 throw new Error('raised from inner')
             }
         ])
-        .map(Q.fcall)
+        .map(Q.try)
         .all()
         .then(function() {
             throw new Error('then handler should not run')
@@ -279,7 +278,7 @@ describe("map", function () {
         buffer.yield(1);
         buffer.yield(2);
 
-        Q.delay(100).then(function () {
+        Q().delay(100).then(function () {
             expect(partial).toBe(6);
             buffer.yield(3);
             buffer["return"]();
@@ -319,7 +318,7 @@ describe("forEach", function () {
         Reader([1, 2, 3, 4, 5, 6])
         .forEach(function (v) {
             progress++;
-            return Q.delay(100);
+            return Q().delay(100);
         }, null, 3, function (flight) {
             expect(flight).toBeLessThan(4);
         })
@@ -363,7 +362,7 @@ describe("buffer", function () {
         .forEach(function (n) {
             flight--;
             expect(flight).toBeLessThan(4);
-            return Q.delay(10);
+            return Q().delay(10);
         })
     });
 
@@ -375,7 +374,7 @@ describe("buffer stream", function () {
         var stream = new BufferStream();
         var got = false;
 
-        Q.delay(50).then(function () {
+        Q().delay(50).then(function () {
             expect(got).toBe(false);
             got = true;
             return stream.get();

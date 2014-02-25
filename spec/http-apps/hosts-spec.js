@@ -1,5 +1,4 @@
 
-require("../lib/jasmine-promise");
 var Q = require("q");
 var Http = require("../../http");
 var Negotiate = require("../../http-apps/negotiate");
@@ -24,7 +23,7 @@ describe("http host negotiation", function () {
         .listen(0)
         .then(function (server) {
             var port = server.address().port;
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return Http.read({
                     "url": "http://localhost:" + port,
                     "charset": "utf-8"

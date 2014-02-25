@@ -173,9 +173,7 @@ exports.RedirectTrap = function (app, maxRedirects) {
 
         // try redirect loop
         function next() {
-            Q.fcall(function () {
-                return app(request, response);
-            })
+            return Q(app).call(void 0, request)
             .then(function (response) {
                 if (exports.isRedirect(response)) {
                     if (remaining--) {
@@ -188,7 +186,7 @@ exports.RedirectTrap = function (app, maxRedirects) {
                     deferred.resolve(response);
                 }
             })
-            .fail(deferred.reject)
+            .catch(deferred.reject)
         }
         next();
 

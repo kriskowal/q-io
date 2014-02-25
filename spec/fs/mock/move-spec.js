@@ -1,6 +1,5 @@
 "use strict";
 
-require("../../lib/jasmine-promise");
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
@@ -12,7 +11,7 @@ describe("move", function () {
         .then(function (mock) {
 
             // initial list
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return mock.listTree()
             })
             .then(function (list) {
@@ -63,7 +62,7 @@ describe("move", function () {
         .then(function (mock) {
 
             // initial list
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return mock.listTree()
             })
             .then(function (list) {
@@ -113,7 +112,7 @@ describe("move", function () {
         return FS.mock(FS.join(__dirname, "fixture"))
         .then(function (mock) {
 
-            return Q.fcall(function () {
+            return Q.try(function () {
                 return Q.all([
                     mock.symbolicCopy("hello.txt", "a.txt"),
                     mock.symbolicCopy("hello.txt", "b.txt"),
@@ -176,7 +175,7 @@ describe("move", function () {
             "hello": {}
         });
 
-        return Q.fcall(function () {
+        return Q.try(function () {
             return mock.isDirectory("/hello");
         })
         .then(function (isDirectory) {
@@ -198,7 +197,7 @@ describe("move", function () {
             "hello": {}
         });
 
-        return Q.fcall(function () {
+        return Q.try(function () {
             return mock.isDirectory("/hello");
         })
         .then(function (isDirectory) {

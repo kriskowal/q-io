@@ -1,4 +1,3 @@
-require("../lib/jasmine-promise");
 var Q = require("q");
 var HTTPS = require("https");
 var http = require('../../http');
@@ -83,7 +82,7 @@ describe("https agent", function () {
         }).then(function (response) {
             // should not be here
             expect(response).toBeUndefined();
-        }).fail(function(err) {
+        }).catch(function(err) {
             expect(Q.isPromise(err)).toBe(false);
             expect(err).toEqual(jasmine.any(Error));
             expect(err.message).toBe('DEPTH_ZERO_SELF_SIGNED_CERT');

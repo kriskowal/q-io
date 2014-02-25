@@ -10,7 +10,7 @@
 
 var FS = require("fs"); // node
 var Q = require("q");
-var makeReader = require("./node/reader");
+var Reader = require("./node/reader");
 var Writer = require("./node/writer");
 var Common = require("./fs-common");
 var Mock = require("./fs-mock");
@@ -24,11 +24,15 @@ exports.Root = Root;
 var backOffDelay = 0;
 var backOffFactor = 1.0001;
 function dampen(wrapped, thisp) {
+    wrapped = Q(wrapped);
     var retry = function () {
         var args = arguments;
-        var ready = backOffDelay ? Q.delay(backOffDelay) : Q.resolve();
+        var ready = Q();
+        if (backOffDelay) {
+            ready = ready.delay(backOffDelay);
+        }
         return ready.then(function () {
-            return Q.when(wrapped.apply(thisp, args), function (stream) {
+            return wrapped.apply(thisp, args).then(function (stream) {
                 backOffDelay = Math.max(0, backOffDelay - 1);
                 return stream;
             }, function (error) {
@@ -84,7 +88,7 @@ exports.open = dampen(function (path, flags, charset, options) {
         return Writer(stream, charset);
     } else {
         var stream = FS.createReadStream(String(path), nodeOptions);
-        return makeReader(stream, charset);
+        return Reader(stream, charset);
     }
 });
 
@@ -106,7 +110,7 @@ exports.rename = function (source, target) {
     source = String(source);
     target = String(target);
     return Q.ninvoke(FS, "rename", source, target)
-    .fail(function (error) {
+    .catch(function (error) {
         if (error.code === "EXDEV") {
             error.message = "source and target are on different devices: " + error.message;
             error.crossDevice = true;

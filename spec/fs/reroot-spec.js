@@ -1,7 +1,5 @@
 var FS = require("../../fs");
 
-require("../lib/jasmine-promise");
-
 describe("reroot", function () {
 
     it("should still have makeDirectory()", function() {

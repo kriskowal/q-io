@@ -1,5 +1,4 @@
 
-require("../../lib/jasmine-promise");
 var MockFs = require("../../../fs-mock");
 var normalize = require('../../../fs').normal;
 

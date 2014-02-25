@@ -1,5 +1,4 @@
 /*global __dirname*/
-require("../lib/jasmine-promise");
 var Http = require("../../http");
 var Apps = require("../../http-apps");
 var FS = require("../../fs");
@@ -23,7 +22,10 @@ describe("FileTree followInsecureSymbolicLinks", function () {
             return new Apps.Chain()
             .use(Apps.ListDirectories)
             .use(function () {
-                return Apps.FileTree(FS.join("/","9012"), {fs: mockFS, followInsecureSymbolicLinks: followInsecureSymbolicLinks});
+                return Apps.FileTree(FS.join("/","9012"), {
+                    fs: mockFS,
+                    followInsecureSymbolicLinks: followInsecureSymbolicLinks
+                });
             })
             .end()
         }).then(function (app) {
@@ -45,7 +47,7 @@ describe("FileTree followInsecureSymbolicLinks", function () {
                     },
                     charset: 'utf-8'
                 })
-                .then(null, function (error) {
+                .catch(function (error) {
                     expect(error.response.status).toEqual(404);
                 })
                 .finally(server.stop);

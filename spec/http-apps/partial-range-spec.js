@@ -1,5 +1,4 @@
 
-require("../lib/jasmine-promise");
 var Http = require("../../http");
 var Apps = require("../../http-apps");
 var FS = require("../../fs");
@@ -150,7 +149,7 @@ describe("HTTP Range", function () {
                return serveAndTest("bytes=10-11", 416)
                .then(function (content) {
                    expect(true).toBeTruthy();
-               }).fail(function () {
+               }).catch(function () {
                    expect(false).toBeTruthy();
                });
             });
@@ -159,7 +158,7 @@ describe("HTTP Range", function () {
                return serveAndTest("bytes=1-0", 206)
                .then(function (content) {
                    expect(true).toBeFalsy();
-               }).fail(function (error) {
+               }).catch(function (error) {
                    expect(error.response.status).toBe(416);
                });
             });
@@ -168,7 +167,7 @@ describe("HTTP Range", function () {
                return serveAndTest("bytes=10-11,-0", 416)
                .then(function (content) {
                    expect(true).toBeTruthy();
-               }).fail(function () {
+               }).catch(function () {
                    expect(false).toBeTruthy();
                });
             });

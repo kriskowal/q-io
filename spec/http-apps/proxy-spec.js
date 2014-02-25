@@ -1,5 +1,4 @@
 
-require("../lib/jasmine-promise");
 var Q = require("q");
 var Http = require("../../http");
 var Apps = require("../../http-apps");

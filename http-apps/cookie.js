@@ -71,7 +71,7 @@ exports.CookieJar = function (app) {
             );
         }
 
-        return Q.when(app.apply(this, arguments), function (response) {
+        return Q(app).call(this, request).then(function (response) {
             response.headers = response.headers || {};
             if (response.headers["set-cookie"]) {
                 var requestHost = ipRe.test(request.headers.host) ?

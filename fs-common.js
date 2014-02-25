@@ -38,7 +38,7 @@ exports.update = function (exports, workingDirectory) {
             options.charset = charset;
         }
         options.flags = options.flags || "r";
-        return Q.when(this.open(path, options), function (stream) {
+        return this.open(path, options).then(function (stream) {
             return stream.read();
         }, function (error) {
             error.message = "Can't read " + path + " because " + error.message;
@@ -80,8 +80,8 @@ exports.update = function (exports, workingDirectory) {
             flags += "b";
         }
         options.flags = flags;
-        return Q.when(self.open(path, options), function (stream) {
-            return Q.when(stream.write(content), function () {
+        return self.open(path, options).then(function (stream) {
+            return stream.write(content).then(function () {
                 return stream.close();
             });
         });
@@ -114,8 +114,8 @@ exports.update = function (exports, workingDirectory) {
             flags += "b";
         }
         options.flags = flags;
-        return Q.when(self.open(path, options), function (stream) {
-            return Q.when(stream.write(content), function () {
+        return self.open(path, options).then(function (stream) {
+            return stream.write(content).then(function () {
                 return stream.close();
             });
         });
@@ -138,13 +138,13 @@ exports.update = function (exports, workingDirectory) {
 
     exports.copy = function (source, target) {
         var self = this;
-        return Q.spread([
+        return Q([
             self.open(source, {flags: "rb"}),
             self.open(target, {flags: "wb"})
-        ], function (reader, writer) {
-            return Q.when(reader.forEach(function (block) {
+        ]).spread(function (reader, writer) {
+            return reader.forEach(function (block) {
                 return writer.write(block);
-            }), function () {
+            }).then(function () {
                 return Q.all([
                     reader.close(),
                     writer.close()
@@ -155,12 +155,12 @@ exports.update = function (exports, workingDirectory) {
 
     exports.copyTree = function (source, target) {
         var self = this;
-        return Q.when(self.stat(source), function (stat) {
+        return self.stat(source).then(function (stat) {
             if (stat.isFile()) {
                 return self.copy(source, target);
             } else if (stat.isDirectory()) {
                 return self.exists(target).then(function (targetExists) {
-                    var copySubTree = Q.when(self.list(source), function (list) {
+                    var copySubTree = self.list(source).then(function (list) {
                         return Q.all(list.map(function (child) {
                             return self.copyTree(
                                 self.join(source, child),
@@ -171,7 +171,7 @@ exports.update = function (exports, workingDirectory) {
                     if (targetExists) {
                         return copySubTree;
                     } else {
-                        return Q.when(self.makeDirectory(target), function () {
+                        return self.makeDirectory(target).then(function () {
                             return copySubTree;
                         });
                     }
@@ -192,21 +192,16 @@ exports.update = function (exports, workingDirectory) {
         guard = guard || function () {
             return true;
         };
-        var stat = self.stat(basePath);
-        return Q.when(stat, function (stat) {
+        return self.stat(basePath).then(function (stat) {
             var paths = [];
             var mode; // true:include, false:exclude, null:no-recur
-            try {
-                var include = guard(basePath, stat);
-            } catch (exception) {
-                return Q.reject(exception);
-            }
-            return Q.when(include, function (include) {
+            var include = guard(basePath, stat);
+            return Q(include).then(function (include) {
                 if (include) {
                     paths.push([basePath]);
                 }
                 if (include !== null && stat.isDirectory()) {
-                    return Q.when(self.list(basePath), function (children) {
+                    return self.list(basePath).then(function (children) {
                         paths.push.apply(paths, children.map(function (child) {
                             var path = self.join(basePath, child);
                             return self.listTree(path, guard);
@@ -239,7 +234,7 @@ exports.update = function (exports, workingDirectory) {
             at.push(parts.shift() || self.ROOT);
         }
         return parts.reduce(function (parent, part) {
-            return Q.when(parent, function () {
+            return parent.then(function () {
                 at.push(part);
                 var parts = self.join(at) || ".";
                 var made = self.makeDirectory(parts, mode);
@@ -252,12 +247,12 @@ exports.update = function (exports, workingDirectory) {
                     }
                 });
             });
-        }, undefined);
+        }, Q());
     };
 
     exports.removeTree = function (path) {
         var self = this;
-        return Q.when(self.statLink(path), function (stat) {
+        return self.statLink(path).then(function (stat) {
             if (stat.isSymbolicLink()) {
                 return self.remove(path);
             } else if (stat.isDirectory()) {
@@ -279,51 +274,39 @@ exports.update = function (exports, workingDirectory) {
 
     exports.symbolicCopy = function (source, target, type) {
         var self = this;
-        return Q.when(self.relative(target, source), function (relative) {
+        return self.relative(target, source).then(function (relative) {
             return self.symbolicLink(target, relative, type || "file");
         });
     };
 
     exports.exists = function (path) {
-        return Q.when(this.stat(path), function () {
-            return true;
-        }, function () {
-            return false;
-        });
+        return this.stat(path).then(returnTrue, returnFalse);
     };
 
     exports.isFile = function (path) {
-        return Q.when(this.stat(path), function (stat) {
+        return this.stat(path).then(function (stat) {
             return stat.isFile();
-        }, function (reason) {
-            return false;
-        });
+        }, returnFalse);
     };
 
     exports.isDirectory = function (path) {
-        return Q.when(this.stat(path), function (stat) {
+        return this.stat(path).then(function (stat) {
             return stat.isDirectory();
-        }, function (reason) {
-            return false;
-        });
+        }, returnFalse);
     };
 
     exports.isSymbolicLink = function (path) {
-        return Q.when(this.statLink(path), function (stat) {
+        return this.statLink(path).then(function (stat) {
             return stat.isSymbolicLink();
-        }, function (reason) {
-            return false;
-        });
+        }, returnFalse);
     };
 
     exports.lastModified = function (path) {
-        var self = this;
-        return self.stat(path).invoke('lastModified');
+        return this.stat(path).invoke('lastModified');
     };
 
     exports.lastAccessed = function (path) {
-        var self = this;
-        return self.stat(path).invoke('lastAccessed');
+        return this.stat(path).invoke('lastAccessed');
     };
 
     exports.absolute = function (path) {
@@ -334,7 +317,7 @@ exports.update = function (exports, workingDirectory) {
 
     exports.relative = function (source, target) {
         var self = this;
-        return Q.when(this.isDirectory(source), function (isDirectory) {
+        return this.isDirectory(source).then(function (isDirectory) {
             if (isDirectory) {
                 return self.relativeFromDirectory(source, target);
             } else {
@@ -344,11 +327,10 @@ exports.update = function (exports, workingDirectory) {
     };
 
     exports.relativeFromFile = function (source, target) {
-        var self = this;
-        source = self.absolute(source);
-        target = self.absolute(target);
-        source = source.split(self.SEPARATORS_RE());
-        target = target.split(self.SEPARATORS_RE());
+        source = this.absolute(source);
+        target = this.absolute(target);
+        source = source.split(this.SEPARATORS_RE());
+        target = target.split(this.SEPARATORS_RE());
         source.pop();
         while (
             source.length &&
@@ -362,7 +344,7 @@ exports.update = function (exports, workingDirectory) {
             source.shift();
             target.unshift("..");
         }
-        return target.join(self.SEPARATOR);
+        return target.join(this.SEPARATOR);
     };
 
     exports.relativeFromDirectory = function (source, target) {
@@ -392,7 +374,6 @@ exports.update = function (exports, workingDirectory) {
     };
 
     exports.contains = function (parent, child) {
-        var i, ii;
         parent = this.absolute(parent);
         child = this.absolute(child);
         parent = parent.split(this.SEPARATORS_RE());
@@ -401,22 +382,22 @@ exports.update = function (exports, workingDirectory) {
             parent.pop();
         if (parent.length > child.length)
             return false;
-        for (i = 0, ii = parent.length; i < ii; i++) {
-            if (parent[i] !== child[i])
+        for (index = 0; index < parent.length; index++) {
+            if (parent[index] !== child[index])
                 break;
         }
-        return i == ii;
+        return index === parent.length;
     };
 
     exports.reroot = reroot;
     function reroot(path) {
         var self = this;
         path = path || this.ROOT;
-        return Q.when(this.list(path), function (list) {
+        return this.list(path).then(function (list) {
             if (list.length !== 1)
                 return RootFs(self, path);
             var nextPath = self.join(path, list[0]);
-            return Q.when(self.stat(nextPath), function (stat) {
+            return self.stat(nextPath).then(function (stat) {
                 if (stat.isDirectory()) {
                     return reroot(nextPath);
                 } else {
@@ -428,13 +409,12 @@ exports.update = function (exports, workingDirectory) {
 
     exports.toObject = function (path) {
         var self = this;
-        var list = self.listTree(path || "", function (path, stat) {
+        return self.listTree(path || "", function (path, stat) {
             return stat.isFile();
-        });
-        return Q.when(list, function (list) {
+        }).then(function (list) {
             var tree = {};
             return Q.all(list.map(function (path) {
-                return Q.when(self.read(path, "rb"), function (content) {
+                return self.read(path, "rb").then(function (content) {
                     tree[path] = content;
                 });
             })).then(function () {
@@ -445,9 +425,9 @@ exports.update = function (exports, workingDirectory) {
 
     exports.merge = function (fss) {
         var tree = {};
-        var done;
+        var done = Q();
         fss.forEach(function (fs) {
-            done = Q.when(done, function () {
+            done = done.then(function () {
                 return fs.listTree("", function (path, stat) {
                     return stat.isFile();
                 })
@@ -460,7 +440,7 @@ exports.update = function (exports, workingDirectory) {
                 });
             });
         })
-        return Q.when(done, function () {
+        return done.then(function () {
             return MockFs(tree);
         });
     };
@@ -495,5 +475,13 @@ exports.update = function (exports, workingDirectory) {
         return new Date(this.node.atime);
     };
 
+}
+
+function returnTrue() {
+    return true;
+}
+
+function returnFalse() {
+    return false;
 }
 

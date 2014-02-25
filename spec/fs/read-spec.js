@@ -1,5 +1,4 @@
 
-require("../lib/jasmine-promise");
 var FS = require("../../fs");
 
 describe("read", function () {

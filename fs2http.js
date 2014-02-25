@@ -1,6 +1,7 @@
 
 var Q = require("q");
 var HTTP = require("./http");
+var FS = require("./fs");
 var URL = require("url");
 
 exports.Client = Client;
@@ -8,7 +9,7 @@ function Client(fs) {
     var self = Object.create(Client.prototype);
 
     self.request = function (request) {
-        return Q.when(request, function (request) {
+        return Q(request).then(function (request) {
             request = HTTP.normalizeRequest(request);
             var url = URL.parse(request.url);
             if (url.protocol !== "file:") {
@@ -36,13 +37,13 @@ function Client(fs) {
         qualifier = qualifier || function (response) {
             return response.status === 200;
         };
-        return Q.when(exports.request(request), function (response) {
+        return exports.request(request).then(function (response) {
             if (!qualifier(response)){
                 var error = new Error("HTTP request failed with code " + response.status);
                 error.response = response;
                 throw error;
             }
-            return Q.invoke(response.body, "read");
+            return Q(response.body).invoke("read");
         });
     };
 
@@ -50,16 +51,10 @@ function Client(fs) {
 }
 
 exports.request = function (request) {
-    return Q.fcall(require.async || require, "./fs")
-    .then(function (fs) {
-        return Client(fs).request(request);
-    });
+    return Client(fs).request(request);
 };
 
 exports.read = function (request, qualifier) {
-    return Q.fcall(require.async || require, "./fs")
-    .then(function (fs) {
-        return Client(fs).read(request);
-    });
+    return Client(fs).read(request);
 };
 
