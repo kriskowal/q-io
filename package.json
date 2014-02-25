@@ -33,7 +33,7 @@
     "jasminum": "~0.0.0"
   },
   "scripts": {
-    "test": "jasminum spec",
+    "test": "jasminum test",
     "lint": "jshint"
   },
   "engines": {
