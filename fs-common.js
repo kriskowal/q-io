@@ -399,7 +399,7 @@ exports.update = function (exports, workingDirectory) {
             var nextPath = self.join(path, list[0]);
             return self.stat(nextPath).then(function (stat) {
                 if (stat.isDirectory()) {
-                    return reroot(nextPath);
+                    return self.reroot(nextPath);
                 } else {
                     return RootFs(self, path);
                 }
