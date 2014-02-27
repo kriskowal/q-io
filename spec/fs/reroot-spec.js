@@ -12,6 +12,26 @@ describe("reroot", function () {
         });
     });
 
+    it("should reroot to a subdirectory if the given directory only contains a subdirectory", function() {
+        var MockFS = require("../../fs-mock");
+
+        var mockFs = MockFS({
+            "a": {
+                "b": {
+                    "c1": "pass1",
+                    "c2": "pass2"
+                }
+            }
+        });
+
+        return mockFs.reroot("/a")
+        .then(function (fs) {
+            return fs.list("/");
+        }).then(function (list) {
+            expect(list).toEqual(["c1", "c2"]);
+        });
+    });
+
     it("should have a makeDirectory() that creates within the attenuated root", function() {
         var tmpdir = FS.join(__dirname, 'tmp');
         return FS.removeTree(tmpdir)
