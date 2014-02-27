@@ -113,6 +113,30 @@ function RootFs(outer, root) {
         });
     };
 
+    inner.remove = function (path) {
+        return attenuate(path).then(function (path) {
+            return outer.remove(path.outer);
+        }).catch(function (error) {
+            throw new Error("Can't remove " + JSON.stringify(path));
+        });
+    };
+
+    inner.makeTree = function (path) {
+        return attenuate(path).then(function (path) {
+            return outer.makeTree(path.outer);
+        }).catch(function (error) {
+            throw new Error("Can't make tree " + JSON.stringify(path));
+        });
+    };
+
+    inner.removeTree = function (path) {
+        return attenuate(path).then(function (path) {
+            return outer.removeTree(path.outer);
+        }).catch(function (error) {
+            throw new Error("Can't remove tree " + JSON.stringify(path));
+        });
+    };
+
     return Q.when(outer.canonical(root), function (_root) {
         root = _root;
         return inner;
