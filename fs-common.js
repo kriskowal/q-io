@@ -412,18 +412,7 @@ exports.update = function (exports, workingDirectory) {
     function reroot(path) {
         var self = this;
         path = path || this.ROOT;
-        return Q.when(this.list(path), function (list) {
-            if (list.length !== 1)
-                return RootFs(self, path);
-            var nextPath = self.join(path, list[0]);
-            return Q.when(self.stat(nextPath), function (stat) {
-                if (stat.isDirectory()) {
-                    return reroot(nextPath);
-                } else {
-                    return RootFs(self, path);
-                }
-            });
-        });
+        return RootFs(self, path);
     }
 
     exports.toObject = function (path) {
