@@ -308,8 +308,6 @@ function BufferStream(queue) {
     };
 }
 
-// TODO acknowledgement buffer
-
 BufferStream.prototype = Object.create(Readable.prototype);
 
 BufferStream.prototype.constructor = BufferStream;

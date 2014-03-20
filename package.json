@@ -1,5 +1,6 @@
 {
   "name": "q-io",
+  "version": "2.0.0",
   "description": "IO using Q promises",
   "homepage": "http://github.com/kriskowal/q-io/",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
@@ -21,22 +22,19 @@
     "fs": "browser/fs"
   },
   "dependencies": {
-    "q": "~0.9.7",
-    "qs": "~0.6.6",
-    "url2": "~0.0.0",
-    "mime": "~1.2.11",
-    "mimeparse": "~0.1.4",
-    "collections": "~2.0.0"
+    "q": "^2.0.0",
+    "qs": "^0.6.6",
+    "url2": "^0.0.2",
+    "mime": "^1.2.11",
+    "mimeparse": "^0.1.4",
+    "collections": "^2.0.0"
   },
   "devDependencies": {
-    "jshint": "~0.9.1",
-    "jasminum": "~0.0.0"
+    "jshint": "^0.9.1",
+    "jasminum": "^2.0.0"
   },
   "scripts": {
     "test": "jasminum test",
     "lint": "jshint"
-  },
-  "engines": {
-    "node": ">=0.6.0"
   }
 }

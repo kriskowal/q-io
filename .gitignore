@@ -1,4 +1,5 @@
 node_modules
 .idea
+.tmp
 .coverage_data
 cover_html

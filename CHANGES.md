@@ -1,5 +1,12 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 2.0.0 :warning:
+
+ - Rebased on next generation of Q and Collections
+ - Reimplements streams. Streams now support back pressure and are consumed on
+   demand. Streams must be expressly cancelled or they will stay open
+   indefinitely, or until a connection timeout.
+
 ## 1.11.0
 
  - Adds `removeDirectory` and `statLink` to the Mock file system interface.

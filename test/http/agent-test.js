@@ -90,6 +90,6 @@ describe("https agent", function () {
 
         return Q.all([allow, reject]).finally(function () {
             server.close();
-        });
+        }).thenResolve();
     });
 });
