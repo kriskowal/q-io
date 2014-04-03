@@ -235,14 +235,16 @@ exports.normalizeRequest = function (request) {
     }
     if (request.url) {
         var url = URL.parse(request.url);
-        request.host = url.hostname;
-        request.port = url.port;
         request.ssl = url.protocol === "https:";
-        request.method = request.method || "GET";
+        request.host = url.hostname;
+        request.port = url.port || (request.ssl ? "443" : "80");
         request.path = (url.pathname || "") + (url.search || "");
-        request.headers = request.headers || {};
-        request.headers.host = url.hostname; // FIXME name consistency
     }
+    request.method = request.method || "GET";
+    request.port = request.port || "80";
+    request.path = request.path || "/";
+    request.headers = request.headers || {};
+    request.headers.host = request.headers.host || request.host;
     return request;
 };
 
@@ -276,21 +278,9 @@ exports.request = function (request) {
         request = exports.normalizeRequest(request);
 
         var deferred = Q.defer();
-        var ssl = request.ssl;
-        var http = ssl ? HTTPS : HTTP;
+        var http = request.ssl ? HTTPS : HTTP;
 
-        var headers = request.headers || {};
-
-        headers.host = headers.host || request.host;
-
-        var _request = http.request({
-            "host": request.host,
-            "port": request.port || (ssl ? 443 : 80),
-            "path": request.path || "/",
-            "method": request.method || "GET",
-            "headers": headers,
-            "agent": request.agent
-        }, function (_response) {
+        var _request = http.request(request, function (_response) {
             deferred.resolve(exports.ClientResponse(_response, request.charset));
             _response.on("error", function (error) {
                 // TODO find a better way to channel
