@@ -91,6 +91,23 @@ describe("http server and client", function () {
         .finally(server.stop)
     });
 
+    it('should set correct HTTP Basic authentication headers when username and password are passed in the URL',function(){
+        request = HTTP.normalizeRequest('http://username:password@www.google.com/');
+        expect(request.auth).toBe('username:password');
+        expect(request.headers['Authorization']).toBe('Basic dXNlcm5hbWU6cGFzc3dvcmQ=');
+    });
 
+    it('should successfully access resources that require HTTP Basic authentication when using the username:password@host.com URL syntax', function(){
+        // This tries to access a public resource, see http://test.webdav.org/
+        //
+        // The resource is password protected, but there's no content behind it
+        // so we will actually receive a 404; that's ok though as at least it's
+        // a well-defined and expected status.
+        return HTTP.request('http://user1:user1@test.webdav.org/auth-basic/')
+        .then(function(response){
+            expect(response.status).not.toBe(401);
+            expect(response.status).toBe(404);
+        })
+    });
 });
 
