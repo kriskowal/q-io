@@ -211,6 +211,13 @@ exports.normalizeRequest = function (request) {
         request.path = (url.pathname || "") + (url.search || "");
         request.headers = request.headers || {};
         request.headers.host = url.hostname; // FIXME name consistency
+
+        if(url.auth) {
+            request.auth = url.auth;
+            if(!request.headers['Authorization']) {
+                request.headers['Authorization']='Basic ' + new Buffer(url.auth).toString('base64');
+            }
+        }
     }
     return request;
 };
