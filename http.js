@@ -290,14 +290,19 @@ exports.request = function (request) {
 
         headers.host = headers.host || request.host;
 
-        var _request = http.request({
+        var requestOptions = {
             "host": request.host,
             "port": request.port || (ssl ? 443 : 80),
             "path": request.path || "/",
             "method": request.method || "GET",
-            "headers": headers,
-            "agent": request.agent
-        }, function (_response) {
+            "headers": headers
+        };
+
+        if (request.agent) {
+            requestOptions.agent = request.agent;
+        }
+
+        var _request = http.request(requestOptions, function (_response) {
             deferred.resolve(exports.ClientResponse(_response, request.charset));
             _response.on("error", function (error) {
                 // TODO find a better way to channel
