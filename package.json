@@ -4,6 +4,9 @@
   "description": "IO using Q promises",
   "homepage": "http://github.com/kriskowal/q-io/",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
+  "contributors" : [
+    "Andreas Pizsa (http://github.com/AndreasPizsa/)"
+  ],
   "bugs": {
     "mail": "kris@cixar.com",
     "url": "http://github.com/kriskowal/q-io/issues"
