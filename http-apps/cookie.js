@@ -6,6 +6,9 @@ exports.CookieJar = function (app) {
     var hostCookies = {}; // to {} of pathCookies to [] of cookies
     return function (request) {
 
+        if (!request.headers.host) {
+            throw new Error("Requests must have a host header");
+        }
         var hosts = allHostsContaining(request.headers.host);
 
         var now = new Date();
