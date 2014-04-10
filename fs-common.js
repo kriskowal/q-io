@@ -138,10 +138,14 @@ exports.update = function (exports, workingDirectory) {
 
     exports.copy = function (source, target) {
         var self = this;
-        return Q.spread([
-            self.open(source, {flags: "rb"}),
-            self.open(target, {flags: "wb"})
-        ], function (reader, writer) {
+        return Q.when(self.stat(source), function (stat) {
+            var mode = stat.node.mode;
+            return Q.all([
+                self.open(source, {flags: "rb"}),
+                self.open(target, {flags: "wb", mode: mode})
+            ]);
+        })
+        .spread(function (reader, writer) {
             return Q.when(reader.forEach(function (block) {
                 return writer.write(block);
             }), function () {
@@ -171,7 +175,7 @@ exports.update = function (exports, workingDirectory) {
                     if (targetExists) {
                         return copySubTree;
                     } else {
-                        return Q.when(self.makeDirectory(target), function () {
+                        return Q.when(self.makeDirectory(target, stat.node.mode), function () {
                             return copySubTree;
                         });
                     }
