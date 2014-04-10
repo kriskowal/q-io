@@ -53,5 +53,39 @@ describe("copyTree", function () {
 
     });
 
+    it("should preserve permissions", function () {
+        var mock = Mock({
+            "a/b": {
+                "c": {
+                    "d": 66,
+                    "e": 99
+                }
+            }
+        });
+
+        var mode0777 = parseInt("0777", 8);
+        var mode0700 = parseInt("0700", 8);
+
+        return Q.all([
+            mock.chmod("a/b/c/d", mode0777),
+            mock.chmod("a/b", mode0700),
+            mock.chmod("a/b/c", mode0700)
+        ])
+        .then(function () {
+            return mock.copyTree("a/b", "a/f");
+        })
+        .then(function () {
+            return Q.all([
+                mock.stat("a/f/c/d"),
+                mock.stat("a/f"),
+                mock.stat("a/f/c")
+            ]);
+        })
+        .spread(function (dStat, fStat, cStat) {
+            expect(dStat.node.mode & mode0777).toEqual(mode0777);
+            expect(fStat.node.mode & mode0777).toEqual(mode0700);
+            expect(cStat.node.mode & mode0777).toEqual(mode0700);
+        });
+    });
 });
 

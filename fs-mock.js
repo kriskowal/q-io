@@ -94,6 +94,9 @@ MockFs.prototype.open = function (path, flags, charset, options) {
         if (write || append) {
             if (!node._entries[base]) {
                 node._entries[base] = new FileNode(this);
+                if ("mode" in options) {
+                    node._entries[base].mode = options.mode;
+                }
             }
             var fileNode = node._entries[base]._follow(path);
             if (!fileNode.isFile()) {
@@ -149,7 +152,7 @@ MockFs.prototype.remove = function (path) {
     });
 };
 
-MockFs.prototype.makeDirectory = function (path) {
+MockFs.prototype.makeDirectory = function (path, mode) {
     var self = this;
     return Q.fcall(function () {
         path = self.absolute(path);
@@ -170,6 +173,9 @@ MockFs.prototype.makeDirectory = function (path) {
             throw error;
         }
         node._entries[name] = new DirectoryNode(self);
+        if (mode) {
+            node._entries[name].mode = mode;
+        }
     });
 };
 
@@ -205,8 +211,7 @@ MockFs.prototype.statLink = function (path) {
     var self = this;
     return Q.fcall(function () {
         path = self.absolute(path);
-        var node = self._root._walk(path);
-        return node;
+        return new self.Stats(self._root._walk(path));
     });
 };
 
@@ -258,7 +263,7 @@ MockFs.prototype.chmod = function (path, mode) {
     var self = this;
     return Q.fcall(function () {
         path = self.absolute(path);
-        self._root._walk(path)._follow(path)._mode = mode;
+        self._root._walk(path)._follow(path).mode = mode;
     });
 };
 
@@ -358,7 +363,7 @@ function Node(fs) {
         throw new Error("FS required argument");
     this._fs = fs;
     this._accessed = this._modified = new Date();
-    this._mode = parseInt("0644", 8);
+    this.mode = parseInt("0644", 8);
     this._owner = null;
 }
 
@@ -460,7 +465,7 @@ Object.defineProperty(FileNode.prototype, "size", {
 function DirectoryNode(fs) {
     Node.call(this, fs);
     this._entries = Object.create(null);
-    this._mode = parseInt("0755", 8);
+    this.mode = parseInt("0755", 8);
 }
 
 DirectoryNode.prototype = Object.create(Node.prototype);
