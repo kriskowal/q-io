@@ -3,7 +3,6 @@
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
-var normalize = FS.normal;
 
 describe("makeTree", function () {
     it("should make a branch of a tree", function () {
@@ -23,8 +22,8 @@ describe("makeTree", function () {
             expect(list).toEqual([
                 ".",
                 "a",
-                normalize("a/b"),
-                normalize("a/b/c")
+                FS.normal("a/b"),
+                FS.normal("a/b/c")
             ]);
         })
 
@@ -61,9 +60,9 @@ describe("makeTree", function () {
             expect(list).toEqual([
                 ".",
                 "a",
-                normalize("a/b"),
-                normalize("a/b/c"),
-                normalize("a/b/c/d")
+                FS.normal("a/b"),
+                FS.normal("a/b/c"),
+                FS.normal("a/b/c/d")
             ]);
         })
     });

@@ -81,7 +81,7 @@ exports.file = function (request, path, contentType, fs) {
     // TODO last-modified header
     contentType = contentType || MimeTypes.lookup(path);
     return fs.stat(path).then(function (stat) {
-        var etag = exports.etag(stat);
+        var etag = stat.hash;
         var options = {
             flags: "rb"
         };
@@ -186,18 +186,6 @@ var interpretFirstRange = exports.interpretFirstRange = function (text, size) {
         }
     }
     return range;
-};
-
-/**
- * @param {Stat}
- * @returns {String}
- */
-exports.etag = function (stat) {
-    return [
-        stat.node.ino,
-        stat.size,
-        stat.lastModified().getTime()
-    ].join("-");
 };
 
 /**

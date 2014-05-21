@@ -1,71 +1,19 @@
-(function (exports) {
 
-// -- kriskowal Kris Kowal Copyright (C) 2009-2010 MIT License
-// -- tlrobinson Tom Robinson TODO
+// Originally from Narwhal, with contributions from Kris Kowal and Tom Robinson.
+// These methods are common to all file system, regardless of whether they are
+// synchronous or asynchronous, mostly consisting of path math.
 
-/**
- * Pure JavaScript implementations of file system path
- * manipulation.
- */
+// TODO patternToRegExp
+// TODO glob
+// TODO match
 
-// NOTE: this file may be used is the engine bootstrapping
-// process, so any "requires" must be accounted for in
-// narwhal.js
-
-/*whatsupdoc*/
-/*markup markdown*/
+module.exports = BaseFs;
+function BaseFs() {
+}
 
 var regExpEscape = function (str) {
     return str.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 };
-
-var path = require("path");
-
-/**
- * @name ROOT
- * * `/` on Unix
- * * `\` on Windows
- */
-
-/**
- * @name SEPARATOR
- * * `/` on Unix
- * * `\` on Windows
- */
-
-/**
- * @name ALT_SEPARATOR
- * * undefined on Unix
- * * `/` on Windows
- */
-
-exports.ROOT = exports.SEPARATOR = path.sep || (process.platform === "win32" ? "\\": "/");
-if (path.sep === "\\") {
-    exports.ALT_SEPARATOR = "/";
-} else {
-    exports.ALT_SEPARATOR = undefined;
-}
-
-// we need to make sure the separator regex is always in sync with the separators.
-// this caches the generated regex and rebuild if either separator changes.
-var separatorCached, altSeparatorCached, separatorReCached;
-/**
- * @function
- */
-exports.SEPARATORS_RE = function () {
-    if (
-        separatorCached !== exports.SEPARATOR ||
-        altSeparatorCached !== exports.ALT_SEPARATOR
-    ) {
-        separatorCached = exports.SEPARATOR;
-        altSeparatorCached = exports.ALT_SEPARATOR;
-        separatorReCached = new RegExp("[" +
-            (separatorCached || "").replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&") +
-            (altSeparatorCached || "").replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&") +
-        "]", "g");
-    }
-    return separatorReCached;
-}
 
 /**
  * separates a path into components.  If the path is
@@ -74,10 +22,10 @@ exports.SEPARATORS_RE = function () {
  * drive letter followed by a colon on Windows.
  * @returns {Array * String}
  */
-exports.split = function (path) {
+BaseFs.prototype.split = function (path) {
     var parts;
     try {
-        parts = String(path).split(exports.SEPARATORS_RE());
+        parts = String(path).split(this.separatorsExpression);
     } catch (exception) {
         throw new Error("Cannot split " + (typeof path) + ", " + JSON.stringify(path));
     }
@@ -99,10 +47,10 @@ exports.split = function (path) {
  * directories for the result to be meaningful.
  * @returns {String} path
  */
-exports.join = function () {
+BaseFs.prototype.join = function () {
     if (arguments.length === 1 && Array.isArray(arguments[0]))
-        return exports.normal.apply(exports, arguments[0]);
-    return exports.normal.apply(exports, arguments);
+        return this.normal.apply(this, arguments[0]);
+    return this.normal.apply(this, arguments);
 };
 
 /**
@@ -115,7 +63,7 @@ exports.join = function () {
  * mentioned file.
  * @returns {String} path
  */
-exports.resolve = function () {
+BaseFs.prototype.resolve = function () {
     var root = "";
     var parents = [];
     var children = [];
@@ -124,9 +72,9 @@ exports.resolve = function () {
         var path = String(arguments[i]);
         if (path == "")
             continue;
-        var parts = path.split(exports.SEPARATORS_RE());
-        if (exports.isAbsolute(path)) {
-            root = parts.shift() + exports.SEPARATOR;
+        var parts = path.split(this.separatorsExpression);
+        if (this.isAbsolute(path)) {
+            root = parts.shift() + this.separator;
             parents = [];
             children = [];
         }
@@ -152,8 +100,8 @@ exports.resolve = function () {
             }
         };
     }
-    path = parents.concat(children).join(exports.SEPARATOR);
-    if (path) leaf = exports.SEPARATOR + leaf;
+    path = parents.concat(children).join(this.separator);
+    if (path) leaf = this.separator + leaf;
     return root + path + leaf;
 };
 
@@ -164,7 +112,7 @@ exports.resolve = function () {
  * the previous path component if possible.
  * @returns {String} path
  */
-exports.normal = function () {
+BaseFs.prototype.normal = function () {
     var root = "";
     var parents = [];
     var children = [];
@@ -173,9 +121,9 @@ exports.normal = function () {
         // empty paths have no affect
         if (path === "")
             continue;
-        var parts = path.split(exports.SEPARATORS_RE());
-        if (exports.isAbsolute(path)) {
-            root = parts.shift() + exports.SEPARATOR;
+        var parts = path.split(this.separatorsExpression);
+        if (this.isAbsolute(path)) {
+            root = parts.shift() + this.separator;
             parents = [];
             children = [];
         }
@@ -196,7 +144,7 @@ exports.normal = function () {
             }
         }
     }
-    path = parents.concat(children).join(exports.SEPARATOR);
+    path = parents.concat(children).join(this.separator);
     return root + path;
 };
 
@@ -204,27 +152,27 @@ exports.normal = function () {
  * @returns {Boolean} whether the given path begins at the
  * root of the file system or a drive letter.
  */
-exports.isAbsolute = function (path) {
+BaseFs.prototype.isAbsolute = function (path) {
     // for absolute paths on any operating system,
     // the first path component always determines
     // whether it is relative or absolute.  On Unix,
     // it is empty, so ["", "foo"].join("/") == "/foo",
     // "/foo".split("/") == ["", "foo"].
-    var parts = exports.split(path);
+    var parts = this.split(path);
     // split("") == [].  "" is not absolute.
     // split("/") == ["", ""] is absolute.
     // split(?) == [""] does not occur.
     if (parts.length == 0)
         return false;
-    return exports.isRoot(parts[0]);
+    return this.isRoot(parts[0]);
 };
 
 /**
  * @returns {Boolean} whether the given path does not begin
  * at the root of the file system or a drive letter.
  */
-exports.isRelative = function (path) {
-    return !exports.isAbsolute(path);
+BaseFs.prototype.isRelative = function (path) {
+    return !this.isAbsolute(path);
 };
 
 /**
@@ -232,8 +180,8 @@ exports.isRelative = function (path) {
  * corresponds to the root of the file system or a drive
  * letter, as applicable.
  */
-exports.isRoot = function (first) {
-    if (exports.SEPARATOR === "\\") {
+BaseFs.prototype.isRoot = function (first) {
+    if (this.separator === "\\") {
         return /[a-zA-Z]:$/.test(first);
     } else {
         return first == "";
@@ -244,20 +192,20 @@ exports.isRoot = function (first) {
  * @returns {String} the Unix root path or corresponding
  * Windows drive for a given path.
  */
-exports.root = function (path) {
-    if (!exports.isAbsolute(path))
+BaseFs.prototype.root = function (path) {
+    if (!this.isAbsolute(path))
         path = require("./fs").absolute(path);
-    var parts = exports.split(path);
-    return exports.join(parts[0], "");
+    var parts = this.split(path);
+    return this.join(parts[0], "");
 };
 
 /**
  * @returns {String} the parent directory of the given path.
  */
-exports.directory = function (path) {
-    path = exports.normal(path);
-    var absolute = exports.isAbsolute(path);
-    var parts = exports.split(path);
+BaseFs.prototype.directory = function (path) {
+    path = this.normal(path);
+    var absolute = this.isAbsolute(path);
+    var parts = this.split(path);
     // XXX needs to be sensitive to the root for
     // Windows compatibility
     if (parts.length) {
@@ -269,10 +217,90 @@ exports.directory = function (path) {
     } else {
         parts.unshift("..");
     }
-    return parts.join(exports.SEPARATOR) || (
-        exports.isRelative(path) ?
-        "" : exports.ROOT
+    return parts.join(this.separator) || (
+        this.isRelative(path) ?
+        "" : this.root
     );
+};
+
+BaseFs.prototype.absolute = function (path) {
+    if (this.isAbsolute(path))
+        return this.normal(path);
+    return this.join(this.workingDirectory(), path);
+};
+
+BaseFs.prototype.relative = function (source, target) {
+    var self = this;
+    return this.isDirectory(source).then(function (isDirectory) {
+        if (isDirectory) {
+            return self.relativeFromDirectory(source, target);
+        } else {
+            return self.relativeFromFile(source, target);
+        }
+    });
+};
+
+BaseFs.prototype.relativeFromFile = function (source, target) {
+    source = this.absolute(source);
+    target = this.absolute(target);
+    source = source.split(this.separatorsExpression);
+    target = target.split(this.separatorsExpression);
+    source.pop();
+    while (
+        source.length &&
+        target.length &&
+        target[0] == source[0]
+    ) {
+        source.shift();
+        target.shift();
+    }
+    while (source.length) {
+        source.shift();
+        target.unshift("..");
+    }
+    return target.join(this.separator);
+};
+
+BaseFs.prototype.relativeFromDirectory = function (source, target) {
+    if (!target) {
+        target = source;
+        source = this.workingDirectory();
+    }
+    source = this.absolute(source);
+    target = this.absolute(target);
+    source = source.split(this.separatorsExpression);
+    target = target.split(this.separatorsExpression);
+    if (source.length === 2 && source[1] === "")
+        source.pop();
+    while (
+        source.length &&
+        target.length &&
+        target[0] == source[0]
+    ) {
+        source.shift();
+        target.shift();
+    }
+    while (source.length) {
+        source.shift();
+        target.unshift("..");
+    }
+    return target.join(this.separator);
+};
+
+BaseFs.prototype.contains = function (parent, child) {
+    parent = this.absolute(parent);
+    child = this.absolute(child);
+    parent = parent.split(this.separatorsExpression);
+    child = child.split(this.separatorsExpression);
+    if (parent.length === 2 && parent[1] === "")
+        parent.pop();
+    if (parent.length > child.length)
+        return false;
+    for (index = 0; index < parent.length; index++) {
+        if (parent[index] !== child[index])
+            break;
+    }
+    return index === parent.length;
 };
 
 /**
@@ -283,8 +311,9 @@ exports.directory = function (path) {
  * @param {String} extention an optional extention to detect
  * and remove if it exists.
  */
-exports.base = function (path, extension) {
-    var base = path.split(exports.SEPARATORS_RE()).pop();
+BaseFs.prototype.name = // TODO document
+BaseFs.prototype.base = function (path, extension) {
+    var base = path.split(this.separatorsExpression).pop();
     if (extension)
         base = base.replace(
             new RegExp(regExpEscape(extension) + "$"),
@@ -297,11 +326,10 @@ exports.base = function (path, extension) {
  * @returns {String} the extension (e.g., `txt`) of the file
  * at the given path.
  */
-exports.extension = function (path) {
-    path = exports.base(path);
+BaseFs.prototype.extension = function (path) {
+    path = this.base(path);
     path = path.replace(/^\.*/, "");
     var index = path.lastIndexOf(".");
     return index <= 0 ? "" : path.substring(index);
 };
 
-})(typeof exports !== "undefined" ? exports : FS_BOOT = {});

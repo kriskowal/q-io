@@ -11,15 +11,11 @@ describe("stat", function () {
             return mock.stat("hello.txt");
         })
         .then(function (stat) {
-            expect(stat.node).toBeDefined();
             expect(stat.size).toBeDefined();
             expect(stat.size).toBeGreaterThan(0);
             expect(stat.isDirectory()).toBe(false);
             expect(stat.isFile()).toBe(true);
         });
     });
-
-
-
 });
 

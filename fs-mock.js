@@ -1,37 +1,36 @@
 
 var Q = require("q");
-var Boot = require("./fs-boot");
-var Common = require("./fs-common");
+var CommonFs = require("./fs-common");
 var Set = require("collections/set");
 var join = require("./streams").join;
 var MockStream = require("./fs-mock-stream");
 
 module.exports = MockFs;
-
 function MockFs(files, workingDirectory) {
     if (!(this instanceof MockFs)) {
         return new MockFs(files, workingDirectory);
     }
     this._root = new DirectoryNode(this, "/");
 
-    function init() {
-        // construct a file tree
-    }
-
-    Common.update(this, function () {
+    workingDirectory = workingDirectory || this.root;
+    this.workingDirectory = function () {
         return workingDirectory;
-    });
+    };
 
-    workingDirectory = workingDirectory || this.ROOT;
     if (files) {
-        this._init(files);
+        this.load(files);
     }
 }
 
-MockFs.prototype = Object.create(Boot);
+MockFs.prototype = Object.create(CommonFs.prototype);
+MockFs.prototype.constructor = MockFs;
 
-MockFs.prototype._init = function (files, tree) {
-    tree = tree || this.ROOT;
+MockFs.prototype.root = "/";
+MockFs.prototype.separator = "/";
+MockFs.prototype.separatorsExpression = /\//g;
+
+MockFs.prototype.load = function (files, tree) {
+    tree = tree || this.root;
     Object.keys(files).forEach(function (path) {
         var content = files[path];
         path = this.join(tree, path);
@@ -44,7 +43,7 @@ MockFs.prototype._init = function (files, tree) {
                 // make directory
                 this._root._walk(path, true);
                 // make content
-                this._init(content, path);
+                this.load(content, path);
                 return;
             } else {
                 content = new Buffer(String(content), "utf-8");
@@ -202,9 +201,9 @@ MockFs.prototype.removeDirectory = function (path) {
 
 MockFs.prototype.stat = function (path) {
     var self = this;
+    path = self.absolute(path);
     return Q.try(function () {
-        path = self.absolute(path);
-        return new self.Stats(self._root._walk(path)._follow(path));
+        return self._root._walk(path)._follow(path);
     });
 };
 
@@ -367,15 +366,16 @@ function Node(fs) {
     this._accessed = this._modified = new Date();
     this._mode = parseInt("0644", 8);
     this._owner = null;
+    this.hash = Math.random().toString(36).slice(2);
 }
 
 Node.prototype._walk = function (path, make, via) {
     var parts = this._fs.split(path);
     if (this._fs.isAbsolute(path)) {
         parts.shift();
-        return this._fs._root._walkParts(parts, make, this._fs.ROOT);
+        return this._fs._root._walkParts(parts, make, this._fs.root);
     } else {
-        return this._walkParts(parts, make, via || this._fs.ROOT);
+        return this._walkParts(parts, make, via || this._fs.root);
     }
 };
 
@@ -400,7 +400,7 @@ Node.prototype._canonical = function (path) {
     }
     var parts = this._fs.split(path);
     parts.shift();
-    var via = this._fs.ROOT;
+    var via = this._fs.root;
     return via + this._fs._root._canonicalParts(parts, via);
 };
 
@@ -477,7 +477,7 @@ DirectoryNode.prototype.isDirectory = function () {
 };
 
 DirectoryNode.prototype._walkParts = function (parts, make, via) {
-    via = via || this._fs.ROOT;
+    via = via || this._fs.root;
     if (parts.length === 0) {
         return this;
     }
@@ -489,7 +489,7 @@ DirectoryNode.prototype._walkParts = function (parts, make, via) {
         if (make) {
             this._entries[part] = new DirectoryNode(this._fs);
         } else {
-            var error = new Error("Can't find " + JSON.stringify(this._fs.join(parts)) + " via " + JSON.stringify(via));
+            var error = new Error("Can't find " + JSON.stringify(this._fs.join(parts.concat([part]))) + " via " + JSON.stringify(via));
             error.code = "ENOENT";
             throw error;
 
@@ -506,7 +506,7 @@ DirectoryNode.prototype._canonicalParts = function (parts, via) {
     if (part === "") {
         return via;
     }
-    if (via === this._fs.ROOT) {
+    if (via === this._fs.root) {
         via = "";
     }
     if (!this._entries[part]) {
@@ -542,7 +542,7 @@ LinkNode.prototype._follow = function (via, memo) {
 };
 
 LinkNode.prototype._canonicalParts = function (parts, via) {
-    return this._fs.relativeFromDirectory(this._fs.ROOT,
+    return this._fs.relativeFromDirectory(this._fs.root,
         this._fs._root._canonical(
             this._fs.absolute(this._fs.join(via, "..", this._link))
         )

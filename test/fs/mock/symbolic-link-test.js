@@ -1,6 +1,5 @@
 
 var MockFs = require("../../../fs-mock");
-var normalize = require('../../../fs').normal;
 
 describe("symbolic link", function () {
     it("should", function () {
@@ -49,9 +48,9 @@ describe("symbolic link", function () {
             expect(content).toEqual([
                 ".",
                 "a",
-                normalize("a/b"),
-                normalize("a/b/c.txt"),
-                normalize("a/b/d.txt")
+                mock.normal("a/b"),
+                mock.normal("a/b/c.txt"),
+                mock.normal("a/b/d.txt")
             ])
         })
 

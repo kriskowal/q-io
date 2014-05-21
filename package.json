@@ -25,16 +25,16 @@
     "fs": "browser/fs"
   },
   "dependencies": {
-    "q": "^2.0.1",
-    "qs": "^0.6.6",
-    "url2": "^1.0.1",
-    "mime": "^1.2.11",
-    "mimeparse": "^0.1.4",
-    "collections": "^2.0.1"
+    "q": ">=2.0.1 <3.0.0",
+    "qs": ">=0.6.6 <0.7.0",
+    "url2": ">=2.0.0 <3.0.0",
+    "mime": ">=1.2.11 <2.0.0",
+    "mimeparse": ">=0.1.4 <0.2.0",
+    "collections": ">=2.0.1 <3.0.0"
   },
   "devDependencies": {
-    "jshint": "^0.9.1",
-    "jasminum": "^2.0.1"
+    "jshint": ">=0.9.1 <0.10.0",
+    "jasminum": ">=2.0.2 <3.0.0"
   },
   "scripts": {
     "test": "jasminum test",

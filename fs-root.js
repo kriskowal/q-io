@@ -1,12 +1,16 @@
 
 var Q = require("q");
-var BOOT = require("./fs-boot");
-var COMMON = require("./fs-common");
+var CommonFs = require("./fs-common");
 
 module.exports = RootFs;
-
 function RootFs(outer, root) {
-    var inner = Object.create(BOOT);
+
+    var inner = Object.create(CommonFs.prototype);
+
+    inner.root = outer.root;
+    inner.separator = outer.separator;
+    inner.altSeparator = outer.altSeparator;
+    inner.separatorsExpression = outer.separatorsExpression;
 
     function attenuate(path) {
 
@@ -16,7 +20,7 @@ function RootFs(outer, root) {
         // if it's absolute, we want the path relative to
         // the root of the inner file system
         if (outer.isAbsolute(path)) {
-            actual = outer.relativeFromDirectory(outer.ROOT, path);
+            actual = outer.relativeFromDirectory(outer.root, path);
         } else {
             actual = path;
         }
@@ -24,12 +28,13 @@ function RootFs(outer, root) {
         // system so that parent references from the root
         // return to the root, emulating standard unix
         // behavior
-        actual = outer.join(outer.ROOT, actual);
+        actual = outer.join(outer.root, actual);
         // then we reconstruct the path relative to the
         // inner root
-        actual = outer.relativeFromDirectory(outer.ROOT, actual);
+        actual = outer.relativeFromDirectory(outer.root, actual);
         // and rejoin it on the outer root
         actual = outer.join(root, actual);
+        var IN = actual;
         // and find the corresponding real path
         return outer.canonical(actual)
         .then(function (actual) {
@@ -42,7 +47,7 @@ function RootFs(outer, root) {
             // prevent break-outs
             if (outer.contains(root, actual)) {
                 return {
-                    "inner": outer.join(outer.ROOT, outer.relativeFromDirectory(root, actual)),
+                    "inner": outer.join(outer.root, outer.relativeFromDirectory(root, actual)),
                     "outer": actual
                 };
             } else {
@@ -54,16 +59,14 @@ function RootFs(outer, root) {
     }
 
     function workingDirectory() {
-        return outer.ROOT;
+        return outer.root;
     }
-
-    COMMON.update(inner, workingDirectory);
 
     inner.list = function (path) {
         return attenuate(path).then(function (path) {
             return outer.list(path.outer);
         }).then(null, function (reason) {
-            return Q.reject("Can't list " + JSON.stringify(path));
+            throw new Error("Can't list " + JSON.stringify(path));
         });
     };
 
@@ -71,7 +74,7 @@ function RootFs(outer, root) {
         return attenuate(path).then(function (path) {
             return outer.open(path.outer, flags, charset);
         }).then(null, function (reason) {
-            return Q.reject("Can't open " + JSON.stringify(path));
+            throw new Error("Can't open " + JSON.stringify(path));
         });
     };
 
@@ -79,7 +82,7 @@ function RootFs(outer, root) {
         return attenuate(path).then(function (path) {
             return outer.stat(path.outer);
         }).then(null, function (reason) {
-            return Q.reject("Can't stat " + JSON.stringify(path));
+            throw new Error("Can't stat " + JSON.stringify(path));
         });
     };
 
@@ -87,7 +90,7 @@ function RootFs(outer, root) {
         return attenuate(path).then(function (path) {
             return outer.statLink(path.outer);
         }).then(null, function (reason) {
-            return Q.reject("Can't statLink " + JSON.stringify(path));
+            throw new Error("Can't statLink " + JSON.stringify(path));
         });
     };
 
@@ -95,14 +98,14 @@ function RootFs(outer, root) {
         return attenuate(path).then(function (path) {
             return path.inner;
         }).then(null, function (reason) {
-            return Q.reject("Can't find canonical of " + JSON.stringify(path));
+            throw new Error("Can't find canonical of " + JSON.stringify(path));
         });
     };
 
     inner.makeDirectory = function (path) {
         return attenuate(path).then(function (path) {
             return outer.makeDirectory(path.outer);
-        }).catch(function (error) {
+        }).then(null, function (error) {
             throw new Error("Can't make directory " + JSON.stringify(path));
         });
     };
@@ -110,7 +113,7 @@ function RootFs(outer, root) {
     inner.removeDirectory = function (path) {
         return attenuate(path).then(function (path) {
             return outer.removeDirectory(path.outer);
-        }).catch(function (error) {
+        }).then(null, function (error) {
             throw new Error("Can't remove directory " + JSON.stringify(path));
         });
     };

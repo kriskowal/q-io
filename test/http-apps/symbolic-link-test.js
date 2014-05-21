@@ -1,4 +1,5 @@
 /*global __dirname*/
+var Q = require("q");
 var Http = require("../../http");
 var Apps = require("../../http-apps");
 var FS = require("../../fs");
@@ -10,27 +11,39 @@ describe("FileTree followInsecureSymbolicLinks", function () {
         var fixture = FS.join(module.directory || __dirname, "fixtures");
         return FS.mock(fixture)
         .then(function (mockFS) {
-            return FS.merge([ mockFS, Mock({ "6789/0123.txt": "0123\n" })]);
-        })
-        .then(function (mockFS) {
-            return mockFS.symbolicCopy("6789", FS.join("9012","linkedDir"), "directory").thenResolve(mockFS);
-        })
-        .then(function (mockFS) {
-            return mockFS.symbolicCopy( FS.join("6789","0123.txt"), FS.join("9012","linkedFile.txt"), "file").thenResolve(mockFS);
-        })
-        .then(function (mockFS) {
-            return new Apps.Chain()
-            .use(Apps.ListDirectories)
-            .use(function () {
-                return Apps.FileTree(FS.join("/","9012"), {
-                    fs: mockFS,
-                    followInsecureSymbolicLinks: followInsecureSymbolicLinks
-                });
+            return FS.merge([
+                mockFS,
+                Mock({ "6789/0123.txt": "0123\n" })
+            ]);
+        }).then(function (mockFS) {
+            return Q().then(function () {
+                return mockFS.symbolicCopy(
+                    "6789",
+                    FS.join("9012","linkedDir"),
+                    "directory"
+                )
             })
-            .end()
-        }).then(function (app) {
-            return Http.Server(app).listen(0)
-        });
+            .then(function () {
+                return mockFS.symbolicCopy(
+                    FS.join("6789","0123.txt"),
+                    FS.join("9012","linkedFile.txt"),
+                    "file"
+                )
+            })
+            .then(function () {
+                return new Apps.Chain()
+                .use(Apps.ListDirectories)
+                .use(function () {
+                    return Apps.FileTree(FS.join("/","9012"), {
+                        fs: mockFS,
+                        followInsecureSymbolicLinks: followInsecureSymbolicLinks
+                    });
+                })
+                .end()
+            }).then(function (app) {
+                return Http.Server(app).listen(0)
+            });
+        })
     };
 
     describe("if false", function () {

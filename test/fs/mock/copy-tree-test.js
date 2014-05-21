@@ -3,7 +3,6 @@
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
-var normalize = FS.normal;
 
 describe("copyTree", function () {
     it("should copy a tree", function () {
@@ -39,14 +38,14 @@ describe("copyTree", function () {
             expect(list).toEqual([
                 ".",
                 "a",
-                normalize("a/b"),
-                normalize("a/b/c"),
-                normalize("a/b/c/d"),
-                normalize("a/b/c/e"),
-                normalize("a/f"),
-                normalize("a/f/c"),
-                normalize("a/f/c/d"),
-                normalize("a/f/c/e")
+                FS.normal("a/b"),
+                FS.normal("a/b/c"),
+                FS.normal("a/b/c/d"),
+                FS.normal("a/b/c/e"),
+                FS.normal("a/f"),
+                FS.normal("a/f/c"),
+                FS.normal("a/f/c/d"),
+                FS.normal("a/f/c/e")
             ]);
         })
 

@@ -3,7 +3,6 @@
 var Q = require("q");
 var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
-var normalize = FS.normal;
 
 describe("removeTree", function () {
     it("should remove a tree", function () {
@@ -28,7 +27,7 @@ describe("removeTree", function () {
             expect(list).toEqual([
                 ".",
                 "a",
-                normalize("a/b")
+                FS.normal("a/b")
             ]);
         })
 
