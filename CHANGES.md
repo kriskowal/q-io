@@ -1,5 +1,31 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 1.11.1
+
+ - Fix to `fs.reroot`, binding this properly (@Stuk)
+ - `fs.reroot` no longer traverses into directory prefixes implicitly.
+   We do not expect anyone was depending on this strange behavior,
+   but do expect folks were not using `reroot` because of it.
+ - Many missing methods added to RootFs (@3on)
+ - HTTP request normalization has been greatly improved.
+   Particularly, the ambiguity of `host` vs `hostname` is resolved.
+   `host` stands for both the hostname and the port, but only includes the port
+   if it differs from the default port for the protocol.
+   HTTP requests will normalize any combination of `host`, `port`, and
+   `hostname`.
+   The cookie jar HTTP application adapter has been updated.
+ - Support for URL authorization has been improved. If you use the `auth`
+   portion of a URL, it will be implicitly normalized to the corresponding
+   `Authorization` header, for basic HTTP auth.
+   Note that the convention in Q-IO is to use lower-case for all input and
+   output headers, since they are case-insensitive.
+ - MockFS now handles file modes properly (@Stuk)
+ - `fs.copyTree` fixed for duplicate file modes (@Stuk)
+ - Fix for HTTP clients on Node.js 0.11, which changed how it interprets the
+   `agent` option.
+ - Fixed a bug, NodeWriter was missing a `node` property, referring back to the
+   Node.js writable stream.
+
 ## 1.11.0
 
  - Adds `removeDirectory` and `statLink` to the Mock file system interface.

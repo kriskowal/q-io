@@ -5,6 +5,9 @@
   "homepage": "http://github.com/kriskowal/q-io/",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
   "contributors" : [
+    "Montage Studio",
+    "Stuart Knightley",
+    "Jean-romain Prevost",
     "Andreas Pizsa (http://github.com/AndreasPizsa/)"
   ],
   "bugs": {
