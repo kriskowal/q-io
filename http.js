@@ -159,8 +159,9 @@ exports.ServerRequest = function (_request, ssl) {
         request.hostname = address.address;
     }
     /*** {String} host */
-    request.host = request.hostname + ":" + address.port;
     request.port = address.port;
+    var defaultPort = request.port === (ssl ? 443 : 80);
+    request.host = request.hostname + (defaultPort ? "" : ":" + request.port);
 
     var socket = _request.socket;
     /*** {String} */
@@ -198,27 +199,38 @@ exports.ServerResponse = function (_response, ssl) {
 
 exports.normalizeRequest = function (request) {
     if (typeof request === "string") {
-        request = {
-            url: request
-        };
+        request = {url: request};
     }
+    request.method = request.method || "GET";
+    request.headers = request.headers || {};
     if (request.url) {
         var url = URL.parse(request.url);
-        request.host = url.hostname;
-        request.port = url.port;
         request.ssl = url.protocol === "https:";
-        request.method = request.method || "GET";
+        request.hostname = url.hostname;
+        request.host = url.host;
+        request.port = +url.port;
         request.path = (url.pathname || "") + (url.search || "");
-        request.headers = request.headers || {};
-        request.headers.host = url.hostname; // FIXME name consistency
-
-        if(url.auth) {
+        if (url.auth) {
             request.auth = url.auth;
-            if(!request.headers['Authorization']) {
-                request.headers['Authorization']='Basic ' + new Buffer(url.auth).toString('base64');
+            if (!request.headers["authorization"]) {
+                request.headers["authorization"] = (
+                    "Basic " + new Buffer(url.auth)
+                    .toString("base64")
+                );
             }
         }
     }
+    request.host = request.host || request.headers.host;
+    request.port = request.port || (request.ssl ? 443 : 80);
+    if (request.host && !request.hostname) {
+        request.hostname = request.host.split(":")[0];
+    }
+    if (request.hostname && request.port && !request.host) {
+        var defaultPort = request.ssl ? 443 : 80;
+        request.host = request.hostname + (defaultPort ? "" : ":" + request.port);
+    }
+    request.headers.host = request.headers.host || request.host;
+    request.path = request.path || "/";
     return request;
 };
 
@@ -252,19 +264,14 @@ exports.request = function (request) {
         request = exports.normalizeRequest(request);
 
         var deferred = Q.defer();
-        var ssl = request.ssl;
-        var http = ssl ? HTTPS : HTTP;
-
-        var headers = request.headers || {};
-
-        headers.host = headers.host || request.host;
+        var http = request.ssl ? HTTPS : HTTP;
 
         var requestOptions = {
-            "host": request.host,
-            "port": request.port || (ssl ? 443 : 80),
+            "host": request.hostname, // Node.js quirk
+            "port": request.port || (request.ssl ? 443 : 80),
             "path": request.path || "/",
             "method": request.method || "GET",
-            "headers": headers
+            "headers": request.headers
         };
 
         if (request.agent) {
