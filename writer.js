@@ -106,6 +106,8 @@ function Writer(_stream, charset) {
         return Q.resolve(); // destruction not explicitly observable
     };
 
+    self.node = _stream;
+
     return Q(self); // todo returns the begin.promise
 }
 
