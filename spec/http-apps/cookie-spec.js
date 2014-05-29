@@ -9,7 +9,7 @@ describe("http cookies", function () {
     var hosts = ["localhost", "127.0.0.1"];
 
     hosts.forEach(function (host) {
-        it("should work on host" + host, function () {
+        it("should work on host " + host, function () {
 
             var server = Http.Server(function (request) {
                 return {

@@ -94,7 +94,7 @@ describe("http server and client", function () {
     it('should set correct HTTP Basic authentication headers when username and password are passed in the URL',function(){
         request = HTTP.normalizeRequest('http://username:password@www.google.com/');
         expect(request.auth).toBe('username:password');
-        expect(request.headers['Authorization']).toBe('Basic dXNlcm5hbWU6cGFzc3dvcmQ=');
+        expect(request.headers.authorization).toBe('Basic dXNlcm5hbWU6cGFzc3dvcmQ=');
     });
 
     it('should successfully access resources that require HTTP Basic authentication when using the username:password@host.com URL syntax', function(){
@@ -107,7 +107,7 @@ describe("http server and client", function () {
         .then(function(response){
             expect(response.status).not.toBe(401);
             expect(response.status).toBe(404);
-        })
+        });
     });
 });
 

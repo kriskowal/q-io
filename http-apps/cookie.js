@@ -1,6 +1,7 @@
 
 var Q = require("q");
 var Cookie = require("../http-cookie");
+Q.longStackSupport = true;
 
 exports.CookieJar = function (app) {
     var hostCookies = {}; // to {} of pathCookies to [] of cookies
@@ -33,8 +34,9 @@ exports.CookieJar = function (app) {
             return concat(
                 Object.keys(hostCookies)
                 .map(function (host) {
-                    if (!hostContains(host, request.headers.host))
+                    if (!hostContains(host, request.headers.host)) {
                         return [];
+                    }
                     var pathCookies = hostCookies[host];
                     return concat(
                         Object.keys(pathCookies)
@@ -77,9 +79,10 @@ exports.CookieJar = function (app) {
         return Q.when(app.apply(this, arguments), function (response) {
             response.headers = response.headers || {};
             if (response.headers["set-cookie"]) {
-                var requestHost = ipRe.test(request.headers.host) ?
-                    request.headers.host :
-                    "." + request.headers.host;
+                var host = request.headers.host;
+                var hostParts = splitHost(host);
+                var hostname = hostParts[0];
+                var requestHost = ipRe.test(hostname) ? host : "." + host;
                 // normalize to array
                 if (!Array.isArray(response.headers["set-cookie"])) {
                     response.headers["set-cookie"] = [response.headers["set-cookie"]];
@@ -108,35 +111,57 @@ exports.CookieJar = function (app) {
 };
 
 var ipRe = /^\d+\.\d+\.\d+\.\d+$/;
+var portRe = /^(.*)(:\d+)$/;
 
-function allHostsContaining(content) {
-    if (ipRe.test(content)) {
-        return [content];
-    } if (content === "localhost") {
-        return [content];
+function splitHost(host) {
+    var match = portRe.exec(host);
+    if (match) {
+        return [match[1], match[2]];
     } else {
-        var parts = content.split(".");
+        return [host, ""];
+    }
+}
+
+function allHostsContaining(host) {
+    var parts = splitHost(host);
+    var hostname = parts[0];
+    var port = parts[1];
+    if (ipRe.test(hostname)) {
+        return [hostname + port];
+    } if (hostname === "localhost") {
+        return [hostname + port];
+    } else {
+        var parts = hostname.split(".");
         var hosts = [];
         while (parts.length > 1) {
-            hosts.push("." + parts.join("."));
+            hosts.push("." + parts.join(".") + port);
             parts.shift();
         }
         return hosts;
     }
 }
 
-function hostContains(container, content) {
-    if (ipRe.test(container) || ipRe.test(content)) {
-        return container === content;
-    } else if (/^\./.test(container)) {
+function hostContains(containerHost, contentHost) {
+    var containerParts = splitHost(containerHost);
+    var containerHostname = containerParts[0];
+    var containerPort = containerParts[1];
+    var contentParts = splitHost(contentHost);
+    var contentHostname = contentParts[0];
+    var contentPort = contentParts[1];
+    if (containerPort !== contentPort) {
+        return false;
+    }
+    if (ipRe.test(containerHostname) || ipRe.test(contentHostname)) {
+        return containerHostname === contentHostname;
+    } else if (/^\./.test(containerHostname)) {
         return (
-            content.lastIndexOf(container) ===
-            content.length - container.length
+            contentHostname.lastIndexOf(containerHostname) ===
+            contentHostname.length - containerHostname.length
         ) || (
-            container.slice(1) === content
+            containerHostname.slice(1) === contentHostname
         );
     } else {
-        return container === content;
+        return containerHostname === contentHostname;
     }
 };
 
