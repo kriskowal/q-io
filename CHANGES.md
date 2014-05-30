@@ -1,5 +1,24 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 2.0.2
+
+ - Fixed problems with hanging connections, and problems with early termination
+   of streams.
+ - Added missing `node` property to Node writable stream wrapper.
+ - Removed `Reader.join`. Removed support for `Reader.prototype.join`.
+   Use `Reader(x).read()` and `Buffer.concat(buffers)`.
+ - Added `node/process` process stream wrapper.
+ - HTTP client now warns when there is a missing host header.
+ - Fix problem with HTTP agent option with Node.js v0.11.
+ - Refactored file system to use prototype inheritance pattern
+   instead of Crockford style closure constructors.
+ - Merged changes from v1 for HTTP request normalization.
+ - Added support for response.statusText
+
+## 2.0.1
+
+ - Fixed URL dependency.
+
 ## 2.0.0 :warning:
 
  - Rebased on next generation of Q and Collections
