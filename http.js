@@ -2,10 +2,7 @@
 
 /**
  * A promise-based Q-JSGI server and client API.
- * @module
  */
-
-/*whatsupdoc*/
 
 var HTTP = require("http"); // node
 var HTTPS = require("https"); // node
@@ -78,12 +75,9 @@ exports.Server = function (respond) {
     self.stop = function () {
         server.close();
         listening = undefined;
-        //server.getConnections(function (error, connections) {
-        //    if (connections) {
-        //        console.warn(connections + " outstanding connections at time to of close");
-        //    }
-        //});
-        return stopped.promise;
+        return Q();
+        // XXX does not seem to ever resolve in some cases:
+        // return stopped.promise;
     };
 
     var listening = Q.defer();
@@ -292,8 +286,6 @@ exports.request = function (request) {
                 deferred.reject(error);
                 response.body.throw(error);
             });
-            reader.cancel();
-            writer.cancel();
         });
 
         _request.on("error", deferred.reject);
@@ -320,7 +312,8 @@ exports.read = function (request, qualifier) {
     qualifier = qualifier || function (response) {
         return response.status === 200;
     };
-    return exports.request(request).then(function (response) {
+    return exports.request(request)
+    .then(function (response) {
         if (!qualifier(response)){
             var error = new Error("HTTP request failed with code " + response.status);
             error.response = response;

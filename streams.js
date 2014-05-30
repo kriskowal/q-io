@@ -208,16 +208,20 @@ Readable.prototype.copy = function (output) {
     return this.forEach(function (chunk) {
         return output.yield(chunk);
     })
-    .then(function () {
-        return output.return();
+    .then(function (value) {
+        output.return();
+        return value;
+    }, function (error) {
+        output.throw(error);
+        return error;
     });
 };
 
 /*
  * Reads an entire forEachable stream of buffers and returns a single buffer.
  */
-Readable.prototype.read = // TODO consider one or the other
-Readable.prototype.join = function (delimiter) {
+Readable.prototype.join = // XXX deprecated
+Readable.prototype.read = function () {
     var chunks = [];
     var self = this;
     return this.forEach(function (chunk) {
@@ -225,9 +229,9 @@ Readable.prototype.join = function (delimiter) {
     })
     .then(function () {
         if (self.charset) {
-            return chunks.join(delimiter || "");
+            return chunks.join("");
         } else {
-            return join(chunks, delimiter);
+            return Buffer.concat(chunks);
         }
     });
 }

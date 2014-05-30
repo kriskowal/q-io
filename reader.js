@@ -6,23 +6,26 @@ var Readable = require("./streams").Readable;
 var BufferStream = require("./streams").BufferStream;
 
 module.exports = Reader;
-function Reader(input, charset) {
+function Reader(source, charset) {
     if (!(this instanceof Reader)) {
-        return new Reader(input, charset);
+        return new Reader(source, charset);
     }
-    this.iteratorPromise = Q(input).iterate()
-    .catch(function (error) {
-        if (input.forEach) {
+    this.iteratorPromise = Q(source).iterate()
+    .catch(function (cause) {
+        if (source.forEach) {
             var buffer = new BufferStream();
-            input.forEach(function (value, index) {
+            buffer.return(source.forEach(function (value, index) {
                 buffer.yield(value, index);
-            });
+            }));
             return buffer;
         } else {
-            error.message += " and is not forEachable";
+            var error = new Error("Can't iterate because source is not forEachable and because " + cause.message);
+            error.notIterable = true;
+            error.notForEachable = true;
+            throw error;
         }
-        throw error;
     });
+    this.source = source;
     this.charset = charset;
 }
 
