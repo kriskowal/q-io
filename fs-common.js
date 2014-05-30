@@ -339,7 +339,7 @@ CommonFs.prototype.merge = function (fss) {
             })
             .then(function (list) {
                 return Q.all(list.map(function (path) {
-                    return Q.when(fs.read(path, "rb"), function (content) {
+                    return fs.read(path, "rb").then(function (content) {
                         tree[path] = content;
                     });
                 }));

@@ -2,6 +2,7 @@
 
 var Q = require("q");
 var Negotiate = require("./negotiate");
+var Reader = require("../reader");
 var QS = require("qs");
 var URL = require("url2");
 
@@ -60,7 +61,8 @@ exports.ok = function (content, contentType, status) {
  */
 exports.ContentRequest = function (app) {
     return function (request) {
-        return Q(request.body || nobody).invoke("join", "")
+        return Reader(request.body || nobody)
+        .read()
         .then(function (body) {
             return app(body, request);
         });

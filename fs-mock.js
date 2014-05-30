@@ -122,7 +122,7 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             if ("begin" in options && "end" in options) {
                 stream = new MockStream(
                     [
-                        join(fileNode._chunks)
+                        Buffer.concat(fileNode._chunks)
                         .slice(options.begin, options.end)
                     ],
                     charset

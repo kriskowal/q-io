@@ -319,7 +319,7 @@ exports.read = function (request, qualifier) {
             error.response = response;
             throw error;
         }
-        return Q(response.body).invoke("join", "");
+        return Reader(response.body || nobody).read();
     });
 };
 

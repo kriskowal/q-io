@@ -563,15 +563,7 @@ Reader instances have the following methods:
 -   `close()`
 -   `node` the underlying node reader
 
-Additionally, the `Reader` constructor has the following methods:
-
--   `read(stream, charset)` accepts any foreachable and returns either a
-    buffer or a string if given a charset.
--   `join(buffers)` consolidates an array of buffers into a single
-    buffer.  The buffers array is collapsed in place and the new first
-    and only buffer is returned.
-
-The `reader` module exports a function that accepts a Node reader and
+The `node/reader` module exports a function that accepts a Node reader and
 returns a Q reader.
 
 ### Writer
@@ -586,7 +578,7 @@ Writer instances have the following methods:
 -   `destroy()`
 -   `node` the underlying node writer
 
-The `writer` module exports a function that accepts a Node writer and
+The `node/writer` module exports a function that accepts a Node writer and
 returns a Q writer.
 
 ### Buffer

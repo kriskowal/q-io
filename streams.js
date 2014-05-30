@@ -220,7 +220,6 @@ Readable.prototype.copy = function (output) {
 /*
  * Reads an entire forEachable stream of buffers and returns a single buffer.
  */
-Readable.prototype.join = // XXX deprecated
 Readable.prototype.read = function () {
     var chunks = [];
     var self = this;
@@ -234,41 +233,6 @@ Readable.prototype.read = function () {
             return Buffer.concat(chunks);
         }
     });
-}
-
-exports.join = join;
-function join(buffers, delimiter) {
-    if (delimiter !== void 0) {
-        delimiter = Buffer(delimiter);
-    } else if (!delimiter) {
-        delimiter = void 0;
-    }
-    var length = 0;
-    var at;
-    var i;
-    var ii = buffers.length;
-    var buffer;
-    var result;
-    for (i = 0; i < ii; i++) {
-        buffer = buffers[i];
-        length += buffer.length;
-        if (delimiter && i !== 0) {
-            length += delimiter.length;
-        }
-    }
-    result = new Buffer(length);
-    at = 0;
-    for (i = 0; i < ii; i++) {
-        buffer = buffers[i];
-        buffer.copy(result, at, 0);
-        at += buffer.length;
-        if (delimiter && i !== 0) {
-            buffer.copy(delimiter, at, 0);
-            at += delimiter.length;
-        }
-    }
-    buffers.splice(0, ii, result);
-    return result;
 }
 
 Readable.prototype.cancel = function () {
