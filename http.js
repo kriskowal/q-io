@@ -210,15 +210,7 @@ exports.normalizeRequest = function (request) {
         request.host = url.host;
         request.port = +url.port;
         request.path = (url.pathname || "") + (url.search || "");
-        if (url.auth) {
-            request.auth = url.auth;
-            if (!request.headers["authorization"]) {
-                request.headers["authorization"] = (
-                    "Basic " + new Buffer(url.auth)
-                    .toString("base64")
-                );
-            }
-        }
+        request.auth = url.auth || void 0;
     }
     request.host = request.host || request.headers.host;
     request.port = request.port || (request.ssl ? 443 : 80);
@@ -267,11 +259,14 @@ exports.request = function (request) {
         var http = request.ssl ? HTTPS : HTTP;
 
         var requestOptions = {
-            "host": request.hostname, // Node.js quirk
-            "port": request.port || (request.ssl ? 443 : 80),
-            "path": request.path || "/",
-            "method": request.method || "GET",
-            "headers": request.headers
+            hostname: request.hostname,
+            port: request.port || (request.ssl ? 443 : 80),
+            localAddress: request.localAddress,
+            socketPath: request.socketPath,
+            method: request.method,
+            path: request.path,
+            headers: request.headers,
+            auth: request.auth // Generates the appropriate header
         };
 
         if (request.agent) {
