@@ -1,3 +1,4 @@
+"use strict";
 
 // TODO Writable, with support for buffer
 // TODO WritableBuffer (that copies to a given writer)

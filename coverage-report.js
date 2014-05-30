@@ -1,3 +1,4 @@
+"use strict";
 
 require("collections/shim");
 var Q = require("q");

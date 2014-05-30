@@ -1,3 +1,4 @@
+"use strict";
 
 // Originally from Narwhal, with contributions from Kris Kowal and Tom Robinson.
 // These methods are common to all file system, regardless of whether they are
@@ -296,7 +297,7 @@ BaseFs.prototype.contains = function (parent, child) {
         parent.pop();
     if (parent.length > child.length)
         return false;
-    for (index = 0; index < parent.length; index++) {
+    for (var index = 0; index < parent.length; index++) {
         if (parent[index] !== child[index])
             break;
     }

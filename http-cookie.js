@@ -1,10 +1,8 @@
+"use strict";
 
 /**
  * Provides utilities for reading and writing HTTP cookies.
- * @module
  */
-
-/*whatsupdoc*/
 
 var QS = require("qs");
 

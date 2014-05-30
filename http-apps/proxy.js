@@ -1,3 +1,4 @@
+"use strict";
 
 var HTTP = require("../http");
 var URL = require("url2");

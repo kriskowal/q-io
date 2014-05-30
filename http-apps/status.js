@@ -1,3 +1,4 @@
+"use strict";
 
 var Negotiation = require("./negotiate");
 var HtmlApps = require("./html");

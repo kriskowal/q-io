@@ -1,3 +1,5 @@
+"use strict";
+
 var Q = require("q");
 var Content = require("./content");
 var Status = require("./status");

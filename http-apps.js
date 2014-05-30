@@ -1,3 +1,4 @@
+"use strict";
 
 /**
  * Provides tools for making, routing, adapting, and decorating

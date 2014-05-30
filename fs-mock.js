@@ -1,3 +1,4 @@
+"use strict";
 
 var Q = require("q");
 var CommonFs = require("./fs-common");
@@ -93,7 +94,7 @@ MockFs.prototype.open = function (path, flags, charset, options) {
         var stream;
         if (write || append) {
             if (!node._entries[base]) {
-                node._entries[base] = new FileNode(this);
+                node._entries[base] = new FileNode(self);
             }
             var fileNode = node._entries[base]._follow(path);
             if (!fileNode.isFile()) {
@@ -360,8 +361,9 @@ function mock(fs, root) {
 }
 
 function Node(fs) {
-    if (!fs)
+    if (!fs) {
         throw new Error("FS required argument");
+    }
     this._fs = fs;
     this._accessed = this._modified = new Date();
     this._mode = parseInt("0644", 8);

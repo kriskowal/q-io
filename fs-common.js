@@ -1,3 +1,4 @@
+"use strict";
 
 // Originally from Narwhal, with contributions from Kris Kowal and Tom Robinson
 

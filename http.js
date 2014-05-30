@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * A promise-based Q-JSGI server and client API.
  * @module

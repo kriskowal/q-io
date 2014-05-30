@@ -1,3 +1,4 @@
+"use strict";
 
 // Two years after @johnjbarton sends me the code for this, I got around to
 // integrating it.  Belated and apologetic thanks.
