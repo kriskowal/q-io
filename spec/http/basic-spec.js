@@ -91,12 +91,6 @@ describe("http server and client", function () {
         .finally(server.stop)
     });
 
-    it('should set correct HTTP Basic authentication headers when username and password are passed in the URL',function(){
-        request = HTTP.normalizeRequest('http://username:password@www.google.com/');
-        expect(request.auth).toBe('username:password');
-        expect(request.headers.authorization).toBe('Basic dXNlcm5hbWU6cGFzc3dvcmQ=');
-    });
-
     it('should successfully access resources that require HTTP Basic authentication when using the username:password@host.com URL syntax', function(){
         // This tries to access a public resource, see http://test.webdav.org/
         //
