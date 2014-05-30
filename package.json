@@ -1,13 +1,13 @@
 {
   "name": "q-io",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "publishConfig": {
     "tag": "future"
   },
   "description": "IO using Q promises",
   "homepage": "http://github.com/kriskowal/q-io/",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
-  "contributors" : [
+  "contributors": [
     "Andreas Pizsa (http://github.com/AndreasPizsa/)"
   ],
   "bugs": {
