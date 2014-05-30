@@ -1,5 +1,7 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+ - Add support for progress observers on readable stream `read` promise.
+
 ## 2.0.2
 
  - Fixed problems with hanging connections, and problems with early termination

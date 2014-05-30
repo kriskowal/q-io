@@ -177,12 +177,12 @@ exports.ServerRequest = function (_request, ssl) {
         path: request.path
     });
     /*** A Q IO asynchronous text reader */
-    request.body = NodeReader(_request);
+    request.body = NodeReader(_request, null, +request.headers["content-length"]);
     /*** {Object} HTTP headers (JSGI)*/
     request.headers = _request.headers;
     /*** The underlying Node request */
     request.node = _request;
-    request.nodeRequest = _request; // Deprecated
+    request.nodeRequest = _request; // XXX Deprecated
     /*** The underlying Node TCP connection */
     request.nodeConnection = _request.connection;
 
@@ -337,7 +337,7 @@ exports.ClientResponse = function (_response, charset) {
     response.node = _response;
     response.nodeResponse = _response; // Deprecated
     response.nodeConnection = _response.connection; // Deprecated
-    response.body = NodeReader(_response, charset);
+    response.body = NodeReader(_response, charset, +response.headers["content-length"]);
     return response;
 };
 

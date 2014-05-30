@@ -223,16 +223,27 @@ Readable.prototype.copy = function (output) {
 Readable.prototype.read = function () {
     var chunks = [];
     var self = this;
-    return this.forEach(function (chunk) {
+    var deferred = Q.defer();
+    var index = 0;
+    var start = Date.now();
+    this.forEach(function (chunk) {
         chunks.push(chunk);
-    })
-    .then(function () {
-        if (self.charset) {
-            return chunks.join("");
-        } else {
-            return Buffer.concat(chunks);
+        index += chunk.length;
+        if (this.length) {
+            var now = Date.now(); // milliseconds
+            var speed = index / (now - start); // bytes per milliseconds
+            var remaining = this.length - index; // bytes
+            deferred.setEstimate(now + remaining / speed); // milliseconds
         }
-    });
+    }, this)
+    .done(function () {
+        if (self.charset) {
+            deferred.resolve(chunks.join(""));
+        } else {
+            deferred.resolve(Buffer.concat(chunks));
+        }
+    }, deferred.reject);
+    return deferred.promise;
 }
 
 Readable.prototype.cancel = function () {
