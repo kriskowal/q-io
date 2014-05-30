@@ -106,6 +106,8 @@ function Writer(_stream, charset) {
         return Q(); // destruction not explicitly observable
     };
 
+    self.node = _stream;
+
     return self;
 }
 
