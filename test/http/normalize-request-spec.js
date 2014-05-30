@@ -12,7 +12,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/",
-            headers: { host: "google.com" }
+            headers: { host: "google.com" },
+            auth: void 0
         });
     });
 
@@ -26,7 +27,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/search?q=q-io",
-            headers: { host: "google.com" }
+            headers: { host: "google.com" },
+            auth: void 0
         });
     });
 
@@ -40,7 +42,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 8080,
             path: "/search?q=q-io",
-            headers: { host: "google.com:8080" }
+            headers: { host: "google.com:8080" },
+            auth: void 0
         });
     });
 
@@ -54,7 +57,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 443,
             path: "/",
-            headers: { host: "google.com" }
+            headers: { host: "google.com" },
+            auth: void 0
         });
     });
 
@@ -68,7 +72,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 8080,
             path: "/",
-            headers: { host: "google.com:8080" }
+            headers: { host: "google.com:8080" },
+            auth: void 0
         });
     });
 
@@ -82,7 +87,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/search?q=q-io",
-            headers: { host: "google.com" }
+            headers: { host: "google.com" },
+            auth: void 0
         });
     });
 
@@ -99,7 +105,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/search?q=q-io",
-            headers: { host: "google.com" }
+            headers: { host: "google.com" },
+            auth: void 0
         });
     });
 
@@ -116,7 +123,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/search?q=q-io",
-            headers: { host: "yahoo.com" }
+            headers: { host: "yahoo.com" },
+            auth: void 0
         });
     });
 
@@ -134,7 +142,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/search?q=q-io",
-            headers: { host: "google.com" }
+            headers: { host: "google.com" },
+            auth: void 0
         });
     });
 
@@ -151,7 +160,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/search?q=q-io",
-            headers: { host: "google.com" }
+            headers: { host: "google.com" },
+            auth: void 0
         });
     });
 
@@ -168,7 +178,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/search?q=q-io",
-            headers: { host: "google.com" }
+            headers: { host: "google.com" },
+            auth: void 0
         });
     });
 
@@ -182,7 +193,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/",
-            headers: { host: "google.com" }
+            headers: { host: "google.com" },
+            auth: void 0
         });
     });
 
@@ -197,7 +209,8 @@ describe("request normalization", function () {
             hostname: "google.com",
             port: 80,
             path: "/",
-            headers: { host: "yahoo.com" }
+            headers: { host: "yahoo.com" },
+            auth: void 0
         });
     });
 
