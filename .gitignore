@@ -1,5 +1,14 @@
-node_modules
 .idea
 .tmp
 .coverage_data
 cover_html
+# sorted order
+/node_modules/.bin
+/node_modules/collections
+/node_modules/jasminum
+/node_modules/jshint
+/node_modules/mime
+/node_modules/mimeparse
+/node_modules/q
+/node_modules/qs
+/node_modules/url2
