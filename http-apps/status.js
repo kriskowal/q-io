@@ -6,7 +6,7 @@ var HtmlApps = require("./html");
  * {Object * String} a mapping of HTTP status codes to
  * their standard descriptions.
  */
-// Every standard HTTP code mapped to the appropriate message.
+// Every standard HTTP code mapped to the appropriate statusText.
 // Stolen from Rack which stole from Mongrel
 exports.statusCodes = {
     100: 'Continue',
@@ -90,17 +90,18 @@ exports.appForStatus = function (status) {
 
 /**
  * @param {Number} status an HTTP status code
- * @param {String} message (optional) a message to include
+ * @param {String} statusText (optional) a message to include
  * in the response body.
  * @returns a JSGI HTTP response object with the given status
  * code and message as its body, if the status supports
  * a body.
  */
 exports.responseForStatus = function(request, status, addendum) {
-    if (exports.statusCodes[status] === undefined)
-        throw "Unknown status code";
+    if (exports.statusCodes[status] === void 0) {
+        throw new Error("Unknown status code");
+    }
 
-    var message = exports.statusCodes[status];
+    var statusText = exports.statusCodes[status];
 
     // RFC 2616, 10.2.5:
     // The 204 response MUST NOT include a message-body, and thus is always
@@ -117,19 +118,19 @@ exports.responseForStatus = function(request, status, addendum) {
             handlers["text/html"] = exports.htmlResponseForStatus;
         }
         var responseForStatus = Negotiation.negotiate(request, handlers) || exports.textResponseForStatus;
-        return responseForStatus(request, status, message, addendum);
+        return responseForStatus(request, status, statusText, addendum);
     }
 };
 
-exports.textResponseForStatus = function (request, status, message, addendum) {
-    var content = message + "\n";
+exports.textResponseForStatus = function (request, status, statusText, addendum) {
+    var content = statusText + "\n";
     if (addendum) {
         content += addendum + "\n";
     }
     var contentLength = content.length;
     return {
         status: status,
-        statusMessage: message,
+        statusText: statusText,
         headers: {
             "content-length": contentLength
         },
@@ -137,15 +138,15 @@ exports.textResponseForStatus = function (request, status, message, addendum) {
     };
 };
 
-exports.htmlResponseForStatus = function (request, status, message, addendum) {
+exports.htmlResponseForStatus = function (request, status, statusText, addendum) {
     return {
         status: status,
-        statusMessage: message,
+        statusText: statusText,
         headers: {},
-        htmlTitle: message,
+        htmlTitle: statusText,
         htmlFragment: {
             forEach: function (write) {
-                write("<h1>" + HtmlApps.escapeHtml(message) + "</h1>\n");
+                write("<h1>" + HtmlApps.escapeHtml(statusText) + "</h1>\n");
                 write("<p>Status: " + status + "</p>\n");
                 if (addendum) {
                     write("<pre>" + HtmlApps.escapeHtml(addendum) + "</pre>\n");

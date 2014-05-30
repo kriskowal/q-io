@@ -40,7 +40,11 @@ exports.Server = function (respond) {
             if (!response)
                 return;
 
-            _response.writeHead(response.status, response.headers);
+            if (response.statusText) {
+                _response.writeHead(response.status, response.statusText, response.headers);
+            } else {
+                _response.writeHead(response.status, response.headers);
+            }
 
             // TODO remove support for response.charset?
             var reader = Reader(response.body || nobody);
