@@ -161,8 +161,9 @@ Object.defineProperties(exports.Server, {
  * A wrapper for a Node HTTP Request, as received by
  * the Q HTTP Server, suitable for use by the Q HTTP Client.
  */
+
 exports.ServerRequest = function (_request, ssl) {
-    var request = Object.create(_request);
+    var request = Object.create(_request, requestDescriptor);
     /*** {Array} HTTP version. (JSGI) */
     request.version = _request.httpVersion.split(".").map(Math.floor);
     /*** {String} HTTP method, e.g., `"GET"` (JSGI) */
@@ -172,7 +173,7 @@ exports.ServerRequest = function (_request, ssl) {
     /*** {String} pathInfo, starting with `"/"`, the
      * portion of the path that has not yet
      * been routed (JSGI) */
-    request.pathInfo = URL.parse(_request.url).pathname;
+    request._pathInfo = null;
     /*** {String} scriptName, the portion of the path that
      * has already been routed (JSGI) */
     request.scriptName = "";
@@ -218,6 +219,24 @@ exports.ServerRequest = function (_request, ssl) {
         request.body = body;
         return request;
     });
+};
+
+var requestDescriptor = {
+    pathInfo: {
+        get: function () {
+            // Postpone this until the server requests it because
+            // decodeURIComponent may throw an error if the path is not valid.
+            // If we throw while making a server request, it will crash the
+            // server and be uncatchable.
+            if (this._pathInfo === null) {
+                this._pathInfo = decodeURIComponent(URL.parse(this.url).pathname);
+            }
+            return this._pathInfo;
+        },
+        set: function (pathInfo) {
+            this._pathInfo = pathInfo;
+        }
+    }
 };
 
 exports.ServerResponse = function (_response, ssl) {
