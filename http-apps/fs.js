@@ -225,7 +225,7 @@ exports.ListDirectories = function (app, listDirectory) {
         return Q.fcall(app, request)
         .then(function (response) {
             if (response.directory !== void 0) {
-                return exports.listDirectory(request, response);
+                return listDirectory(request, response);
             } else {
                 return response;
             }
