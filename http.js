@@ -33,7 +33,7 @@ exports.Server = function (respond) {
     // response} promise pair.
 
     var server = HTTP.createServer(function (_request, _response) {
-        var request = exports.ServerRequest(_request);
+        var request = new exports.ServerRequest(_request);
         return respond.call(void 0, request)
         .then(function (response) {
             if (!response)
@@ -134,60 +134,70 @@ Object.defineProperties(exports.Server, {
  * the Q HTTP Server, suitable for use by the Q HTTP Client.
  */
 exports.ServerRequest = function (_request, ssl) {
-    var request = Object.create(_request);
     /*** {Array} HTTP version. (JSGI) */
-    request.version = _request.httpVersion.split(".").map(Math.floor);
+    this.version = _request.httpVersion.split(".").map(Math.floor);
     /*** {String} HTTP method, e.g., `"GET"` (JSGI) */
-    request.method = _request.method;
+    this.method = _request.method;
     /*** {String} path, starting with `"/"` */
-    request.path = _request.url;
+    this.path = _request.url;
     /*** {String} pathInfo, starting with `"/"`, the
      * portion of the path that has not yet
      * been routed (JSGI) */
-    request.pathInfo = URL.parse(_request.url).pathname;
+    this._pathInfo = null;
     /*** {String} scriptName, the portion of the path that
      * has already been routed (JSGI) */
-    request.scriptName = "";
+    this.scriptName = "";
     /*** {String} (JSGI) */
-    request.scheme = "http";
+    this.scheme = "http";
 
     var address = _request.connection.address();
     /*** {String} hostname */
     if (_request.headers.host) {
-        request.hostname = _request.headers.host.split(":")[0];
+        this.hostname = _request.headers.host.split(":")[0];
     } else {
-        request.hostname = address.address;
+        this.hostname = address.address;
     }
     /*** {String} host */
-    request.port = address.port;
-    var defaultPort = request.port === (ssl ? 443 : 80);
-    request.host = request.hostname + (defaultPort ? "" : ":" + request.port);
+    this.port = address.port;
+    var defaultPort = this.port === (ssl ? 443 : 80);
+    this.host = this.hostname + (defaultPort ? "" : ":" + this.port);
 
     var socket = _request.socket;
     /*** {String} */
-    request.remoteHost = socket.remoteAddress;
+    this.remoteHost = socket.remoteAddress;
     /*** {Number} */
-    request.remotePort = socket.remotePort;
+    this.remotePort = socket.remotePort;
 
     /*** {String} url */
-    request.url = URL.format({
-        protocol: request.scheme,
+    this.url = URL.format({
+        protocol: this.scheme,
         host: _request.headers.host,
-        port: request.port === (ssl ? 443 : 80) ? null : request.port,
-        path: request.path
+        port: this.port === (ssl ? 443 : 80) ? null : this.port,
+        path: this.path
     });
     /*** A Q IO asynchronous text reader */
-    request.body = NodeReader(_request, null, +request.headers["content-length"]);
+    this.body = NodeReader(_request, null, +_request.headers["content-length"]);
     /*** {Object} HTTP headers (JSGI)*/
-    request.headers = _request.headers;
+    this.headers = _request.headers;
     /*** The underlying Node request */
-    request.node = _request;
-    request.nodeRequest = _request; // XXX Deprecated
-    /*** The underlying Node TCP connection */
-    request.nodeConnection = _request.connection;
-
-    return request;
+    this.node = _request;
 };
+
+Object.defineProperty(exports.ServerRequest.prototype, "pathInfo", {
+    get: function () {
+        // Postpone this until the server requests it because
+        // decodeURIComponent may throw an error if the path is not valid.
+        // If we throw while making a server request, it will crash the
+        // server and be uncatchable.
+        if (this._pathInfo === null) {
+            this._pathInfo = decodeURIComponent(URL.parse(this.url).pathname);
+        }
+        return this._pathInfo;
+    },
+    set: function (pathInfo) {
+        this._pathInfo = pathInfo;
+    }
+});
 
 exports.ServerResponse = function (_response, ssl) {
     var response = Object.create(_response);
@@ -335,8 +345,6 @@ exports.ClientResponse = function (_response, charset) {
      * A Q IO asynchronous text reader.
      */
     response.node = _response;
-    response.nodeResponse = _response; // Deprecated
-    response.nodeConnection = _response.connection; // Deprecated
     response.body = NodeReader(_response, charset, +response.headers["content-length"]);
     return response;
 };

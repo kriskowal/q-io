@@ -24,12 +24,14 @@ describe("http proxy", function () {
         .use(function (next) {
             return Apps.Branch({
                 "foo": Apps.Branch({
-                    "bar": new Apps.Chain()
+                    "bar": (
+                        new Apps.Chain()
                         .use(Apps.Cap)
                         .use(function () {
                             return Apps.Content(["Hello, World!"])
                         })
                         .end()
+                    )
                 })
             })
         })
@@ -37,7 +39,7 @@ describe("http proxy", function () {
 
         var server1 = Http.Server(app);
 
-        return Q.when(server1.listen(0))
+        return server1.listen(0)
         .then(function (server1) {
             var port = server1.node.address().port;
 
@@ -61,7 +63,8 @@ describe("http proxy", function () {
         .spread(function (server1, server2) {
             var port = server2.node.address().port;
             return Http.read({
-                url: "http://127.0.0.1:" + port + "/bar",
+                port: port,
+                path: "/bar",
                 charset: "utf-8"
             })
             .then(function (content) {
