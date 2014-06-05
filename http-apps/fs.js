@@ -210,7 +210,7 @@ exports.ListDirectories = function (app, listDirectory) {
         return Q(app).call(void 0, request)
         .then(function (response) {
             if (response.directory !== void 0) {
-                return exports.listDirectory(request, response);
+                return listDirectory(request, response);
             } else {
                 return response;
             }
