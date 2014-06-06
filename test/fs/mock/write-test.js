@@ -62,7 +62,7 @@ describe("write", function () {
                 expect(path).toBe("hello.txt");
                 expect(options.flags).toBe("a");
                 expect(options.charset).toBe("utf8");
-                return Q({write: Q, close: Q});
+                return Q({yield: Q, return: Q});
             };
 
             return mock.write("hello.txt", "Goodbye!\n", "a", "utf8");

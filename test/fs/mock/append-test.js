@@ -29,7 +29,7 @@ describe("append", function () {
                 expect(options.flags).toBe("a");
                 expect(options.charset).toBe("utf8");
 
-                return Q({write: Q, close: Q});
+                return Q({yield: Q, return: Q});
             };
 
             return mock.append("hello.txt", "Goodbye!\n", "a", "utf8");
