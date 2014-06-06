@@ -77,8 +77,8 @@ CommonFs.prototype.write = function (path, content, flags, charset, options) {
     }
     options.flags = flags;
     return self.open(path, options).then(function (stream) {
-        return stream.write(content).then(function () {
-            return stream.close();
+        return stream.yield(content).then(function () {
+            return stream.return();
         });
     });
 };
@@ -111,8 +111,8 @@ CommonFs.prototype.append = function (path, content, flags, charset, options) {
     }
     options.flags = flags;
     return self.open(path, options).then(function (stream) {
-        return stream.write(content).then(function () {
-            return stream.close();
+        return stream.yield(content).then(function () {
+            return stream.return();
         });
     });
 };
