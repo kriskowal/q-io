@@ -140,14 +140,7 @@ CommonFs.prototype.copy = function (source, target, targetFs) {
         sourceFs.open(source, {flags: "rb"}),
         targetFs.open(target, {flags: "wb"})
     ]).spread(function (reader, writer) {
-        return reader.forEach(function (block) {
-            return writer.write(block);
-        }).then(function () {
-            return Q.all([
-                reader.close(),
-                writer.close()
-            ]);
-        });
+        return reader.copy(writer);
     });
 };
 
@@ -159,21 +152,21 @@ CommonFs.prototype.copyTree = function (source, target, targetFs) {
             return sourceFs.copy(source, target, targetFs);
         } else if (stat.isDirectory()) {
             return sourceFs.exists(target).then(function (targetExists) {
-                var copySubTree = sourceFs.list(source).then(function (list) {
-                    return Q.all(list.map(function (child) {
-                        return sourceFs.copyTree(
-                            sourceFs.join(source, child),
-                            targetFs.join(target, child),
-                            targetFs
-                        );
-                    }));
-                });
-                if (targetExists) {
-                    return copySubTree;
-                } else {
-                    return targetFs.makeDirectory(target).then(function () {
-                        return copySubTree;
+                function copySubTree() {
+                    return sourceFs.list(source).then(function (list) {
+                        return Q.all(list.map(function (child) {
+                            return sourceFs.copyTree(
+                                sourceFs.join(source, child),
+                                targetFs.join(target, child),
+                                targetFs
+                            );
+                        }));
                     });
+                }
+                if (targetExists) {
+                    return copySubTree();
+                } else {
+                    return targetFs.makeDirectory(target).then(copySubTree);
                 }
             });
         } else if (stat.isSymbolicLink()) {

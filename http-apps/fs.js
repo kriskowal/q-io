@@ -69,8 +69,10 @@ exports.FileTree = function (root, options) {
                     } else {
                         return options.notFound(request);
                     }
+                }, function (error) {
+                    return options.notFound(request);
                 });
-            }, function (reason) {
+            }, function (error) {
                 return options.notFound(request);
             });
         });
