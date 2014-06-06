@@ -332,14 +332,6 @@ MockFs.prototype.readLink = function (path) {
     });
 };
 
-MockFs.prototype.canonical = function (path) {
-    var self = this;
-    return Q.try(function () {
-        path = self.absolute(path);
-        return self._root._canonical(path);
-    });
-};
-
 MockFs.mock = mock;
 function mock(fs, root) {
     return fs.listTree(root).then(function (list) {

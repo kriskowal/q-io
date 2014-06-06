@@ -13,55 +13,39 @@ function RootFs(outer, root) {
     inner.altSeparator = outer.altSeparator;
     inner.separatorsExpression = outer.separatorsExpression;
 
-    function attenuate(path) {
+    var workingDirectory = inner.root;
 
-        // the machinations of projecting a path inside a
-        // subroot
-        var actual;
-        // if it's absolute, we want the path relative to
-        // the root of the inner file system
-        if (outer.isAbsolute(path)) {
-            actual = outer.relativeFromDirectory(outer.root, path);
-        } else {
-            actual = path;
-        }
-        // we join the path onto the root of the inner file
-        // system so that parent references from the root
-        // return to the root, emulating standard unix
-        // behavior
-        actual = outer.join(outer.root, actual);
-        // then we reconstruct the path relative to the
-        // inner root
-        actual = outer.relativeFromDirectory(outer.root, actual);
-        // and rejoin it on the outer root
-        actual = outer.join(root, actual);
-        var IN = actual;
-        // and find the corresponding real path
-        return outer.canonical(actual)
-        .then(function (actual) {
-            return actual;
-        }, function () {
-            return actual;
-        }).then(function (actual) {
-            // and verify that the outer canonical path is
-            // actually inside the inner canonical path, to
-            // prevent break-outs
-            if (outer.contains(root, actual)) {
-                return {
-                    "inner": outer.join(outer.root, outer.relativeFromDirectory(root, actual)),
-                    "outer": actual
-                };
-            } else {
-                var error = new Error("Can't find: " + JSON.stringify(path));
-                delete error.stack;
-                throw error;
-            }
-        });
+    root = outer.canonical(root);
+
+    function attenuate(innerPath) {
+
+        return root.then(function (root) {
+
+            // Construct an inner path that is relative to the emulated root
+            innerPath = inner.absolute(innerPath);
+            innerPath = inner.relativeFromDirectory(inner.root, innerPath);
+            var outerPath = outer.join(root, innerPath);
+
+            return outer.canonical(outerPath)
+            .then(function (outerPath) {
+                if (outer.contains(root, outerPath)) {
+                    return {
+                        "inner": innerPath,
+                        "outer": outerPath
+                    };
+                } else {
+                    var error = new Error("Can't find: " + JSON.stringify(path));
+                    // XXX TODO delete error.stack;
+                    throw error;
+                }
+            })
+        })
+
     }
 
-    function workingDirectory() {
-        return outer.root;
-    }
+    inner.workingDirectory = function () {
+        return inner.root;
+    };
 
     inner.list = function (path) {
         return attenuate(path).then(function (path) {
@@ -95,11 +79,11 @@ function RootFs(outer, root) {
         });
     };
 
-    inner.canonical = function (path) {
+    inner.readLink = function (path) {
         return attenuate(path).then(function (path) {
-            return path.inner;
+            return outer.readLink(path.outer);
         }).then(null, function (reason) {
-            throw new Error("Can't find canonical of " + JSON.stringify(path));
+            throw new Error("Can't read link at " + JSON.stringify(path));
         });
     };
 
@@ -119,9 +103,6 @@ function RootFs(outer, root) {
         });
     };
 
-    return outer.canonical(root).then(function (_root) {
-        root = _root;
-        return inner;
-    });
+    return inner;
 }
 

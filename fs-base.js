@@ -4,6 +4,7 @@
 // These methods are common to all file system, regardless of whether they are
 // synchronous or asynchronous, mostly consisting of path math.
 
+// TODO function to return the Windows drive root
 // TODO patternToRegExp
 // TODO glob
 // TODO match
@@ -24,12 +25,7 @@ var regExpEscape = function (str) {
  * @returns {Array * String}
  */
 BaseFs.prototype.split = function (path) {
-    var parts;
-    try {
-        parts = String(path).split(this.separatorsExpression);
-    } catch (exception) {
-        throw new Error("Cannot split " + (typeof path) + ", " + JSON.stringify(path));
-    }
+    var parts = String(path).split(this.separatorsExpression);
     // this special case helps isAbsolute
     // distinguish an empty path from an absolute path
     // "" -> [] NOT [""]
@@ -38,6 +34,12 @@ BaseFs.prototype.split = function (path) {
     // "a" -> ["a"]
     // "/a" -> ["", "a"]
     return parts;
+};
+
+BaseFs.prototype.rejoin = function (parts) {
+    if (parts.length === 1 && parts[0] === "")
+        return this.root;
+    return parts.join(this.separator);
 };
 
 /**
@@ -190,17 +192,6 @@ BaseFs.prototype.isRoot = function (first) {
 };
 
 /**
- * @returns {String} the Unix root path or corresponding
- * Windows drive for a given path.
- */
-BaseFs.prototype.root = function (path) {
-    if (!this.isAbsolute(path))
-        path = require("./fs").absolute(path);
-    var parts = this.split(path);
-    return this.join(parts[0], "");
-};
-
-/**
  * @returns {String} the parent directory of the given path.
  */
 BaseFs.prototype.directory = function (path) {
@@ -228,17 +219,6 @@ BaseFs.prototype.absolute = function (path) {
     if (this.isAbsolute(path))
         return this.normal(path);
     return this.join(this.workingDirectory(), path);
-};
-
-BaseFs.prototype.relative = function (source, target) {
-    var self = this;
-    return this.isDirectory(source).then(function (isDirectory) {
-        if (isDirectory) {
-            return self.relativeFromDirectory(source, target);
-        } else {
-            return self.relativeFromFile(source, target);
-        }
-    });
 };
 
 BaseFs.prototype.relativeFromFile = function (source, target) {

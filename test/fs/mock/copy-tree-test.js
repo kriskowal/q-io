@@ -5,6 +5,7 @@ var FS = require("../../../fs");
 var Mock = require("../../../fs-mock");
 
 describe("copyTree", function () {
+
     it("should copy a tree", function () {
 
         var mock = Mock({
@@ -51,5 +52,47 @@ describe("copyTree", function () {
 
     });
 
+    it("copies trees between systems", function () {
+
+        var mock = Mock({
+            "a/b": {
+                "c": {
+                    "d": 66,
+                    "e": 99
+                }
+            }
+        });
+
+        var mock2 = Mock();
+
+        return Q.try(function () {
+            return mock.copyTree("a/b", "f", mock2);
+        })
+        .then(function () {
+            return Q.all([
+                mock2.isDirectory("f"),
+                mock2.exists("f/c"),
+                mock2.isFile("f/c/d"),
+                mock2.read("f/c/e")
+            ])
+        })
+        .then(function (existence) {
+            expect(existence.every(Boolean)).toBe(true);
+        })
+
+        .then(function () {
+            return mock2.listTree();
+        })
+        .then(function (list) {
+            expect(list).toEqual([
+                ".",
+                "f",
+                FS.normal("f/c"),
+                FS.normal("f/c/d"),
+                FS.normal("f/c/e")
+            ]);
+        })
+
+    });
 });
 

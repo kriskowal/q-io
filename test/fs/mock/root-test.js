@@ -16,7 +16,7 @@ describe("root", function () {
 
         var chroot = Root(mock, "a/b");
 
-        return chroot.invoke("listTree")
+        return chroot.listTree()
         .then(function (list) {
             expect(list).toEqual([
                 ".",

@@ -333,19 +333,6 @@ NodeFs.prototype.chmod = function (path, mode) {
     return done.promise;
 };
 
-NodeFs.prototype.canonical = function (path) {
-    var result = Q.defer();
-    FS.realpath(path, function (error, canonicalPath) {
-        if (error) {
-            error.message = "Can't get canonical path of " + JSON.stringify(path) + " by way of C realpath: " + error.message;
-            result.reject(error);
-        } else {
-            result.resolve(canonicalPath);
-        }
-    });
-    return result.promise;
-};
-
 NodeFs.prototype.readLink = function (path) {
     var result = Q.defer();
     FS.readlink(path, function (error, path) {

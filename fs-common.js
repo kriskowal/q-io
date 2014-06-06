@@ -117,6 +117,7 @@ CommonFs.prototype.append = function (path, content, flags, charset, options) {
     });
 };
 
+// TODO support targetFs
 CommonFs.prototype.move = function (source, target) {
     var self = this;
     return this.rename(source, target)
@@ -132,11 +133,12 @@ CommonFs.prototype.move = function (source, target) {
     });
 };
 
-CommonFs.prototype.copy = function (source, target) {
-    var self = this;
+CommonFs.prototype.copy = function (source, target, targetFs) {
+    var sourceFs = this;
+    targetFs = targetFs || sourceFs;
     return Q([
-        self.open(source, {flags: "rb"}),
-        self.open(target, {flags: "wb"})
+        sourceFs.open(source, {flags: "rb"}),
+        targetFs.open(target, {flags: "wb"})
     ]).spread(function (reader, writer) {
         return reader.forEach(function (block) {
             return writer.write(block);
@@ -149,33 +151,46 @@ CommonFs.prototype.copy = function (source, target) {
     });
 };
 
-CommonFs.prototype.copyTree = function (source, target) {
-    var self = this;
-    return self.stat(source).then(function (stat) {
+CommonFs.prototype.copyTree = function (source, target, targetFs) {
+    var sourceFs = this;
+    targetFs = targetFs || sourceFs;
+    return sourceFs.statLink(source).then(function (stat) {
         if (stat.isFile()) {
-            return self.copy(source, target);
+            return sourceFs.copy(source, target, targetFs);
         } else if (stat.isDirectory()) {
-            return self.exists(target).then(function (targetExists) {
-                var copySubTree = self.list(source).then(function (list) {
+            return sourceFs.exists(target).then(function (targetExists) {
+                var copySubTree = sourceFs.list(source).then(function (list) {
                     return Q.all(list.map(function (child) {
-                        return self.copyTree(
-                            self.join(source, child),
-                            self.join(target, child)
+                        return sourceFs.copyTree(
+                            sourceFs.join(source, child),
+                            targetFs.join(target, child),
+                            targetFs
                         );
                     }));
                 });
                 if (targetExists) {
                     return copySubTree;
                 } else {
-                    return self.makeDirectory(target).then(function () {
+                    return targetFs.makeDirectory(target).then(function () {
                         return copySubTree;
                     });
                 }
             });
         } else if (stat.isSymbolicLink()) {
-            // TODO copy the link and type with readPath (but what about
-            // Windows junction type?)
-            return self.symbolicCopy(source, target);
+            // Convert symbolic links to relative links and replicate on the
+            // target file system.
+            return sourceFs.isDirectory(source)
+            .then(function (isDirectory) {
+                var relative, type;
+                if (isDirectory) {
+                    relative = sourceFs.relativeFromDirectory(source, target);
+                    type = "directory";
+                } else {
+                    relative = sourceFs.relativeFromFile(source, target);
+                    type = "file";
+                }
+                return targetFs.symbolicLink(target, relative, type);
+            })
         }
     });
 };
@@ -277,6 +292,49 @@ CommonFs.prototype.symbolicCopy = function (source, target, type) {
     });
 };
 
+CommonFs.prototype.relative = function (source, target) {
+    var self = this;
+    return this.isDirectory(source).then(function (isDirectory) {
+        if (isDirectory) {
+            return self.relativeFromDirectory(source, target);
+        } else {
+            return self.relativeFromFile(source, target);
+        }
+    });
+};
+
+CommonFs.prototype.canonical = function (path) {
+    var self = this;
+    path = self.absolute(path);
+    var input = self.split(path);
+    return this._canonicalWalk(input, 1, this.root);
+};
+
+CommonFs.prototype._canonicalWalk = function (parts, index, via) {
+    if (index >= parts.length) {
+        return via;
+    }
+    var self = this;
+    var path = self.join(via, parts[index]);
+    return this.statLink(path)
+    .then(function (stat) {
+        if (stat.isSymbolicLink()) {
+            return self.readLink(path)
+            .then(function (relative) {
+                var absolute = self.join(self.directory(path), relative);
+                return self.canonical(absolute)
+                .then(function (canonical) {
+                    return self._canonicalWalk(parts, index + 1, canonical);
+                });
+            });
+        } else {
+            return self._canonicalWalk(parts, index + 1, self.join(via, parts[index]));
+        }
+    }, function (error) {
+        return self.join(via, parts.slice(index).join(self.separator));
+    });
+};
+
 CommonFs.prototype.exists = function (path) {
     return this.stat(path).then(returnTrue, returnFalse);
 };
@@ -310,7 +368,8 @@ CommonFs.prototype.lastAccessed = function (path) {
 CommonFs.prototype.reroot = function (path) {
     var self = this;
     path = path || this.root;
-    return require("./fs-root")(self, path);
+    var RootFs = require("./fs-root");
+    return new RootFs(self, path);
 }
 
 CommonFs.prototype.toObject = function (path) {
@@ -347,12 +406,14 @@ CommonFs.prototype.merge = function (fss) {
         });
     })
     return done.then(function () {
-        return require("./fs-mock")(tree);
+        var MockFs = require("./fs-mock");
+        return new MockFs(tree);
     });
 };
 
 CommonFs.prototype.mock = function (path) {
-    return require("./fs-mock").mock(this, path);
+    var MockFs = require("./fs-mock");
+    return MockFs.mock(this, path);
 };
 
 function concat(arrays) {

@@ -3,11 +3,9 @@ var FS = require("../../fs");
 describe("reroot", function () {
 
     it("should still have makeDirectory()", function() {
-        return FS.reroot("/")
-        .then(function(fs) {
-            expect(fs.makeTree instanceof Function).toBe(true);
-            expect(fs.makeDirectory instanceof Function).toBe(true);
-        });
+        var fs = FS.reroot("/")
+        expect(fs.makeTree instanceof Function).toBe(true);
+        expect(fs.makeDirectory instanceof Function).toBe(true);
     });
 
     it("should have a makeDirectory() that creates within the attenuated root", function() {
@@ -23,8 +21,7 @@ describe("reroot", function () {
             if (!isDirectory)
                 throw new Error("Failed to create tmpdir");
         }).then(function() {
-            return FS.reroot(tmpdir);
-        }).then(function(fs) {
+            var fs = FS.reroot(tmpdir);
             return fs.makeDirectory('/foo');
         }).then(function() {
             var outerFooDir = FS.join(tmpdir, 'foo');
