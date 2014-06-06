@@ -1,6 +1,34 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
- - Add support for progress observers on readable stream `read` promise.
+## 2.0.4
+
+Streams:
+
+ - Added support for progress observers on readable stream `read` promise.
+
+File system:
+
+ - Added support for `targetFs` argument to `copy` and `copyTree`.
+ - Fixed `canonical` by implementing in JavaScript based on `readLink`.
+   Depending on Node.js `realpath` was an error since realpath does not handle
+   path remainders.
+ - Fixed rerooted base file systems.
+ - Quietly added `rejoin` to file system, for reversing `split` properly.
+   Must consider finding a better narrative about `join`, `absolute`, `split`
+   and the distinguishing of relative and absolute paths in their split form,
+   as well as handling the issue of drive letters for Windows properly.
+
+HTTP:
+
+ - Server request's now decode `pathInfo` on demand.
+   If the encoding is invalid, accessing `pathInfo` will throw an error.
+   This change makes it possible to receive requests with file names.
+   Using an accessor is questionable.
+   A future release might elect to pass `null` for path info if it does not
+   parse properly.
+ - File service now uses the configured `listDirectory` function if overridden.
+ - The client now supports requests with all of the same properteis as the
+   options that can be passed to the Node.js request function.
 
 ## 2.0.2
 
