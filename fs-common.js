@@ -164,20 +164,20 @@ exports.update = function (exports, workingDirectory) {
                 return self.copy(source, target);
             } else if (stat.isDirectory()) {
                 return self.exists(target).then(function (targetExists) {
-                    var copySubTree = Q.when(self.list(source), function (list) {
-                        return Q.all(list.map(function (child) {
-                            return self.copyTree(
-                                self.join(source, child),
-                                self.join(target, child)
-                            );
-                        }));
-                    });
-                    if (targetExists) {
-                        return copySubTree;
-                    } else {
-                        return Q.when(self.makeDirectory(target, stat.node.mode), function () {
-                            return copySubTree;
+                    function copySubTree() {
+                        return Q.when(self.list(source), function (list) {
+                            return Q.all(list.map(function (child) {
+                                return self.copyTree(
+                                    self.join(source, child),
+                                    self.join(target, child)
+                                );
+                            }));
                         });
+                    }
+                    if (targetExists) {
+                        return copySubTree();
+                    } else {
+                        return Q.when(self.makeDirectory(target, stat.node.mode), copySubTree);
                     }
                 });
             } else if (stat.isSymbolicLink()) {
