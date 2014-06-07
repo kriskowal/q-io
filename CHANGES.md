@@ -1,5 +1,12 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 1.11.2
+
+ - Fix race condition in `copyTree`
+ - Decode `pathInfo` in HTTP requests
+ - Pass all options through HTTP requests to Node.js’s HTTP client.
+ - Allow `listDirectories` override in HTTP file services. (@stuk)
+
 ## 1.11.1
 
  - Fix to `fs.reroot`, binding this properly (@Stuk)
