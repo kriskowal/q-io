@@ -505,8 +505,8 @@ A complete request object has the following properties.
 A complete response object has the following properties.
 
 -   ``status`` the HTTP status code as a number, like ``200``.
--   ``headers``
--   ``body`` an IO reader
+-   [``headers``](\#headers)
+-   [``body``](\#body) any `forEach`able, such as an array of strings
 -   ``onclose`` is an optional function that this library will call
     when a response concludes.
 -   ``node`` the wrapped Node response object.
