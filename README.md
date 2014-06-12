@@ -443,16 +443,16 @@ The `http` module exports a `Server` constructor.
 The `http` module exports a `request` function that returns a promise
 for a response.
 
--   accepts a request or a URL string.
--   returns a promise for a response.
+-   accepts a [request object](\#request) or a URL string.
+-   returns a promise for a [response object](\#response).
 
 ### read(request object or url)
 
 The `http` module exports a `read` function, analogous to
-`Fs.read(path)`, but returning a promise for the contento of an OK HTTP
+`Fs.read(path)`, but returning a promise for the content of an OK HTTP
 response.
 
--   accepts a request or a URL string.
+-   accepts a [request object](\#request) or a URL string.
 -   returns a promise for the response body as a string provided
     that the request is successful with a 200 status.
     -   rejects the promise with the response as the reason for
@@ -497,7 +497,7 @@ A complete request object has the following properties.
     or [HTTPS](http://nodejs.org/api/https.html#https_class_https_agent)
     agent. HTTP and HTTPS agents can implement custom socket pools,
     allow use of SSL client certificates and self-signed certificates.
--   ``body``
+-   ``body`` an array of string or node buffers
 -   ``node`` the wrapped Node request object
 
 ### response
