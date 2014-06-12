@@ -438,27 +438,27 @@ The `http` module exports a `Server` constructor.
 -   ``stop()``
     -   returns a promise for undefined when the server has stopped.
 
-### request(request object or url)
+### request([request object](\#request) or url)
 
 The `http` module exports a `request` function that returns a promise
 for a response.
 
--   accepts a request or a URL string.
--   returns a promise for a response.
+-   accepts a [request object](\#request) or a URL string.
+-   returns a promise for a [response object](\#response).
 
-### read(request object or url)
+### read([request object](\#request) or url)
 
 The `http` module exports a `read` function, analogous to
-`Fs.read(path)`, but returning a promise for the contento of an OK HTTP
+`Fs.read(path)`, but returning a promise for the content of an OK HTTP
 response.
 
--   accepts a request or a URL string.
+-   accepts a [request object](\#request) or a URL string.
 -   returns a promise for the response body as a string provided
     that the request is successful with a 200 status.
     -   rejects the promise with the response as the reason for
         failure if the request fails.
 
-### normalizeRequest(request object or url)
+### normalizeRequest([request object](\#request) or url)
 
 -   coerces URLs into request objects.
 -   completes an incomplete request object based on its `url`.
