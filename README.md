@@ -484,8 +484,9 @@ A complete request object has the following properties.
     if no routing has occurred.
 -   ``version`` the requested HTTP version as an array of strings.
 -   ``method`` like ``"GET"``
--   ``scheme`` like ``"http:"``
--   ``host`` like ``"example.com"``
+-   ``scheme`` like ``"http"``
+-   ``host`` like ``"example.com"`` in case of default ports (80 or 443), otherwise like ``example.com:8080``
+-   ``hostname`` like ``"example.com"``
 -   ``port`` the port number, like ``80``
 -   ``remoteHost``
 -   ``remotePort``
