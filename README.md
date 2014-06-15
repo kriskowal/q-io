@@ -170,7 +170,7 @@ Creates a hard link from the source
 
 ### symbolicCopy(source, target, type)
 
-Creates a relative symoblic link from the target to the source with an
+Creates a relative symbolic link from the target to the source with an
 effect that resembles copying a file.
 
 The type is important for Windows.  It is "file" by default, but may be
@@ -192,7 +192,7 @@ Changes the Unix mode for a path.  Returns a promise.
 
 ### stat(path)
 
-Follows all symoblic links along a path and returns a promise for the
+Follows all symbolic links along a path and returns a promise for the
 metadata about a path as a `Stats` object.  The Stats object implements:
 
 -   `size` the size of the file in bytes
@@ -230,7 +230,7 @@ Returns a promise for the `Stats` for a Unix file descriptor number.
 
 ### exists(path)
 
-Follows symoblic links and returns a promise for whether an entry exists
+Follows symbolic links and returns a promise for whether an entry exists
 at a given path.
 
 ### isFile(path)
