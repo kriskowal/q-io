@@ -21,7 +21,7 @@ function negotiate(request, types, header) {
 exports.Method = function (methods, methodNotAllowed) {
     var keys = Object.keys(methods);
     if (!methodNotAllowed)
-        methodNotAllowed = exports.methodNotAllowed;
+        methodNotAllowed = Status.methodNotAllowed;
     return function (request, response) {
         var method = request.method;
         if (Object.has(keys, method)) {
