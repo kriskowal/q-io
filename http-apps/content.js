@@ -13,14 +13,8 @@ var URL = require("url2");
  * @returns {App} a Q-JSGI app
  */
 exports.Content = function (body, contentType, status) {
-    return function (request, response) {
-        return {
-            "status": status || 200,
-            "headers": {
-                "content-type": contentType || "text/plain"
-            },
-            "body": body || ""
-        };
+    return function () {
+        return exports.content(body, contentType, status);
     };
 };
 
