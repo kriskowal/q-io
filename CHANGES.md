@@ -1,5 +1,9 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 1.11.4
+
+ - Fixes mock modification and access times.
+
 ## 1.11.3
 
  - Update dependency to Q 1.0.1.
