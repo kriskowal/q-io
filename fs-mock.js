@@ -102,8 +102,8 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             if (!fileNode.isFile()) {
                 throw new Error("Can't write non-file " + path);
             }
-            fileNode._modified = new Date();
-            fileNode._accessed = new Date();
+            fileNode.mtime = Date.now();
+            fileNode.atime = Date.now();
             if (!append) {
                 fileNode._chunks.length = 0;
             }
@@ -116,7 +116,7 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             if (!fileNode.isFile()) {
                 throw new Error("Can't read non-file " + path);
             }
-            fileNode._accessed = new Date();
+            fileNode.atime = Date.now();
             if ("begin" in options && "end" in options) {
                 return new BufferStream(
                     [
@@ -362,7 +362,7 @@ function Node(fs) {
     if (!fs)
         throw new Error("FS required argument");
     this._fs = fs;
-    this._accessed = this._modified = new Date();
+    this.atime = this.mtime = Date.now();
     this.mode = parseInt("0644", 8);
     this._owner = null;
 }
@@ -414,7 +414,7 @@ Node.prototype._follow = function () {
 };
 
 Node.prototype._touch = function () {
-    this._modified = new Date();
+    this.mtime = Date.now();
 };
 
 var stats = [
@@ -434,11 +434,11 @@ stats.forEach(function (name) {
 });
 
 Node.prototype.lastAccessed = function () {
-    return this._accessed;
+    return this.atime;
 };
 
 Node.prototype.lastModified = function () {
-    return this._modified;
+    return this.mtime;
 };
 
 function FileNode(fs) {
