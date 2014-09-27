@@ -36,7 +36,7 @@ var Negotiator = function (requestHeader, responseHeader, respond) {
         var keys = Object.keys(types);
         if (!notAcceptable)
             notAcceptable = Status.notAcceptable;
-        return function (request) {
+        return function (request, response) {
             var accept = request.headers[requestHeader] || "*";
             var type = MimeParse.bestMatch(keys, accept);
             request.terms = request.terms || {};
