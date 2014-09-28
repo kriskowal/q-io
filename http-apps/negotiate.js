@@ -21,12 +21,12 @@ exports.Method = function (methods, methodNotAllowed) {
     var keys = Object.keys(methods);
     if (!methodNotAllowed)
         methodNotAllowed = Status.methodNotAllowed;
-    return function (request, response) {
+    return function (request) {
         var method = request.method;
         if (Object.has(keys, method)) {
-            return Object.get(methods, method)(request, response);
+            return Object.get(methods, method)(request);
         } else {
-            return methodNotAllowed(request, response);
+            return methodNotAllowed(request);
         }
     };
 };
@@ -42,7 +42,7 @@ var Negotiator = function (requestHeader, responseHeader, respond) {
             request.terms = request.terms || {};
             request.terms[responseHeader] = type;
             if (Object.has(keys, type)) {
-                return Q.when(types[type](request, response), function (response) {
+                return Q.when(types[type](request), function (response) {
                     if (
                         respond !== null &&
                         response &&
@@ -111,9 +111,9 @@ exports.Host = function (appForHost, notAcceptable) {
 
 // Branch on a selector function based on the request
 exports.Select = function (select) {
-    return function (request, response) {
-        return Q.when(select(request, response), function (app) {
-            return app(request, response);
+    return function (request) {
+        return Q.when(select(request), function (app) {
+            return app(request);
         });
     };
 };
