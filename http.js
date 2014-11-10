@@ -319,7 +319,7 @@ exports.request = function (request) {
             auth: request.auth // Generates the appropriate header
         };
 
-        if (request.agent != undefined) {
+        if (request.agent !== undefined) {
             requestOptions.agent = request.agent;
         }
 
