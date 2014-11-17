@@ -25,18 +25,18 @@
     "url": "http://github.com/kriskowal/q-io.git"
   },
   "dependencies": {
-    "q": "~1.0.1",
-    "qs": "~1.2.1",
-    "url2": "~0.0.0",
-    "mime": "~1.2.11",
-    "mimeparse": "~0.1.4",
-    "collections": "~0.2.0"
+    "q": "^1.0.1",
+    "qs": "^1.2.1",
+    "url2": "^0.0.0",
+    "mime": "^1.2.11",
+    "mimeparse": "^0.1.4",
+    "collections": "^0.2.0"
   },
   "devDependencies": {
-    "jshint": "~0.9.1",
-    "cover": "~0.2.8",
-    "jasmine-node": "~1.7",
-    "opener": "~1.3"
+    "jshint": "^0.9.1",
+    "cover": "^0.2.8",
+    "jasmine-node": "^1.7",
+    "opener": "^1.3"
   },
   "scripts": {
     "test": "jasmine-node spec",
