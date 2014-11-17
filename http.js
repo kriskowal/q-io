@@ -323,6 +323,16 @@ exports.request = function (request) {
             requestOptions.agent = request.agent;
         }
 
+        if (request.cancelled) {
+            request.cancelled.then(function (value) {
+                throw new Error('`cancelled` promise on Q-IO HTTP request can only be rejected. Received resolution: ' + value);
+            }, function (error) {
+                _request.abort();
+                deferred.reject(error);
+            })
+            .done();
+        }
+
         var _request = http.request(requestOptions, function (_response) {
             deferred.resolve(exports.ClientResponse(_response, request.charset));
             _response.on("error", function (error) {

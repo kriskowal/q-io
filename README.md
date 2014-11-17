@@ -500,6 +500,9 @@ A complete request object has the following properties.
     allow use of SSL client certificates and self-signed certificates.
 -   ``body`` an array of string or node buffers
 -   ``node`` the wrapped Node request object
+-   ``cancelled`` a promise that indicates by rejection that the HTTP request
+    should be aborted and the response promise should be rejected with the given
+    error. Such a promise must not be fulfilled.
 
 ### response
 
