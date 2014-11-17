@@ -1,5 +1,13 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 1.11.5
+
+ - Allow HTTP requests to specified a false agent, per the underlying Node.js
+   behavior. (@grahamjenson)
+ - Use npm carat operator for dependencies. (@anton-rudeshko)
+ - The Node.js response argument is no longer being forwarded to HTTP request
+   handlers.
+
 ## 1.11.4
 
  - Fixes mock modification and access times.
