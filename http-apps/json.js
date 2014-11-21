@@ -55,7 +55,7 @@ exports.json = function (content, reviver, tabs) {
     } catch (exception) {
         return Q.reject(exception);
     }
-    return Content.ok([json]);
+    return Content.ok([json], "application/json");
 };
 
 /**
