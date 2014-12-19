@@ -68,8 +68,7 @@ exports.CookieJar = function (app) {
                 .map(function (cookie) {
                     return Cookie.stringify(
                         cookie.key,
-                        cookie.value,
-                        cookie
+                        cookie.value
                     );
                 })
                 .join("; ")
