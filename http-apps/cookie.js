@@ -17,8 +17,8 @@ exports.CookieJar = function (app) {
         var requestCookies = concat(hosts.map(function (host) {
 
             // delete expired cookies
-            for (var host in hostCookies) {
-                var pathCookies = hostCookies[host];
+            for (var hostCookie in hostCookies) {
+                var pathCookies = hostCookies[hostCookie];
                 for (var path in pathCookies) {
                     var cookies = pathCookies[path];
                     for (var name in cookies) {
