@@ -17,8 +17,8 @@ exports.parse = function (cookie, date) {
     var parsed = {};
     var terms = cookie.split(/[;,]/g);
     var keyValue = terms.shift().split("=");
-    parsed.key = keyValue[0];
-    parsed.value = keyValue[1];
+    parsed.key = decodeURIComponent(keyValue[0]);
+    parsed.value = decodeURIComponent(keyValue[1]);
     terms.forEach(function (term) {
         var parts = term.split("=").map(function (part) {
             return part.trim();
