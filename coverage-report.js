@@ -1,5 +1,3 @@
-
-require("collections/shim");
 var Q = require("q");
 var FS = require("./fs");
 
@@ -22,7 +20,8 @@ FS.listTree(".coverage_data", function (name, stat) {
             console.log("        </tr>");
             console.log("    </thead>");
             console.log("    <tbody>");
-            Object.forEach(coverage.files, function (file, path) {
+            Object.keys(coverage.files).forEach(function (path) {
+                var file = coverage.files[path];
                 path = FS.relativeFromDirectory(__dirname, path);
                 if (/^spec/.test(path))
                     return;
