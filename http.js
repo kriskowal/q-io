@@ -308,22 +308,13 @@ exports.request = function (request) {
         var deferred = Q.defer();
         var http = request.ssl ? HTTPS : HTTP;
 
-        var requestOptions = {
-            hostname: request.hostname,
-            port: request.port || (request.ssl ? 443 : 80),
-            localAddress: request.localAddress,
-            socketPath: request.socketPath,
-            method: request.method,
-            path: request.path,
-            headers: request.headers,
-            auth: request.auth // Generates the appropriate header
-        };
+        request.port = request.port || (request.ssl ? 443 : 80);
 
         if (request.agent !== undefined) {
-            requestOptions.agent = request.agent;
+          request.agent = request.agent;
         }
 
-        var _request = http.request(requestOptions, function (_response) {
+        var _request = http.request(request, function (_response) {
             deferred.resolve(exports.ClientResponse(_response, request.charset));
             _response.on("error", function (error) {
                 // TODO find a better way to channel
@@ -408,4 +399,3 @@ exports.ClientResponse = function (_response, charset) {
         return response;
     });
 };
-
