@@ -11,57 +11,52 @@ exports.CookieJar = function (app) {
         if (!request.headers.host) {
             throw new Error("Requests must have a host header");
         }
-        var hosts = allHostsContaining(request.headers.host);
 
         var now = new Date();
 
-        var requestCookies = concat(hosts.map(function (host) {
-
-            // delete expired cookies
-            for (var host in hostCookies) {
-                var pathCookies = hostCookies[host];
-                for (var path in pathCookies) {
-                    var cookies = pathCookies[path];
-                    for (var name in cookies) {
-                        var cookie = cookies[name];
-                        if (cookie.expires && cookie.expires > now) {
-                            delete cookie[name];
-                        }
+        // delete expired cookies
+        for (var formerHost in hostCookies) {
+            var pathCookies = hostCookies[formerHost];
+            for (var path in pathCookies) {
+                var cookies = pathCookies[path];
+                for (var name in cookies) {
+                    var cookie = cookies[name];
+                    if (cookie.expires && cookie.expires > now) {
+                        delete cookie[name];
                     }
                 }
             }
+        }
 
-            // collect applicable cookies
-            return concat(
-                Object.keys(hostCookies)
-                .map(function (host) {
-                    if (!hostContains(host, request.headers.host)) {
-                        return [];
-                    }
-                    var pathCookies = hostCookies[host];
-                    return concat(
-                        Object.keys(pathCookies)
-                        .map(function (path) {
-                            if (!pathContains(path, request.path))
-                                return [];
-                            var cookies = pathCookies[path];
-                            return (
-                                Object.keys(cookies)
-                                .map(function (name) {
-                                    return cookies[name];
-                                })
-                                .filter(function (cookie) {
-                                    return cookie.secure ?
-                                        request.ssl :
-                                        true;
-                                })
-                            );
-                        })
-                    )
-                })
-            );
-
-        }));
+        // collect applicable cookies
+        var requestCookies = concat(
+            Object.keys(hostCookies)
+            .map(function (host) {
+                if (!hostContains(host, request.headers.host)) {
+                    return [];
+                }
+                var pathCookies = hostCookies[host];
+                return concat(
+                    Object.keys(pathCookies)
+                    .map(function (path) {
+                        if (!pathContains(path, request.path))
+                            return [];
+                        var cookies = pathCookies[path];
+                        return (
+                            Object.keys(cookies)
+                            .map(function (name) {
+                                return cookies[name];
+                            })
+                            .filter(function (cookie) {
+                                return cookie.secure ?
+                                    request.ssl :
+                                    true;
+                            })
+                        );
+                    })
+                )
+            })
+        );
 
         if (requestCookies.length) {
             request.headers["cookie"] = (
@@ -120,25 +115,6 @@ function splitHost(host) {
         return [match[1], match[2]];
     } else {
         return [host, ""];
-    }
-}
-
-function allHostsContaining(host) {
-    var parts = splitHost(host);
-    var hostname = parts[0];
-    var port = parts[1];
-    if (ipRe.test(hostname)) {
-        return [hostname + port];
-    } if (hostname === "localhost") {
-        return [hostname + port];
-    } else {
-        var parts = hostname.split(".");
-        var hosts = [];
-        while (parts.length > 1) {
-            hosts.push("." + parts.join(".") + port);
-            parts.shift();
-        }
-        return hosts;
     }
 }
 
