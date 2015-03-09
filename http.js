@@ -295,6 +295,12 @@ exports.request = function (request) {
 
         _request.on("error", deferred.reject);
 
+        if (request.timeout) {
+            _request.setTimeout(request.timeout, function() {
+                _request.abort();
+            });
+        }
+
         // TODO request.charset or request.acceptCharset?
         var reader = Reader(request.body || nobody);
         var writer = NodeWriter(_request, request.charset);
