@@ -1,5 +1,10 @@
 <!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
 
+## 1.12.0
+
+ - Adds support for socket timeout on HTTP requests as `http.request({timeout:
+   50})` @akiron
+
 ## 1.11.5
 
  - Allow HTTP requests to specified a false agent, per the underlying Node.js
