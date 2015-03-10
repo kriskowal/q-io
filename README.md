@@ -471,7 +471,7 @@ response.
     a singal to the requester that the responder has taken control of
     the response stream.
 
-### request
+### Request
 
 A complete request object has the following properties.
 
@@ -499,9 +499,11 @@ A complete request object has the following properties.
     agent. HTTP and HTTPS agents can implement custom socket pools,
     allow use of SSL client certificates and self-signed certificates.
 -   ``body`` an array of string or node buffers
+-   ``timeout`` an optional socket timeout in miliseconds to thread through to
+    the HTTP agent.
 -   ``node`` the wrapped Node request object
 
-### response
+### Response
 
 A complete response object has the following properties.
 
