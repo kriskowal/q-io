@@ -1,4 +1,7 @@
-<!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
+
+## 1.13.0
+
+ - Uses iconv-lite to understand more charsets on HTTP read. @Tomalak
 
 ## 1.12.0
 
