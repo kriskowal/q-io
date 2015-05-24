@@ -14,12 +14,7 @@
     "mail": "kris@cixar.com",
     "url": "http://github.com/kriskowal/q-io/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://github.com/kriskowal/q-io/raw/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "http://github.com/kriskowal/q-io.git"
