@@ -2,6 +2,7 @@
 require("../lib/jasmine-promise");
 var Q = require("q");
 var HTTP = require("../../http");
+var iconv = require("iconv-lite");
 
 describe("http server and client", function () {
 
@@ -138,6 +139,39 @@ describe("http server and client", function () {
             })
             .then(function (timedout) {
                 expect(timedout).toBe(true);
+            });
+        })
+        .finally(server.stop)
+    });
+
+    it("should correctly convert response buffers to string during read()", function () {
+        var responseStr = "Accented characters: öäüß",
+            charset = "Windows-1252",
+            response = {
+            "status": 200,
+            "headers": {
+                "content-type": "text/plain; charset=" + charset
+            },
+            "body": [
+                iconv.encode(responseStr, charset)
+            ]
+        };
+
+        var server = HTTP.Server(function () {
+            return response;
+        });
+
+        return server.listen(0)
+        .then(function (server) {
+            return HTTP.read({
+                "host": "localhost",
+                "port": server.address().port,
+                "headers": {
+                    "host": "localhost"
+                }
+            })
+            .then(function (body) {
+                expect(body).toBe(responseStr);
             });
         })
         .finally(server.stop)

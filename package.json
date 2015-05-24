@@ -25,7 +25,9 @@
     "url2": "^0.0.0",
     "mime": "^1.2.11",
     "mimeparse": "^0.1.4",
-    "collections": "^0.2.0"
+    "collections": "^0.2.0",
+    "iconv-lite": "^0.4.8",
+    "strip-bom": "^1.0.0"
   },
   "devDependencies": {
     "jshint": "^0.9.1",
