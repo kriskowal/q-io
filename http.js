@@ -10,8 +10,6 @@ var HTTPS = require("https"); // node
 var URL = require("url2"); // node
 var Q = require("q");
 var Reader = require("./reader");
-var iconv = require("iconv-lite");
-var stripBom = require('strip-bom');
 
 /**
  * @param {respond(request Request)} respond a JSGI responder function that
@@ -387,18 +385,7 @@ exports.read = function (request, qualifier) {
             error.response = response;
             throw error;
         }
-        return Q.post(response.body, 'read', []).then(function (data) {
-            var contentType, match, charset;
-
-            if (Buffer.isBuffer(data)) {
-                contentType = response.headers['content-type'] || '',
-                match = contentType.match(/charset=([a-z0-9-]+)/i),
-                charset = match ? match[1] : 'utf8';
-                return iconv.decode(data, charset);
-            }
-
-            return stripBom(data);
-        });
+        return Q.post(response.body, 'read', []);
     });
 };
 
