@@ -1,4 +1,9 @@
 
+## 1.13.1
+
+ - Reverts the new read feature in 1.13.0 since this was backward incompatible
+   and needs to be revisited.
+
 ## 1.13.0
 
  - Uses iconv-lite to understand more charsets on HTTP read. @Tomalak
