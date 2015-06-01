@@ -42,8 +42,8 @@ to an `options` object.
 
 `read` is a shortcut for opening a file and reading the entire contents
 into memory.  It returns a promise for the whole file contents.  By
-default, `read` provides a string decoded from UTF-8.  With the bytewise
-mode flag, provides a `Buffer`.
+default, `read` provides a buffer. With a specified charset, it produces a
+string.
 
 The options argument is identical to that of `open`.  
 
