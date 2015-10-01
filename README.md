@@ -164,7 +164,7 @@ target are on different devices, falls back to copying and removing,
 using `copyTree(source, target)` and, if completely successful,
 `removeTree(source)`.
 
-### link(source, taget)
+### link(source, target)
 
 Creates a hard link from the source
 
