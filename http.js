@@ -272,7 +272,8 @@ exports.normalizeRequest = function (request) {
         request.host = request.hostname + (defaultPort ? "" : ":" + request.port);
     }
     request.headers.host = request.headers.host || request.host;
-    request.path = request.path || "/";
+    request.path = encodeURI(request.path || "/");
+
     return request;
 };
 

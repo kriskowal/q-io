@@ -201,4 +201,39 @@ describe("request normalization", function () {
         });
     });
 
+    it("must url encode the request's querystring", function () {
+        var request = normalizeRequest("http://google.com/search?q=entrées");
+        expect(request).toEqual({
+            url: "http://google.com/search?q=entrées",
+            method: "GET",
+            ssl: false,
+            host: "google.com",
+            hostname: "google.com",
+            port: 80,
+            path: "/search?q=entr%C3%A9es",
+            headers: { host: "google.com" }
+        });
+    });
+
+    it("must url encode the request's path", function () {
+        var request = normalizeRequest("http://google.com/é");
+        expect(request).toEqual({
+            url: "http://google.com/é",
+            method: "GET",
+            ssl: false,
+            host: "google.com",
+            hostname: "google.com",
+            port: 80,
+            path: "/%C3%A9",
+            headers: { host: "google.com" }
+        });
+    });
+
+    it("must url encode the request's path (more characters)", function () {
+        var charactersToEncode = "èÈàÀêÊÀùÙçÇÈîôôÇöä";
+        var request = normalizeRequest(
+          "http://google.com/search?q=" + charactersToEncode);
+        var decodedPath = decodeURIComponent(request.path);
+        expect(decodedPath).toEqual("/search?q=" + charactersToEncode);
+    });
 });
