@@ -232,8 +232,15 @@ describe("request normalization", function () {
     it("must url encode the request's path (more characters)", function () {
         var charactersToEncode = "èÈàÀêÊÀùÙçÇÈîôôÇöä";
         var request = normalizeRequest(
-          "http://google.com/search?q=" + charactersToEncode);
+            "http://google.com/search?q=" + charactersToEncode);
         var decodedPath = decodeURIComponent(request.path);
         expect(decodedPath).toEqual("/search?q=" + charactersToEncode);
+    });
+
+    it("must not double url encode a request", function () {
+        var uri = "http://google.com/search?q=entr%C3%A9es";
+        var request = normalizeRequest(uri);
+        var decodedPath = decodeURIComponent(request.path);
+        expect(request.path).toEqual("/search?q=entr%C3%A9es");
     });
 });

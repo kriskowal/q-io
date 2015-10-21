@@ -272,7 +272,13 @@ exports.normalizeRequest = function (request) {
         request.host = request.hostname + (defaultPort ? "" : ":" + request.port);
     }
     request.headers.host = request.headers.host || request.host;
-    request.path = encodeURI(request.path || "/");
+
+    request.path = request.path || "/";
+
+    // Making sure we do not double encode a string
+    // This will still fail for arbitrary depth encodings
+    request.path = encodeURI(
+        decodeURI(request.path));
 
     return request;
 };
