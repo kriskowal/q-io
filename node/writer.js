@@ -13,7 +13,7 @@ var Q = require("q");
 module.exports = Writer;
 
 var version = process.versions.node.split('.');
-var supportsFinish = version[0] >= 0 && version[1] >= 10;
+var supportsFinish = version[0] >= 1 || version[1] >= 10;
 
 function Writer(_stream, charset) {
     var self = Object.create(Writer.prototype);
