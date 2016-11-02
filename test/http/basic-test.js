@@ -52,12 +52,10 @@ describe("http server and client", function () {
             },
             "body": {
                 "forEach": function (write) {
-                    var deferred = Q.defer();
-                    write("Hello, World!");
-                    setTimeout(function () {
-                        deferred.resolve();
-                    }, 100);
-                    return deferred.promise;
+                    return Q(write("Hello, World!"))
+                    .then(function () {
+                        return Q.delay(100);
+                    });
                 }
             }
         };

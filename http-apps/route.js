@@ -86,10 +86,10 @@ exports.Branch = function (paths, notFound) {
         var path = request.pathInfo.slice(1);
         var parts = path.split("/");
         var part = decodeURIComponent(parts.shift());
-        if (Object.has(paths, part)) {
+        if (hasOwnProperty.call(paths, part)) {
             request.scriptName = request.scriptName + part + "/";
             request.pathInfo = path.slice(part.length);
-            return Object.get(paths, part)(request);
+            return paths[part](request);
         }
         return notFound(request);
     };

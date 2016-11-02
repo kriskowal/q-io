@@ -233,6 +233,7 @@ exports.normalizeRequest = function (request) {
     }
     request.headers.host = request.headers.host || request.host;
     request.path = request.path || "/";
+    request.auth = request.auth;
     return request;
 };
 

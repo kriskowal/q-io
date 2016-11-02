@@ -194,9 +194,9 @@ Readable.prototype.buffer = function (maxInFlight, notify) {
 
 Readable.prototype.all = function (maxInFlight, notify) {
     var output = [];
-    return this.reduce(function (undefined, value, index) {
+    return this.forEach(function (value, index) {
         output[index] = value;
-    }, void 0, maxInFlight, notify)
+    }, null, maxInFlight, notify)
     .then(function () {
         return output;
     });

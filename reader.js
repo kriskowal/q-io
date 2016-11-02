@@ -10,21 +10,18 @@ function Reader(source, charset) {
     if (!(this instanceof Reader)) {
         return new Reader(source, charset);
     }
-    this.iteratorPromise = Q(source).iterate()
-    .catch(function (cause) {
-        if (source.forEach) {
-            var buffer = new BufferStream();
-            buffer.return(source.forEach(function (value, index) {
-                buffer.yield(value, index);
-            }));
-            return buffer;
-        } else {
-            var error = new Error("Can't iterate because source is not forEachable and because " + cause.message);
-            error.notIterable = true;
-            error.notForEachable = true;
-            throw error;
-        }
-    });
+    if (source.forEach) {
+        var buffer = new BufferStream();
+        Q(source.forEach(function (value, index) {
+            return buffer.yield(value, index);
+        })).then(function (value) {
+            return buffer.return(value);
+        }, function (error) {
+            return buffer.throw(error);
+        });
+        return buffer;
+    }
+    this.iteratorPromise = Q(source).iterate();
     this.source = source;
     this.charset = charset;
 }
