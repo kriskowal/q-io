@@ -9,8 +9,9 @@ var supportsReadable = version[0] >= 0 && version[1] >= 10;
 
 module.exports = Reader;
 function Reader(_stream, charset, length) {
-    if (charset && _stream.setEncoding) // TODO complain about inconsistency
+    if (charset && _stream.setEncoding) {
         _stream.setEncoding(charset);
+    }
 
     var window = 0;
     var index = 0;

@@ -74,6 +74,9 @@ describe("http proxy", function () {
                 expect(requestProxy).toBeTruthy();
                 expect(responseProxy).toBeTruthy();
             }, function (error) {
+                if (!error.response) {
+                    throw error;
+                }
                 return error.response.body.read()
                 .then(function (body) {
                     console.error(body);
