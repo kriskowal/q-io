@@ -22,7 +22,7 @@ BufferStream.prototype.forEach = function (write, thisp) {
     var self = this;
     var chunks = self._chunks;
     return Q.fcall(function () {
-        chunks.splice(0, chunks.length).forEach(write, thisp);
+        chunks.forEach(write, thisp);
     });
 };
 
