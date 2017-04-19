@@ -13,7 +13,7 @@ function BufferStream(chunks, charset) {
         chunks = [chunks];
     }
     this._charset = charset;
-    this._chunks = chunks.slice(0); // Clone to avoid unexpected side effect
+    this._chunks = chunks;
     this._close = Q.defer();
     this.closed = this._close.promise;
 }
