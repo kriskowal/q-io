@@ -127,7 +127,7 @@ MockFs.prototype.open = function (path, flags, charset, options) {
                 );
             } else {
                 // Clone chunks to avoid side effect
-                var bufferChunks = fileNode._chunks.slice(0);
+                var bufferChunks = fileNode._chunks.slice();
                 return new BufferStream(bufferChunks, charset);
             }
         }
