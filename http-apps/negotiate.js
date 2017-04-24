@@ -18,13 +18,12 @@ function negotiate(request, types, header) {
  * @returns {App}
  */
 exports.Method = function (methods, methodNotAllowed) {
-    var keys = Object.keys(methods);
     if (!methodNotAllowed)
         methodNotAllowed = Status.methodNotAllowed;
     return function (request) {
         var method = request.method;
-        if (Object.has(keys, method)) {
-            return Object.get(methods, method)(request);
+        if (Object.prototype.hasOwnProperty.call(methods, method) !== -1) {
+            return methods[method](request);
         } else {
             return methodNotAllowed(request);
         }
@@ -41,7 +40,7 @@ var Negotiator = function (requestHeader, responseHeader, respond) {
             var type = MimeParse.bestMatch(keys, accept);
             request.terms = request.terms || {};
             request.terms[responseHeader] = type;
-            if (Object.has(keys, type)) {
+            if (keys.indexOf(type) !== -1) {
                 return Q.when(types[type](request), function (response) {
                     if (
                         respond !== null &&
