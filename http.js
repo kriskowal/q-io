@@ -375,9 +375,10 @@ exports.request = function (request) {
  * status code is not exactly 200.  The reason for the
  * rejection is the full response object.
  */
+var validStatuses = /(2\d{2,2}|304)/;
 exports.read = function (request, qualifier) {
     qualifier = qualifier || function (response) {
-        return response.status === 200;
+        return validStatuses.test(response.status);
     };
     return Q.when(exports.request(request), function (response) {
         if (!qualifier(response)){
