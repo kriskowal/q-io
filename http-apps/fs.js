@@ -149,7 +149,6 @@ exports.file = function (request, path, contentType, fs) {
     });
 };
 
-var rangesExpression = /^\s*bytes\s*=\s*(\d*\s*-\s*\d*\s*(?:,\s*\d*\s*-\s*\d*\s*)*)$/;
 var rangeExpression = /^\s*(\d*)\s*-\s*(\d*)\s*$/;
 
 var interpretRange = function (text, size) {
@@ -176,19 +175,27 @@ var interpretRange = function (text, size) {
 };
 
 var interpretFirstRange = exports.interpretFirstRange = function (text, size) {
-    var match = rangesExpression.exec(text);
-    if (!match)
+    var index = text.indexOf('=');
+    if (index === -1) {
         return;
-    var texts = match[1].split(/\s*,\s*/);
-    var range = interpretRange(texts[0], size);
-    for (var i = 0, ii = texts.length; i < ii; i++) {
-        var next = interpretRange(texts[i], size);
-        if (next.begin <= range.end) {
+    }
+
+    // split the range string
+    var range,
+        arr = text.slice(index + 1).split(',');
+    
+    // parse all ranges
+    for (var i = 0; i < arr.length; i++) {
+        var next = interpretRange(arr[i], size);
+        if (!range) {
+            range = next;
+        } else if (next.begin <= range.end) {
             range.end = next.end;
         } else {
             return; // Can't satisfy non-contiguous ranges TODO
         }
     }
+
     return range;
 };
 
@@ -365,7 +372,7 @@ exports.listDirectoryData = function (request, response) {
             }, function () {
                 // ignore unstatable entries
             });
-        })
+        });
     })
     .all()
     .then(function (stats) {
