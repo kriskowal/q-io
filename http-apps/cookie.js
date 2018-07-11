@@ -14,53 +14,49 @@ exports.CookieJar = function (app) {
 
         var now = new Date();
 
-        var requestCookies = concat(hosts.map(function (host) {
-
-            // delete expired cookies
-            for (var host in hostCookies) {
-                var pathCookies = hostCookies[host];
-                for (var path in pathCookies) {
-                    var cookies = pathCookies[path];
-                    for (var name in cookies) {
-                        var cookie = cookies[name];
-                        if (cookie.expires && cookie.expires > now) {
-                            delete cookie[name];
-                        }
+        // delete expired cookies
+        for (var host in hostCookies) {
+            var pathCookies = hostCookies[host];
+            for (var path in pathCookies) {
+                var cookies = pathCookies[path];
+                for (var name in cookies) {
+                    var cookie = cookies[name];
+                    if (cookie.expires && cookie.expires > now) {
+                        delete cookie[name];
                     }
                 }
             }
+        }
 
-            // collect applicable cookies
-            return concat(
-                Object.keys(hostCookies)
-                .map(function (host) {
-                    if (!hostContains(host, request.headers.host)) {
-                        return [];
-                    }
-                    var pathCookies = hostCookies[host];
-                    return concat(
-                        Object.keys(pathCookies)
-                        .map(function (path) {
-                            if (!pathContains(path, request.path))
-                                return [];
-                            var cookies = pathCookies[path];
-                            return (
-                                Object.keys(cookies)
-                                .map(function (name) {
-                                    return cookies[name];
-                                })
-                                .filter(function (cookie) {
-                                    return cookie.secure ?
-                                        request.ssl :
-                                        true;
-                                })
-                            );
-                        })
-                    )
-                })
-            );
-
-        }));
+        // collect applicable cookies
+        var requestCookies = concat(
+            Object.keys(hostCookies)
+            .map(function (host) {
+                if (!hostContains(host, request.headers.host)) {
+                    return [];
+                }
+                var pathCookies = hostCookies[host];
+                return concat(
+                    Object.keys(pathCookies)
+                    .map(function (path) {
+                        if (!pathContains(path, request.path))
+                            return [];
+                        var cookies = pathCookies[path];
+                        return (
+                            Object.keys(cookies)
+                            .map(function (name) {
+                                return cookies[name];
+                            })
+                            .filter(function (cookie) {
+                                return cookie.secure ?
+                                    request.ssl :
+                                    true;
+                            })
+                        );
+                    })
+                )
+            })
+        );
 
         if (requestCookies.length) {
             request.headers["cookie"] = (
@@ -68,8 +64,7 @@ exports.CookieJar = function (app) {
                 .map(function (cookie) {
                     return Cookie.stringify(
                         cookie.key,
-                        cookie.value,
-                        cookie
+                        cookie.value
                     );
                 })
                 .join("; ")

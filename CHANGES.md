@@ -1,4 +1,22 @@
-<!-- vim:ts=4:sts=4:sw=4:et:tw=60 -->
+## 1.13.5
+ - Fix range header parsing RexExp DOS #165
+
+## 1.13.3
+ - Upgrade to qs@^1.2.2 to fix prototype Override Protection Bypass Vulnerability in qs.
+
+## 1.13.1
+
+ - Reverts the new read feature in 1.13.0 since this was backward incompatible
+   and needs to be revisited.
+
+## 1.13.0
+
+ - Uses iconv-lite to understand more charsets on HTTP read. @Tomalak
+
+## 1.12.0
+
+ - Adds support for socket timeout on HTTP requests as `http.request({timeout:
+   50})` @akiron
 
 ## 1.11.5
 

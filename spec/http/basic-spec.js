@@ -35,7 +35,6 @@ describe("http server and client", function () {
             return HTTP.request(request)
             .then(function (response) {
                 expect(Q.isPromise(response.body)).toBe(false);
-                var acc = [];
                 return response.body.read()
                 .then(function (body) {
                     expect(body.toString("utf-8")).toBe("Hello, World!");
@@ -91,7 +90,7 @@ describe("http server and client", function () {
         .finally(server.stop)
     });
 
-    it('should successfully access resources that require HTTP Basic authentication when using the username:password@host.com URL syntax', function(){
+    xit('should successfully access resources that require HTTP Basic authentication when using the username:password@host.com URL syntax', function(){
         // This tries to access a public resource, see http://test.webdav.org/
         //
         // The resource is password protected, but there's no content behind it
@@ -102,6 +101,46 @@ describe("http server and client", function () {
             expect(response.status).not.toBe(401);
             expect(response.status).toBe(404);
         });
+    });
+
+    it("should timeout request when timeout specified", function() {
+        var response = {
+            "status": 200,
+            "headers": {
+                "content-type": "text/plain"
+            },
+            "body": [
+                "Hello, World!"
+            ]
+        };
+
+        var server = HTTP.Server(function () {
+            return Q.delay(response, 300);
+        });
+
+        return server.listen(0)
+        .then(function (server) {
+            var port = server.address().port;
+
+            var request = {
+                "host": "localhost",
+                "port": port,
+                "headers": {
+                    "host": "localhost"
+                },
+                "timeout": 100
+            };
+
+            return HTTP.request(request)
+            .thenResolve(false)
+            .catch(function (err) {
+                return true;
+            })
+            .then(function (timedout) {
+                expect(timedout).toBe(true);
+            });
+        })
+        .finally(server.stop)
     });
 });
 

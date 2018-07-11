@@ -91,7 +91,7 @@ MockFs.prototype.open = function (path, flags, charset, options) {
         if (!binary) {
             charset = charset || "utf-8";
         }
-        if (write || append) {
+        if (write || append) { // write
             if (!node._entries[base]) {
                 node._entries[base] = new FileNode(this);
                 if ("mode" in options) {
@@ -126,7 +126,9 @@ MockFs.prototype.open = function (path, flags, charset, options) {
                     charset
                 );
             } else {
-                return new BufferStream(fileNode._chunks, charset);
+                // Clone chunks to avoid side effect
+                var bufferChunks = fileNode._chunks.slice();
+                return new BufferStream(bufferChunks, charset);
             }
         }
     });
@@ -528,7 +530,7 @@ LinkNode.prototype.isSymbolicLink = function () {
 };
 
 LinkNode.prototype._follow = function (via, memo) {
-    memo = memo || Set();
+    memo = memo || new Set();
     if (memo.has(this)) {
         var error = new Error("Can't follow symbolic link cycle at " + JSON.stringify(via));
         error.code = "ELOOP";

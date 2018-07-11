@@ -1,6 +1,6 @@
 {
   "name": "q-io",
-  "version": "1.11.6",
+  "version": "1.13.5",
   "description": "IO using Q promises",
   "homepage": "http://github.com/kriskowal/q-io/",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
@@ -14,12 +14,7 @@
     "mail": "kris@cixar.com",
     "url": "http://github.com/kriskowal/q-io/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://github.com/kriskowal/q-io/raw/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "http://github.com/kriskowal/q-io.git"

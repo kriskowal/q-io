@@ -337,6 +337,12 @@ exports.request = function (request) {
             deferred.reject(error);
         });
 
+        if (request.timeout) {
+            _request.setTimeout(request.timeout, function() {
+                _request.abort();
+            });
+        }
+
         Q.when(request.body, function (body) {
             var end, done;
             if (body) {
