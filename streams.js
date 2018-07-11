@@ -227,6 +227,11 @@ Readable.prototype.read = function () {
     var index = 0;
     var start = Date.now();
     this.forEach(function (chunk) {
+
+        if (typeof chunk === 'string') {
+            chunk = Buffer.from(chunk, 'utf8');
+        }
+
         chunks.push(chunk);
         index += chunk.length;
         if (this.length) {
