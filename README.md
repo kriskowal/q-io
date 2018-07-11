@@ -1,7 +1,8 @@
+# Q-IO
+
+[![npm version](https://img.shields.io/npm/v/q-io.svg?style=flat)](https://www.npmjs.com/package/q-io)
 
 [![Build Status](https://secure.travis-ci.org/kriskowal/q-io.png)](http://travis-ci.org/kriskowal/q-io)
-
-# Q-IO
 
 Interfaces for IO that make use of promises.
 
