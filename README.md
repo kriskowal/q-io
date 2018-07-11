@@ -502,6 +502,9 @@ A complete request object has the following properties.
 -   ``timeout`` an optional socket timeout in miliseconds to thread through to
     the HTTP agent.
 -   ``node`` the wrapped Node request object
+-   ``cancelled`` a promise that indicates by rejection that the HTTP request
+    should be aborted and the response promise should be rejected with the given
+    error. Such a promise must not be fulfilled.
 
 ### Response
 
