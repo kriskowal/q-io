@@ -1,3 +1,7 @@
+## 1.13.6
+ - Remove collections dependency and es6-set instead #168
+ - Add tests for request cancelation support #124
+
 ## 1.13.5
  - Fix range header parsing RexExp DOS #165
 

@@ -1,6 +1,6 @@
 {
   "name": "q-io",
-  "version": "1.13.5",
+  "version": "1.13.6",
   "description": "IO using Q promises",
   "homepage": "http://github.com/kriskowal/q-io/",
   "author": "Kris Kowal <kris@cixar.com> (http://github.com/kriskowal/)",
@@ -8,7 +8,8 @@
     "Montage Studio",
     "Stuart Knightley",
     "Jean-romain Prevost",
-    "Andreas Pizsa (http://github.com/AndreasPizsa/)"
+    "Andreas Pizsa (http://github.com/AndreasPizsa/)",
+    "Harold Thetiot"
   ],
   "bugs": {
     "mail": "kris@cixar.com",
