@@ -1,3 +1,6 @@
+## 1.13.5
+ - Fix range header parsing RexExp DOS #165
+
 ## 1.13.3
  - Upgrade to qs@^1.2.2 to fix prototype Override Protection Bypass Vulnerability in qs.
 
