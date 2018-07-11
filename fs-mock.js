@@ -530,7 +530,7 @@ LinkNode.prototype.isSymbolicLink = function () {
 };
 
 LinkNode.prototype._follow = function (via, memo) {
-    memo = memo || Set();
+    memo = memo || new Set();
     if (memo.has(this)) {
         var error = new Error("Can't follow symbolic link cycle at " + JSON.stringify(via));
         error.code = "ELOOP";
