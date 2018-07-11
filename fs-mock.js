@@ -4,7 +4,7 @@ var Boot = require("./fs-boot");
 var Common = require("./fs-common");
 var BufferStream = require("./buffer-stream");
 var Reader = require("./reader");
-var Set = require("collections/set");
+var Set = require("es6-set");
 
 module.exports = MockFs;
 
