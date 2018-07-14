@@ -96,10 +96,20 @@ directory.
 
 Returns a promise for the completion of the operation.
 
-### copyTree(source, target)
+### copyTree(source, target, {targetFs?, include?})
 
 Copies a file or tree of files from one path to another.  Symbolic links
 are copied but not followed.
+
+Optionally copies to the given target file system.
+Any file system that implements the Q-IO file system interface will suffice,
+including a mock file system.
+
+Optionally includes only copies entries that pass the given include test.
+The test may return true, false, or a promise for true or false.
+The include test receives the name and stats of the entry, including symbolic
+link entries.
+The entry name is not fully qualified.
 
 Returns a promise for the completion of the operation.
 
