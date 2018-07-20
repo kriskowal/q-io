@@ -157,6 +157,10 @@ exports.update = function (exports, workingDirectory) {
         });
     };
 
+    function returnTrue () {
+        return true;
+    }
+
     exports.copyTree = function (source, target, options) {
         var sourceFs = this;
         options = options || {};
