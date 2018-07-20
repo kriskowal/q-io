@@ -1,3 +1,5 @@
+/* global __dirname:false */
+
 "use strict";
 
 var Q = require("q");
@@ -25,7 +27,7 @@ FS.listTree(".coverage_data", function (name, stat) {
             var paths = Object.keys(coverage.files);
             for (var i = 0; i < paths.length; i++) {
                 var path = paths[i];
-                var file = files[path];
+                var file = coverage.files[path];
                 path = FS.relativeFromDirectory(__dirname, path);
                 if (/^spec/.test(path))
                     continue;

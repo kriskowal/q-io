@@ -2,7 +2,7 @@
 
 var Q = require("q");
 var HTTP = require("./http");
-var FS = require("./fs");
+var fs = require("./fs");
 var URL = require("url");
 
 exports.Client = Client;

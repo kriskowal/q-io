@@ -140,7 +140,7 @@ function hostContains(containerHost, contentHost) {
     } else {
         return containerHostname === contentHostname;
     }
-};
+}
 
 function pathContains(container, content) {
     if (/^\/$/.test(container)) {

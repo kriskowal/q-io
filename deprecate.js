@@ -12,9 +12,12 @@
  * @param {String} alternative - Name of alternative that should be used instead.
  * @param {Number} [stackTraceLimit] - depth of the stack trace to print out. Set to falsy value to disable stack.
  */
-exports.deprecationWarning = function deprecationWarning(name, alternative, stackTraceLimit) {
+exports.deprecationWarning = deprecationWarning;
+
+function deprecationWarning(name, alternative, stackTraceLimit) {
+    var depth;
     if (stackTraceLimit) {
-        var depth = Error.stackTraceLimit;
+        depth = Error.stackTraceLimit;
         Error.stackTraceLimit = stackTraceLimit;
     }
     if (typeof console !== "undefined" && typeof console.warn === "function") {
