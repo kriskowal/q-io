@@ -88,7 +88,7 @@ describe("http server and client", function () {
         .finally(server.stop)
     });
 
-    it('should successfully access resources that require HTTP Basic authentication when using the username:password@host.com URL syntax', function(){
+    xit('should successfully access resources that require HTTP Basic authentication when using the username:password@host.com URL syntax', function(){
         // This tries to access a public resource, see http://test.webdav.org/
         //
         // The resource is password protected, but there's no content behind it
