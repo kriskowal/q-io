@@ -157,34 +157,54 @@ exports.update = function (exports, workingDirectory) {
         });
     };
 
-    exports.copyTree = function (source, target) {
-        var self = this;
-        return Q.when(self.stat(source), function (stat) {
-            if (stat.isFile()) {
-                return self.copy(source, target);
-            } else if (stat.isDirectory()) {
-                return self.exists(target).then(function (targetExists) {
-                    function copySubTree() {
-                        return Q.when(self.list(source), function (list) {
-                            return Q.all(list.map(function (child) {
-                                return self.copyTree(
-                                    self.join(source, child),
-                                    self.join(target, child)
-                                );
-                            }));
-                        });
-                    }
-                    if (targetExists) {
-                        return copySubTree();
-                    } else {
-                        return Q.when(self.makeDirectory(target, stat.node.mode), copySubTree);
-                    }
-                });
-            } else if (stat.isSymbolicLink()) {
-                // TODO copy the link and type with readPath (but what about
-                // Windows junction type?)
-                return self.symbolicCopy(source, target);
-            }
+    exports.copyTree = function (source, target, options) {
+        var sourceFs = this;
+        options = options || {};
+        targetFs = options.targetFs || sourceFs;
+        includeTest = options.include || returnTrue;
+        return sourceFs.statLink(source).then(function (stat) {
+            var include = includeTest(source, stat);
+            return Q(include).then(function (include) {
+                if (!include) return;
+                if (stat.isFile()) {
+                    return sourceFs.copy(source, target);
+                } else if (stat.isDirectory()) {
+                    return targetFs.exists(target).then(function (targetExists) {
+                        function copySubTree() {
+                            return sourceFs.list(source).then(function (list) {
+                                return Q.all(list.map(function (child) {
+                                    return sourceFs.copyTree(
+                                        sourceFs.join(source, child),
+                                        targetFs.join(target, child),
+                                        options
+                                    );
+                                }));
+                            });
+                        }
+                        if (targetExists) {
+                            return copySubTree();
+                        } else {
+                            return targetFs.makeDirectory(target, stat.node.mode)
+                            .then(copySubTree);
+                        }
+                    });
+                } else if (stat.isSymbolicLink()) {
+                    // Convert symbolic links to relative links and replicate on the
+                    // target file system.
+                    return sourceFs.isDirectory(source)
+                    .then(function (isDirectory) {
+                        var relative, type;
+                        if (isDirectory) {
+                            relative = sourceFs.relativeFromDirectory(source, target);
+                            type = "directory";
+                        } else {
+                            relative = sourceFs.relativeFromFile(source, target);
+                            type = "file";
+                        }
+                        return targetFs.symbolicLink(target, relative, type);
+                    })
+                }
+            });
         });
     };
 
