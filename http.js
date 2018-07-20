@@ -407,7 +407,7 @@ exports.read = function (request, qualifier) {
 
             if (Buffer.isBuffer(data)) {
                 contentType = response.headers['content-type'] || '',
-                match = contentType.match(CHARSET_MATCH_REG),
+                match = contentType.match(exports.CHARSET_MATCH_REG),
                 charset = match && iconv.encodingExists(match[1]) ? match[1] : 'utf8';
                 return iconv.decode(data, charset);
             }
