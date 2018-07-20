@@ -1,0 +1,4 @@
+node_modules/
+spec/
+cover_html/
+.coverage_data/

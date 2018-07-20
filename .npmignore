@@ -1,2 +1,4 @@
 .tmp
 spec
+.coverage_data
+cover_html
