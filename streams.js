@@ -194,9 +194,9 @@ Readable.prototype.buffer = function (maxInFlight, notify) {
 
 Readable.prototype.all = function (maxInFlight, notify) {
     var output = [];
-    return this.reduce(function (undefined, value, index) {
+    return this.forEach(function (value, index) {
         output[index] = value;
-    }, void 0, maxInFlight, notify)
+    }, null, maxInFlight, notify)
     .then(function () {
         return output;
     });
@@ -237,7 +237,9 @@ Readable.prototype.read = function () {
         }
     }, this)
     .done(function () {
-        if (self.charset) {
+        if (self.charset || chunks.some(function (chunk) {
+            return typeof chunk === "string"
+        })) {
             deferred.resolve(chunks.join(""));
         } else {
             deferred.resolve(Buffer.concat(chunks));
@@ -270,9 +272,9 @@ function noop() {}
  * Buffer inherits the methods of `Readable`.
  */
 exports.BufferStream = BufferStream;
-function BufferStream(queue) {
+function BufferStream(queue, charset) {
     if (!(this instanceof BufferStream)) {
-        return new BufferStream();
+        return new BufferStream(queue, charset);
     }
     this.index = 0;
     var queue = queue || new Queue();
@@ -286,6 +288,7 @@ function BufferStream(queue) {
         queue.put(iteration);
         return acks.get();
     };
+    this.charset = charset;
 }
 
 BufferStream.prototype = Object.create(Readable.prototype);

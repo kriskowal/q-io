@@ -85,7 +85,7 @@ describe("https agent", function () {
         }).catch(function(err) {
             expect(Q.isPromise(err)).toBe(false);
             expect(err).toEqual(jasmine.any(Error));
-            expect(err.message).toBe('DEPTH_ZERO_SELF_SIGNED_CERT');
+            expect(err.message !== "DEPTH_ZERO_SELF_SIGNED_CERT" && err.message !== "self signed cert").toBe(true);
         });
 
         return Q.all([allow, reject]).finally(function () {

@@ -40,7 +40,6 @@
  * @module
  */
 
-require("collections/shim");
 var Q = require("q");
 var HTTP = require("./http");
 var FS = require("./fs");

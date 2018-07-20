@@ -231,8 +231,11 @@ exports.normalizeRequest = function (request) {
         var defaultPort = request.ssl ? 443 : 80;
         request.host = request.hostname + (defaultPort ? "" : ":" + request.port);
     }
-    request.headers.host = request.headers.host || request.host;
+    if (request.host && !request.headers.host) {
+        request.headers.host = request.host;
+    }
     request.path = request.path || "/";
+    request.auth = request.auth;
     return request;
 };
 

@@ -28,12 +28,12 @@ describe("http proxy", function () {
                         new Apps.Chain()
                         .use(Apps.Cap)
                         .use(function () {
-                            return Apps.Content(["Hello, World!"])
+                            return Apps.Content(["Hello, World!"]);
                         })
                         .end()
                     )
                 })
-            })
+            });
         })
         .end();
 
@@ -73,6 +73,15 @@ describe("http proxy", function () {
                 expect(responseActual).toBeTruthy();
                 expect(requestProxy).toBeTruthy();
                 expect(responseProxy).toBeTruthy();
+            }, function (error) {
+                if (!error.response) {
+                    throw error;
+                }
+                return error.response.body.read()
+                .then(function (body) {
+                    console.error(body);
+                    throw error;
+                });
             })
             .finally(server1.stop)
             .finally(server2.stop)

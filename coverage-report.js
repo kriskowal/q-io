@@ -1,6 +1,5 @@
 "use strict";
 
-require("collections/shim");
 var Q = require("q");
 var FS = require("./fs");
 
@@ -23,16 +22,19 @@ FS.listTree(".coverage_data", function (name, stat) {
             console.log("        </tr>");
             console.log("    </thead>");
             console.log("    <tbody>");
-            Object.forEach(coverage.files, function (file, path) {
+            var paths = Object.keys(coverage.files);
+            for (var i = 0; i < paths.length; i++) {
+                var path = paths[i];
+                var file = files[path];
                 path = FS.relativeFromDirectory(__dirname, path);
                 if (/^spec/.test(path))
-                    return;
+                    continue;
                 console.log("        <tr>");
                 console.log("            <td><code>" + path + "</code></td>");
                 console.log("            <td>" + (file.stats.percentage * 100).toFixed(0) + "%</td>");
                 console.log("            <td>" + file.stats.missing + "</td>");
                 console.log("        </tr>");
-            });
+            }
             console.log("    </tbody>");
             console.log("</table>");
         }, function (error) {
