@@ -36,8 +36,8 @@
     "url2": ">=2.0.0 <3.0.0"
   },
   "devDependencies": {
-    "jshint": ">=0.9.1 <0.10.0",
-    "jasminum": ">=2.0.2 <3.0.0"
+    "jasminum": ">=2.0.2 <3.0.0",
+    "jshint": "^2.9.5"
   },
   "scripts": {
     "test": "jasminum test",
