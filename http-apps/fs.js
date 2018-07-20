@@ -101,9 +101,10 @@ exports.file = function (request, path, contentType, fs) {
             // Invalid cache
             if (
                 "if-range" in request.headers &&
-                etag != request.headers["if-range"]
+                    etag != request.headers["if-range"]
             ) {
                 // Normal 200 for entire, altered content
+                range = null;
             } else {
                 // Truncate to the first requested continuous range
                 range = interpretFirstRange(request.headers["range"], stat.size);

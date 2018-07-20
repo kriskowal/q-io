@@ -126,7 +126,7 @@ function allHostsContaining(host) {
     } if (hostname === "localhost") {
         return [hostname + port];
     } else {
-        var parts = hostname.split(".");
+        parts = hostname.split(".");
         var hosts = [];
         while (parts.length > 1) {
             hosts.push("." + parts.join(".") + port);
@@ -158,7 +158,7 @@ function hostContains(containerHost, contentHost) {
     } else {
         return containerHostname === contentHostname;
     }
-};
+}
 
 function pathContains(container, content) {
     if (/^\/$/.test(container)) {

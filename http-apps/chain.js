@@ -1,12 +1,13 @@
 
 module.exports = Chain;
+
 function Chain(end) {
     var self = Object.create(Chain.prototype);
     self.end = end || function (next) {
         return next;
     };
     return self;
-};
+}
 
 Chain.prototype.use = function (App /*, ...args*/) {
     if (!App) throw new Error("App is not defined after " + this.app);
@@ -21,4 +22,3 @@ Chain.prototype.use = function (App /*, ...args*/) {
     this.app = App;
     return this;
 };
-
