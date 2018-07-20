@@ -40,7 +40,7 @@
     "jasminum": ">=2.0.2 <3.0.0"
   },
   "scripts": {
-    "test": "npm ls >/dev/null && cd node_modules/q-io && jasminum test",
-    "lint": "jshint"
+    "test": "jasminum test",
+    "lint": "jshint ."
   }
 }
