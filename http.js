@@ -10,6 +10,7 @@ var HTTPS = require("https"); // node
 var URL = require("url2"); // node
 var Q = require("q");
 var Reader = require("./reader");
+var iconv = require("iconv-lite");
 
 /**
  * @param {respond(request Request)} respond a JSGI responder function that
@@ -385,6 +386,12 @@ exports.request = function (request) {
  * status code is not exactly 200.  The reason for the
  * rejection is the full response object.
  */
+
+// If you need to extract just the charset value from an arbitrary content-type header
+// which permits characters after the charset assignment as per rfc1341.
+// - https://www.w3.org/Protocols/rfc1341/4_Content-Type.html
+exports.CHARSET_MATCH_REG = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i;
+
 exports.read = function (request, qualifier) {
     qualifier = qualifier || function (response) {
         return response.status === 200;
@@ -395,7 +402,18 @@ exports.read = function (request, qualifier) {
             error.response = response;
             throw error;
         }
-        return Q.post(response.body, 'read', []);
+        return Q.post(response.body, 'read', []).then(function (data) {
+            var contentType, match, charset;
+
+            if (Buffer.isBuffer(data)) {
+                contentType = response.headers['content-type'] || '',
+                match = contentType.match(CHARSET_MATCH_REG),
+                charset = match && iconv.encodingExists(match[1]) ? match[1] : 'utf8';
+                return iconv.decode(data, charset);
+            }
+
+            return data;
+        });
     });
 };
 
