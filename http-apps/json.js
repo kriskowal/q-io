@@ -50,8 +50,9 @@ exports.Json = function (app, reviver, tabs) {
  * @returns {Response}
  */
 exports.json = function (content, reviver, tabs) {
+    var json;
     try {
-        var json = JSON.stringify(content, reviver, tabs);
+        json = JSON.stringify(content, reviver, tabs);
     } catch (exception) {
         return Q.reject(exception);
     }
@@ -67,8 +68,9 @@ exports.JsonRequest = function (app, badRequest) {
     if (!badRequest)
         badRequest = Status.badRequest;
     return Content.ContentRequest(function (content, request, response) {
+        var object;
         try {
-            var object = JSON.parse(content);
+            object = JSON.parse(content);
         } catch (error) {
             return badRequest(request, error);
         }

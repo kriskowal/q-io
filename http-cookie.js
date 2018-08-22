@@ -12,6 +12,13 @@ var QS = require("qs");
  * @param {String} cookie
  * @returns {Object}
  */
+var DOMAIN_REG_EXP = /^domain$/i,   
+    PATH_REG_EXP = /^path$/i,
+    EXPIRE_REG_EXP = /^expires$/i,
+    MAX_AGE_REG_EXP = /^max-age$/i,
+    SECURE_REG_EXP = /^secure$/i,
+    HTTP_ONLY_REG_EXP = /^httponly$/i;
+
 exports.parse = function (cookie, date) {
     date = date || new Date();
     var parsed = {};
@@ -24,23 +31,23 @@ exports.parse = function (cookie, date) {
             return part.trim();
         });
         var key = parts[0], value = parts[1];
-        if (/^domain$/i.test(key)) {
+        if (DOMAIN_REG_EXP.test(key)) {
             parsed.domain = value;
-        } else if (/^path$/i.test(key)) {
+        } else if (PATH_REG_EXP.test(key)) {
             parsed.path = value;
-        } else if (/^expires$/i.test(key)) {
+        } else if (EXPIRE_REG_EXP.test(key)) {
             parsed.expires = new Date(
                 +new Date() + // actual now
                 (new Date(value) - date) // server offset
             );
-        } else if (/^max-age$/i.test(key)) {
+        } else if (MAX_AGE_REG_EXP.test(key)) {
             parsed.expires = new Date(
                 new Date().getTime() +
                 (value * 1000)
             );
-        } else if (/^secure$/i.test(key)) {
+        } else if (SECURE_REG_EXP.test(key)) {
             parsed.secure = true;
-        } else if (/^httponly$/i.test(key)) {
+        } else if (HTTP_ONLY_REG_EXP.test(key)) {
             parsed.httpOnly = true;
         }
     });
@@ -72,4 +79,3 @@ exports.stringify = function (key, value, options) {
     }
     return cookie;
 };
-

@@ -11,8 +11,9 @@
  * @param {Number} [stackTraceLimit] - depth of the stack trace to print out. Set to falsy value to disable stack.
  */
 exports.deprecationWarning = function deprecationWarning(name, alternative, stackTraceLimit) {
+    var depth;
     if (stackTraceLimit) {
-        var depth = Error.stackTraceLimit;
+        depth = Error.stackTraceLimit;
         Error.stackTraceLimit = stackTraceLimit;
     }
     if (typeof console !== "undefined" && typeof console.warn === "function") {
@@ -43,7 +44,7 @@ exports.deprecationWarning = function deprecationWarning(name, alternative, stac
 exports.deprecateMethod = function deprecate(scope, deprecatedFunction, name, alternative) {
     var deprecationWrapper = function () {
         // stackTraceLimit = 3 // deprecationWarning + deprecate + caller of the deprecated method
-        deprecationWarning(name, alternative, 3);
+        exports.deprecationWarning(name, alternative, 3);
         return deprecatedFunction.apply(scope ? scope : this, arguments);
     };
     deprecationWrapper.deprecatedFunction = deprecatedFunction;

@@ -1,3 +1,5 @@
+/* global process:true */
+
 /**
  * An asynchronous local file system API, based on a subset
  * of the `narwhal/fs` API and the `narwhal/promise` API,
@@ -79,11 +81,12 @@ exports.open = dampen(function (path, flags, charset, options) {
     } else {
         charset = charset || 'utf-8';
     }
+    var stream;
     if (flags.indexOf("w") >= 0 || flags.indexOf("a") >= 0) {
-        var stream = FS.createWriteStream(String(path), nodeOptions);
+        stream = FS.createWriteStream(String(path), nodeOptions);
         return Writer(stream, charset);
     } else {
-        var stream = FS.createReadStream(String(path), nodeOptions);
+        stream = FS.createReadStream(String(path), nodeOptions);
         return Reader(stream, charset);
     }
 });

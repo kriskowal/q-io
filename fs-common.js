@@ -200,8 +200,9 @@ exports.update = function (exports, workingDirectory) {
         return Q.when(stat, function (stat) {
             var paths = [];
             var mode; // true:include, false:exclude, null:no-recur
+            var include;
             try {
-                var include = guard(basePath, stat);
+                include = guard(basePath, stat);
             } catch (exception) {
                 return Q.reject(exception);
             }

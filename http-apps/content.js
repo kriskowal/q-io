@@ -1,3 +1,5 @@
+/* global inspect:true */
+
 var Q = require("q");
 var Negotiate = require("./negotiate");
 var QS = require("qs");

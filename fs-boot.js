@@ -1,3 +1,5 @@
+/* global process:false, FS_BOOT:true */
+
 (function (exports) {
 
 // -- kriskowal Kris Kowal Copyright (C) 2009-2010 MIT License
@@ -15,8 +17,9 @@
 /*whatsupdoc*/
 /*markup markdown*/
 
+var ESCAPE_REG_EXP = /[-[\]{}()*+?.\\^$|,#\s]/g;
 var regExpEscape = function (str) {
-    return str.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
+    return str.replace(ESCAPE_REG_EXP, "\\$&");
 };
 
 var path = require("path");
@@ -52,6 +55,7 @@ var separatorCached, altSeparatorCached, separatorReCached;
 /**
  * @function
  */
+
 exports.SEPARATORS_RE = function () {
     if (
         separatorCached !== exports.SEPARATOR ||
@@ -60,8 +64,8 @@ exports.SEPARATORS_RE = function () {
         separatorCached = exports.SEPARATOR;
         altSeparatorCached = exports.ALT_SEPARATOR;
         separatorReCached = new RegExp("[" +
-            (separatorCached || "").replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&") +
-            (altSeparatorCached || "").replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&") +
+            (separatorCached || "").replace(ESCAPE_REG_EXP, "\\$&") +
+            (altSeparatorCached || "").replace(ESCAPE_REG_EXP, "\\$&") +
         "]", "g");
     }
     return separatorReCached;
@@ -120,8 +124,9 @@ exports.resolve = function () {
     var parents = [];
     var children = [];
     var leaf = "";
+    var path;
     for (var i = 0; i < arguments.length; i++) {
-        var path = String(arguments[i]);
+        path = String(arguments[i]);
         if (path == "")
             continue;
         var parts = path.split(exports.SEPARATORS_RE());
@@ -150,10 +155,15 @@ exports.resolve = function () {
             } else {
                 children.push(part);
             }
-        };
+        }
     }
+
     path = parents.concat(children).join(exports.SEPARATOR);
-    if (path) leaf = exports.SEPARATOR + leaf;
+    
+    if (path) {
+        leaf = exports.SEPARATOR + leaf;
+    }
+
     return root + path + leaf;
 };
 
@@ -168,8 +178,9 @@ exports.normal = function () {
     var root = "";
     var parents = [];
     var children = [];
+    var path;
     for (var i = 0, ii = arguments.length; i < ii; i++) {
-        var path = String(arguments[i]);
+        path = String(arguments[i]);
         // empty paths have no affect
         if (path === "")
             continue;

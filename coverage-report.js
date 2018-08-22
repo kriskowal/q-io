@@ -1,3 +1,5 @@
+/* global __dirname:true */
+
 var Q = require("q");
 var FS = require("./fs");
 
