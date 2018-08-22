@@ -71,8 +71,9 @@ BaseFs.prototype.resolve = function () {
     var parents = [];
     var children = [];
     var leaf = "";
+    var path;
     for (var i = 0; i < arguments.length; i++) {
-        var path = String(arguments[i]);
+        path = String(arguments[i]);
         if (path == "")
             continue;
         var parts = path.split(this.separatorsExpression);
@@ -101,7 +102,7 @@ BaseFs.prototype.resolve = function () {
             } else {
                 children.push(part);
             }
-        };
+        }
     }
     path = parents.concat(children).join(this.separator);
     if (path) leaf = this.separator + leaf;
@@ -119,8 +120,9 @@ BaseFs.prototype.normal = function () {
     var root = "";
     var parents = [];
     var children = [];
+    var path;
     for (var i = 0, ii = arguments.length; i < ii; i++) {
-        var path = String(arguments[i]);
+        path = String(arguments[i]);
         // empty paths have no affect
         if (path === "")
             continue;

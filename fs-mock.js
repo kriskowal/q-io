@@ -61,7 +61,7 @@ MockFs.prototype.list = function (path) {
         path = self.absolute(path);
         var node = self._root._walk(path)._follow(path);
         if (!node.isDirectory()) {
-            new Error("Can't list non-directory: " + JSON.stringify(path));
+            throw new Error("Can't list non-directory: " + JSON.stringify(path));
         }
         return Object.keys(node._entries).sort();
     });
@@ -92,11 +92,12 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             charset = charset || "utf-8";
         }
         var stream;
+        var fileNode;
         if (write || append) {
             if (!node._entries[base]) {
                 node._entries[base] = new FileNode(self);
             }
-            var fileNode = node._entries[base]._follow(path);
+            fileNode = node._entries[base]._follow(path);
             if (!fileNode.isFile()) {
                 throw new Error("Can't write non-file " + path);
             }
@@ -114,7 +115,7 @@ MockFs.prototype.open = function (path, flags, charset, options) {
             if (!node._entries[base]) {
                 throw new Error("Can't read non-existant " + path);
             }
-            var fileNode = node._entries[base]._follow(path);
+            fileNode = node._entries[base]._follow(path);
             if (!fileNode.isFile()) {
                 throw new Error("Can't read non-file " + path);
             }
@@ -163,14 +164,15 @@ MockFs.prototype.makeDirectory = function (path) {
         var directory = self.directory(path);
         var name = self.base(path);
         var node = self._root._walk(directory);
+        var error;
         if (!node.isDirectory()) {
-            var error =  new Error("Can't make directory in non-directory: " + path);
+            error =  new Error("Can't make directory in non-directory: " + path);
             error.code = "EEXISTS";
             error.exists = true;
             throw error;
         }
         if (node._entries[name]) {
-            var error = new Error("Can't make directory. Entry exists: " + path);
+            error = new Error("Can't make directory. Entry exists: " + path);
             error.code = "EISDIR";
             error.exists = true;
             error.isDirectory = true;
@@ -279,9 +281,10 @@ MockFs.prototype.rename = function (source, target) {
         var sourceDirectoryNode = self._root._walk(sourceDirectory)._follow(sourceDirectory);
         var sourceName = self.base(source);
         var sourceNode = sourceDirectoryNode._entries[sourceName];
+        var error;
 
         if (!sourceNode) {
-            var error = new Error("Can't copy non-existent file: " + source);
+            error = new Error("Can't copy non-existent file: " + source);
             error.code = "ENOENT";
             throw error;
         }
@@ -290,7 +293,7 @@ MockFs.prototype.rename = function (source, target) {
 
         // check again after following symbolic links
         if (!sourceNode) {
-            var error = new Error("Can't copy non-existent file: " + source);
+            error = new Error("Can't copy non-existent file: " + source);
             error.code = "ENOENT";
             throw error;
         }
@@ -305,7 +308,7 @@ MockFs.prototype.rename = function (source, target) {
         }
 
         if (targetNode && targetNode.isDirectory()) {
-            var error = new Error("Can't copy over existing directory: " + target);
+            error = new Error("Can't copy over existing directory: " + target);
             error.code = "EISDIR";
             throw error;
         }

@@ -6,6 +6,7 @@ var Q = require("q");
 var BaseFs = require("./fs-base");
 
 module.exports = CommonFs;
+
 function CommonFs() {
 }
 
@@ -219,7 +220,7 @@ CommonFs.prototype.listTree = function (basePath, guard) {
         });
     }, function noSuchFile(error) {
         throw error; // XXX TODO REMOVE
-        return [];
+        //return [];
     }).then(Q.all).then(concat);
 };
 

@@ -1,5 +1,6 @@
 "use strict";
 
+var util = require('util');
 var Q = require("q");
 var Negotiate = require("./negotiate");
 var Reader = require("../reader");
@@ -84,7 +85,7 @@ exports.Inspect = function (app) {
                 headers: {
                     "content-type": "text/plain"
                 },
-                body: [inspect(object)]
+                body: [util.inspect(object)]
             }
         });
     }});

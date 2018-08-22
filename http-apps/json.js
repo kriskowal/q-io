@@ -18,7 +18,7 @@ exports.HandleJsonResponses = function (app, reviver, tab) {
     };
 };
 
-exports.handleJsonResponse = function (response, revivier, tab) {
+exports.handleJsonResponse = function (response, reviver, tab) {
     response.headers["content-type"] = "application/json";
     response.body = [JSON.stringify(response.data, reviver, tab)];
     return response;
@@ -61,8 +61,9 @@ exports.JsonRequest = function (app, badRequest) {
     if (!badRequest)
         badRequest = Status.badRequest;
     return Content.ContentRequest(function (content, request, response) {
+        var object;
         try {
-            var object = JSON.parse(content);
+            object = JSON.parse(content);
         } catch (error) {
             return badRequest(request, error);
         }

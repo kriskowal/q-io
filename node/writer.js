@@ -1,3 +1,4 @@
+/* global process:false */
 
 var Q = require("q");
 

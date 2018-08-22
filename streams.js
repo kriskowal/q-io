@@ -277,7 +277,7 @@ function BufferStream(queue, charset) {
         return new BufferStream(queue, charset);
     }
     this.index = 0;
-    var queue = queue || new Queue();
+    queue = queue || new Queue();
     var acks = new Queue();
     var self = this;
     this.get = function () {

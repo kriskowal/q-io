@@ -1,5 +1,6 @@
 "use strict";
 
+var path = require("path");
 var Q = require("q");
 var CommonFs = require("./fs-common");
 

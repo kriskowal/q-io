@@ -7,7 +7,7 @@ var StatusApps = require("./status");
 
 exports.Normalize = function (app) {
     return function (request, response) {
-        var request = HTTP.normalizeRequest(request);
+        request = HTTP.normalizeRequest(request);
         return Q(app).call(void 0, request).then(function (response) {
             return HTTP.normalizeResponse(response);
         });
