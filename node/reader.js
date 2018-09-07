@@ -6,7 +6,7 @@ var Queue = require("q/queue");
 var BufferStream = require("../buffer-stream");
 
 var version = process.versions.node.split('.');
-var supportsReadable = version[0] >= 0 && version[1] >= 10;
+var supportsReadable = version[0] == 0 && version[1] >= 10 || version[0] > 0;
 
 module.exports = Reader;
 function Reader(_stream, charset, length) {
