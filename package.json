@@ -25,12 +25,12 @@
     "mime": "^1.2.11",
     "mimeparse": "^0.1.4",
     "q": "^1.0.1",
-    "qs": "^1.2.1",
+    "qs": "^6.9.6",
     "url2": "^0.0.0"
   },
   "devDependencies": {
     "cover": "^0.2.8",
-    "jasmine-node": "^1.7",
+    "jasmine-node": "^3.0.0",
     "jshint": "^2.9.5",
     "opener": "^1.3"
   },
@@ -41,6 +41,6 @@
     "cover": "cover run jasmine-node spec && cover report html && opener cover_html/index.html"
   },
   "engines": {
-    "node": ">=0.6.0"
+    "node": ">=4"
   }
 }
